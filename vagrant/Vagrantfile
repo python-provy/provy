@@ -1,0 +1,7 @@
+Vagrant::Config.run do |config|
+    config.vm.define :test do |inner_config|
+        inner_config.vm.box = "maverick64"
+        inner_config.vm.forward_port("http", 80, 8080)
+        inner_config.vm.network("33.33.33.33")
+    end
+end

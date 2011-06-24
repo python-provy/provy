@@ -3,3 +3,7 @@ vows:
 
 setup:
 	@pip install --requirement=REQUIREMENTS
+
+test:
+	#@cd vagrant && vagrant destroy && vagrant up test
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -r test -s test-servers
