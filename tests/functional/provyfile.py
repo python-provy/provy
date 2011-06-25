@@ -7,7 +7,7 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 class Aptitude(AptitudeRole):
     def provision(self, context):
-        self.ensure_up_to_date()
+        self.ensure_up_to_date(context)
 
 #class User(Role):
     #def provision(self, context):
@@ -21,7 +21,7 @@ class Aptitude(AptitudeRole):
 
 roles = {
     'test': [
-        Aptitude
+        Aptitude,
     ]
 }
 

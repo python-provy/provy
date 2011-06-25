@@ -10,16 +10,17 @@ def run(provfile_path, role_name, server_name):
     prov = import_module(provfile_path)
     roles = get_roles_for(prov, role_name)
     servers = get_servers_for(prov, server_name)
+    context = {}
 
     for server in servers:
         with _settings(
             host_string="%s@%s" % (server['user'], server['address'])
         ):
+            context['host'] = server['address']
+            context['user'] = server['user']
             for role in roles:
-                role(prov).provision({
-                    'host': server['address'],
-                    'user': server['user']
-                })
+                context['role'] = role
+                role(prov).provision(context)
 
 def get_roles_for(prov, role_name):
     return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
