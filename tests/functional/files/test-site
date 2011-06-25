@@ -2,7 +2,7 @@ server {
 
     listen 80;
 
-    server_name  localhost;
+    server_name  localhost 33.33.33.33;
 
     access_log  /tmp/localhost.access.log;
 

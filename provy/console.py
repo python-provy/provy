@@ -10,7 +10,7 @@
 
 import sys
 import os
-from os.path import exists, abspath, sep, splitext
+from os.path import exists, abspath, splitext
 from optparse import OptionParser
 
 from provy.core import run
@@ -20,11 +20,14 @@ class Messages(object):
     option"""
     server = """Servers to provision with the specified role. This is a recursive
     option."""
+    password = """Password to use for authentication with servers. 
+    If passwords differ from server to server this does not work."""
 
 def __get_arguments():
     parser = OptionParser()
     parser.add_option("-r", "--role", dest="role", help=Messages.role)
     parser.add_option("-s", "--server", dest="server", help=Messages.server)
+    parser.add_option("-p", "--password", dest="password", default=None, help=Messages.password)
 
     (options, args) = parser.parse_args()
 
@@ -44,7 +47,7 @@ def main():
     sys.path.insert(0, os.curdir)
     provyfile_path = __get_provy_file_path()
 
-    run(provyfile_path.replace(sep, '.'), options.role, options.server)
+    run(provyfile_path, options.role, options.server, options.password)
 
 if __name__ == '__main__':
     main()

@@ -8,4 +8,7 @@ vms:
 	@cd vagrant && vagrant destroy && vagrant up test
 
 test:
-	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -r test -s test
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -r test -s test -p vagrant
+
+ssh:
+	@cd vagrant && vagrant ssh test

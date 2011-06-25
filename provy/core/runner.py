@@ -1,26 +1,41 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from os.path import sep, abspath, dirname
+
 from fabric.context_managers import settings as _settings
 
 from provy.core.utils import import_module
 from provy.core.errors import ConfigurationError
 
-def run(provfile_path, role_name, server_name):
-    prov = import_module(provfile_path)
+def run(provfile_path, role_name, server_name, password):
+    module_path = provfile_path.replace(sep, '.')
+    prov = import_module(module_path)
     roles = get_roles_for(prov, role_name)
     servers = get_servers_for(prov, server_name)
-    context = {}
+
+    context = {
+        'abspath': dirname(abspath(provfile_path)),
+        'path': dirname(provfile_path)
+    }
 
     for server in servers:
         with _settings(
-            host_string="%s@%s" % (server['user'], server['address'])
+            host_string="%s@%s" % (server['user'], server['address']),
+            password=password
         ):
             context['host'] = server['address']
             context['user'] = server['user']
+            role_instances = []
             for role in roles:
                 context['role'] = role
-                role(prov).provision(context)
+                instance = role(prov, context)
+                role_instances.append(instance)
+                instance.provision()
+
+            for role in role_instances:
+                role.cleanup()
+
 
 def get_roles_for(prov, role_name):
     return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
