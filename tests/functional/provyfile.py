@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from provy.core import Role
+from provy.more.debian.package.aptitude import AptitudeRole
 #from provy.more.nginx import NginxRole
 
-class HelloWorld(Role):
+class Aptitude(AptitudeRole):
     def provision(self, context):
-        self.execute('echo done')
+        self.ensure_up_to_date()
 
 #class User(Role):
     #def provision(self, context):
@@ -20,7 +21,7 @@ class HelloWorld(Role):
 
 roles = {
     'test': [
-        HelloWorld
+        Aptitude
     ]
 }
 
