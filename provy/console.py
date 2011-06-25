@@ -8,10 +8,12 @@
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2011 Bernardo Heynemann heynemann@gmail.com
 
-from os.path import exists, abspath
+import sys
+import os
+from os.path import exists, abspath, sep, splitext
 from optparse import OptionParser
 
-from provy import run
+from provy.core import run
 
 class Messages(object):
     role = """Role to provision the specified servers with. This is a recursive
@@ -34,14 +36,15 @@ def __get_provy_file_path():
         path = abspath('provy_file.py')
         if not exists(path):
             return None
-    return path
+    return splitext(path.replace(abspath('.'), '').lstrip('/').rstrip('/'))[0]
 
 def main():
     (options, args) = __get_arguments()
 
+    sys.path.insert(0, os.curdir)
     provyfile_path = __get_provy_file_path()
 
-    run(provyfile_path, options.role, options.server)
+    run(provyfile_path.replace(sep, '.'), options.role, options.server)
 
 if __name__ == '__main__':
     main()

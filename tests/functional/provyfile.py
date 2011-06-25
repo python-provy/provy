@@ -2,20 +2,25 @@
 # -*- coding: utf-8 -*-
 
 from provy.core import Role
-from provy.core.nginx import 
+#from provy.more.nginx import NginxRole
 
-class User(Role):
+class HelloWorld(Role):
     def provision(self, context):
-        self.ensure_user('test', identified_by='test-pass')
+        self.execute('echo done')
 
-class Nginx(Role):
-    def provision(self, context):
-        self.ensure_package('nginx', Providers.APT)
+#class User(Role):
+    #def provision(self, context):
+        #self.ensure_user('test', identified_by='test-pass')
+
+#class Nginx(NginxRole):
+    #def provision(self, context):
+        #self.ensure_conf('test-conf.conf')
+        #self.ensure_site_disabled('default')
+        #self.ensure_site_enabled('test', 'test-site', {})
 
 roles = {
     'test': [
-        User,
-        Nginx
+        HelloWorld
     ]
 }
 
@@ -23,12 +28,12 @@ servers = {
     'test': {
         'host1': {
             'address': '33.33.33.33',
-            'user': 'root'
+            'user': 'vagrant'
         },
-        'host2': {
-            'address': '33.33.33.34',
-            'user': 'root'
-        }
+        #'host2': {
+            #'address': '33.33.33.34',
+            #'user': 'root'
+        #}
     }
 }
 

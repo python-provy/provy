@@ -1,0 +1,20 @@
+server {
+
+    listen 80;
+
+    server_name  localhost;
+
+    access_log  /tmp/localhost.access.log;
+
+    location / {
+        root   {{ root_path }};
+        index  index.html index.htm;
+    }
+
+    location /media {
+        root   {{ media_path }};
+        autoindex on;
+    }
+
+}
+
