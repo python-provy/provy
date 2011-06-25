@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from provy.core import Role
+#from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
-#from provy.more.nginx import NginxRole
+from provy.more.debian.web.nginx import NginxRole
 
 class Aptitude(AptitudeRole):
     def provision(self, context):
@@ -13,8 +13,9 @@ class Aptitude(AptitudeRole):
     #def provision(self, context):
         #self.ensure_user('test', identified_by='test-pass')
 
-#class Nginx(NginxRole):
-    #def provision(self, context):
+class Nginx(NginxRole):
+    def provision(self, context):
+        super(Nginx, self).provision(context)
         #self.ensure_conf('test-conf.conf')
         #self.ensure_site_disabled('default')
         #self.ensure_site_enabled('test', 'test-site', {})
@@ -22,6 +23,7 @@ class Aptitude(AptitudeRole):
 roles = {
     'test': [
         Aptitude,
+        Nginx
     ]
 }
 
