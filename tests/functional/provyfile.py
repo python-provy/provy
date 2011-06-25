@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from provy import Role
-from provy.providers import Providers
+from provy.core import Role
+from provy.core.nginx import 
 
 class User(Role):
     def provision(self, context):
