@@ -1,4 +1,7 @@
-provy is a provisioning service in python. It's as easy as declaring a role and
+provy is a provisioning service in python.
+
+For an example script check the [test
+provyfile.py](https://github.com/heynemann/provy/blob/master/tests/functional/provyfile.py).
 aiming at a server::
 
     class NginxServer(Role):
