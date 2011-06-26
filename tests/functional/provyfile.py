@@ -4,6 +4,7 @@
 #from provy.core import Role
 from provy.more.debian.web.nginx import NginxRole
 from provy.more.debian.users import UserRole, SSHRole
+from provy.more.debian.package.pip import PipRole
 
 class User(UserRole, SSHRole):
     def provision(self):
@@ -28,10 +29,18 @@ class Nginx(NginxRole):
         )
         self.ensure_site_enabled('test')
 
+class PythonPackages(PipRole):
+    def provision(self):
+        super(PythonPackages, self).provision()
+        self.ensure_package_installed("django", "1.2.1")
+        self.ensure_up_to_date("virtualenv")
+        self.ensure_package_installed("pygeoip")
+
 roles = {
     'test': [
         User,
-        Nginx
+        Nginx,
+        PythonPackages
     ]
 }
 
