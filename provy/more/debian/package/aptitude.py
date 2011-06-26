@@ -9,7 +9,7 @@ class AptitudeRole(Role):
     def ensure_up_to_date(self):
         if not self.key in self.context:
             self.log('Updating aptitude sources...')
-            self.excute('aptitude update', stdout=False, sudo=True)
+            self.execute('aptitude update', stdout=False, sudo=True)
             self.log('Aptitude sources up-to-date')
             self.context[self.key] = True
 

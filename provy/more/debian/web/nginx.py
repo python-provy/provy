@@ -12,7 +12,7 @@ class NginxRole(AptitudeRole):
         return '/etc/nginx/sites-enabled/%s' % name
 
     def provision(self):
-        #self.ensure_up_to_date()
+        self.ensure_up_to_date()
         self.ensure_package_installed('nginx')
 
     def cleanup(self):
