@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import exists, join, split
+from os.path import exists, join, split, dirname
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 from hashlib import md5
@@ -53,6 +53,19 @@ class Role(object):
     def remote_temp_dir(self):
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
+    def ensure_dir(self, path, owner=None, sudo=False):
+        if not self.remote_exists_dir(path):
+            self.execute('mkdir -p %s' % path, stdout=False, sudo=sudo)
+
+        if owner:
+            self.change_dir_owner(path, owner)
+
+    def change_dir_owner(self, path, owner):
+        self.execute('cd %s && chown -R %s .' % (path, owner), stdout=False, sudo=True)
+
+    def change_file_owner(self, path, owner):
+        self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
+
     def md5_local(self, file_path):
         return md5(open(file_path).read()).hexdigest()
 
@@ -101,21 +114,22 @@ class Role(object):
 
         put(from_file, to_file)
 
-    def update_file(self, from_file, to_file, options={}, sudo=False):
+    def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
         if not self.local_exists(from_file):
             raise RuntimeError('File does not exist locally at %s' % from_file)
 
-        local_temp_path = None
         try:
             template = self.render(from_file, options)
 
-            with NamedTemporaryFile(delete=False) as f:
-                f.write(template)
-                local_temp_path = f.name
+            local_temp_path = self.write_to_temp_file(template)
 
             if not self.remote_exists(to_file):
                 self.log('Remote file not found! Copying %s to server %s!' % (from_file, self.context['host']))
                 self.put_file(local_temp_path, to_file, options, sudo)
+
+                if owner:
+                    self.change_file_owner(to_file, owner)
+
                 return True
 
             from_md5 = self.md5_local(local_temp_path)
@@ -123,6 +137,10 @@ class Role(object):
             if from_md5.strip() != to_md5.strip():
                 self.log('Hashes differ %s => %s! Copying %s to server %s!' % (from_md5, to_md5, from_file, self.context['host']))
                 self.put_file(local_temp_path, to_file, options, sudo)
+
+                if owner:
+                    self.change_file_owner(to_file, owner)
+ 
                 return True
         finally:
             if exists(local_temp_path):
@@ -130,9 +148,19 @@ class Role(object):
 
         return False
 
+    def write_to_temp_file(self, text):
+        local_temp_path = ''
+        with NamedTemporaryFile(delete=False) as f:
+            f.write(text)
+            local_temp_path = f.name
+
+        return local_temp_path
+
     def read_remote_file(self, file_path, sudo=False):
         return self.execute('cat %s' % file_path, stdout=False, sudo=sudo)
 
     def render(self, template_file, options):
         template = Template(open(template_file).read())
         return template.render(**options)
+
+

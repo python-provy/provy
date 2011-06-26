@@ -38,7 +38,7 @@ class NginxRole(AptitudeRole):
             self.ensure_restart()
 
     def create_site(self, site, template, options):
-        result = self.update_file(self.local_file(template), self.available_site_for(site), options, sudo=True)
+        result = self.update_file(self.local_file(template), self.available_site_for(site), options=options, sudo=True)
         if result:
             self.log('%s nginx site created!' % site)
             self.ensure_restart()

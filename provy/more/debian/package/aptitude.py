@@ -4,6 +4,8 @@
 from os.path import join
 from datetime import datetime, timedelta
 
+from fabric.api import settings
+
 from provy.core import Role
 
 class AptitudeRole(Role):
@@ -34,10 +36,11 @@ class AptitudeRole(Role):
             self.context[self.key] = True
 
     def is_package_installed(self, package_name):
-        return package_name in self.execute("dpkg -l | grep %s" % package_name, stdout=False, sudo=True)
+        with settings(warn_only=True):
+            return package_name in self.execute("dpkg -l | grep %s" % package_name, stdout=False, sudo=True)
 
     def ensure_package_installed(self, package_name):
-        if not self.is_package_installed:
+        if not self.is_package_installed(package_name):
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
             self.execute('aptitude install -y %s' % package_name, stdout=False, sudo=True)
             self.log('%s is installed (via aptitude).' % package_name)

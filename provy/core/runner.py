@@ -20,8 +20,13 @@ def run(provfile_path, role_name, server_name, password):
     }
 
     for server in servers:
+        host_string = "%s@%s" % (server['user'], server['address'])
+        msg = "Provisioning %s..." % host_string
+        print "*" * len(msg)
+        print msg
+        print "*" * len(msg)
         with _settings(
-            host_string="%s@%s" % (server['user'], server['address']),
+            host_string=host_string,
             password=password
         ):
             context['host'] = server['address']
@@ -36,6 +41,11 @@ def run(provfile_path, role_name, server_name, password):
             for role in role_instances:
                 role.cleanup()
 
+        msg = "%s provisioned!" % host_string
+        print
+        print "*" * len(msg)
+        print msg
+        print "*" * len(msg)
 
 def get_roles_for(prov, role_name):
     return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
