@@ -19,7 +19,7 @@ class UserRole(Role):
             self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
-    def ensure_user(self, username, identified_by, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
+    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
         is_admin_command = "-G admin"
         command = "useradd -g %(group)s %(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
 
@@ -34,7 +34,7 @@ class UserRole(Role):
             self.execute(command % {
                 'group': group or username,
                 'is_admin_command': is_admin and is_admin_command or '',
-                'password': identified_by,
+                'password': identified_by or 'none',
                 'home_folder': home_folder,
                 'default_script': default_script,
                 'username': username
@@ -45,5 +45,6 @@ class UserRole(Role):
             self.execute('usermod -G admin %s' % username, stdout=False, sudo=True)
             self.log("User %s is admin now!" % username)
 
-        self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
+        if identified_by:
+            self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
