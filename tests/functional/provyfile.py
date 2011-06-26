@@ -8,7 +8,7 @@ from provy.more.debian.users import UserRole, SSHRole
 class User(UserRole, SSHRole):
     def provision(self):
         self.ensure_user('test', identified_by='test-pass', is_admin=True)
-        self.ensure_ssh_key(user='test')
+        self.ensure_ssh_key(user='test', private_key_file="private-key")
 
 class Nginx(NginxRole):
     def provision(self):
