@@ -2,32 +2,8 @@ provy is a provisioning service in python.
 
 For an example script check the [test
 provyfile.py](https://github.com/heynemann/provy/blob/master/tests/functional/provyfile.py).
-aiming at a server::
 
-    class NginxServer(Role):
-        def provision(self, context):
-            self.ensure_package('nginx', provider=Providers.APT)
-
-    roles = {
-        'webserver': [
-            NginxServer
-        ]
-    }
-
-    servers = {
-        'webservers': [
-            'host1': {
-                'address': '33.33.33.33',
-                'user': 'root'
-            },
-            'host2': {
-                'address': '33.33.33.34',
-                'user': 'root'
-            }
-        ]
-    }
-
-Then in the command-line you use::
+To run the provyfile script in the command-line you use::
 
     provy -r webserver -s webservers
 
