@@ -32,9 +32,9 @@ class Nginx(NginxRole):
 class PythonPackages(PipRole):
     def provision(self):
         super(PythonPackages, self).provision()
-        self.ensure_package_installed("django", "1.2.1")
-        self.ensure_up_to_date("virtualenv")
-        self.ensure_package_installed("pygeoip")
+        self.ensure_pip_package_installed("django", "1.2.1")
+        self.ensure_pip_package_up_to_date("virtualenv")
+        self.ensure_pip_package_installed("pygeoip")
 
 roles = {
     'test': [
