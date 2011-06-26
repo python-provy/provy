@@ -14,7 +14,7 @@ class Nginx(NginxRole):
     def provision(self):
         super(Nginx, self).provision()
         self.ensure_conf('test-conf.conf', {
-            'user': 'vagrant'
+            'user': 'test'
         })
         self.ensure_site_disabled('default')
         self.create_site('test', 'test-site', {
