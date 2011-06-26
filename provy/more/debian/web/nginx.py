@@ -20,31 +20,27 @@ class NginxRole(AptitudeRole):
             self.restart()
 
     def ensure_conf(self, conf_template, options, nginx_conf_path='/etc/nginx/nginx.conf'):
-        self.log('Ensuring nginx conf is up-to-date...')
         result = self.update_file(self.local_file(conf_template), nginx_conf_path, options=options, sudo=True)
-        self.log('nginx conf up-to-date!')
         if result:
+            self.log('nginx conf updated!')
             self.ensure_restart()
 
     def ensure_site_disabled(self, site):
-        self.log('Ensuring nginx site %s is disabled...' % site)
         result = self.remove_file(self.enabled_site_for(site), sudo=True)
-        self.log('%s nginx site is disabled!' % site)
         if result:
+            self.log('%s nginx site is disabled!' % site)
             self.ensure_restart()
 
     def ensure_site_enabled(self, site):
-        self.log('Ensuring nginx site %s is enabled...' % site)
         result = self.remote_symlink(self.available_site_for(site), self.enabled_site_for(site), sudo=True)
-        self.log('%s nginx site is enabled!' % site)
         if result:
+            self.log('%s nginx site is enabled!' % site)
             self.ensure_restart()
 
     def create_site(self, site, template, options):
-        self.log('Creating nginx site %s from template %s' % (site, template))
         result = self.update_file(self.local_file(template), self.available_site_for(site), options, sudo=True)
-        self.log('%s nginx site created!' % site)
         if result:
+            self.log('%s nginx site created!' % site)
             self.ensure_restart()
 
     def ensure_restart(self):

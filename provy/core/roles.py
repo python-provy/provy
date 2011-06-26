@@ -44,10 +44,13 @@ class Role(object):
     def remote_exists(self, file_path):
         return self.execute('test -f %s; echo $?' % file_path, stdout=False) == '0'
 
-    def local_temp_file(self):
+    def remote_exists_dir(self, file_path):
+        return self.execute('test -d %s; echo $?' % file_path, stdout=False) == '0'
+
+    def local_temp_dir(self):
         return gettempdir()
 
-    def remote_temp_file(self):
+    def remote_temp_dir(self):
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
     def md5_local(self, file_path):
@@ -91,7 +94,7 @@ class Role(object):
 
     def put_file(self, from_file, to_file, options={}, sudo=False):
         if sudo:
-            temp_path = join(self.remote_temp_file(), split(from_file)[-1])
+            temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
             put(from_file, temp_path)
             self.execute('cp %s %s' % (temp_path, to_file), stdout=False, sudo=True)
             return
@@ -126,6 +129,9 @@ class Role(object):
                 os.remove(local_temp_path)
 
         return False
+
+    def read_remote_file(self, file_path, sudo=False):
+        return self.execute('cat %s' % file_path, stdout=False, sudo=sudo)
 
     def render(self, template_file, options):
         template = Template(open(template_file).read())
