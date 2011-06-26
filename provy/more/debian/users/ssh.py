@@ -42,12 +42,13 @@ class SSHRole(Role):
         priv_file = self.write_to_temp_file("""-----BEGIN RSA PRIVATE KEY-----
 %s
 -----END RSA PRIVATE KEY-----""" % private_key)
-        self.update_file(pub_file, pub_path, sudo=True, owner=user)
-        self.update_file(priv_file, priv_path, sudo=True, owner=user)
+        result_pub = self.update_file(pub_file, pub_path, sudo=True, owner=user)
+        result_priv = self.update_file(priv_file, priv_path, sudo=True, owner=user)
 
-        self.log("SSH keys generated at server!")
-        self.log("Public key:")
-        self.log(pub_text)
+        if result_pub or result_priv:
+            self.log("SSH keys generated at server!")
+            self.log("Public key:")
+            self.log(pub_text)
 
     def generate_key_pair(self, bits=4096, exponent=65537):
         key = M2Crypto.RSA.gen_key(int(bits), int(exponent))
