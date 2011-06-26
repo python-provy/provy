@@ -41,10 +41,10 @@ servers = {
             'address': '33.33.33.33',
             'user': 'vagrant'
         },
-        #'host2': {
-            #'address': '33.33.33.34',
-            #'user': 'root'
-        #}
+        'host2': {
+            'address': '33.33.33.34',
+            'user': 'vagrant'
+        }
     }
 }
 

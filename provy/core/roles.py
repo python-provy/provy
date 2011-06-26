@@ -124,7 +124,6 @@ class Role(object):
             local_temp_path = self.write_to_temp_file(template)
 
             if not self.remote_exists(to_file):
-                self.log('Remote file not found! Copying %s to server %s!' % (from_file, self.context['host']))
                 self.put_file(local_temp_path, to_file, options, sudo)
 
                 if owner:

@@ -21,7 +21,9 @@ def run(provfile_path, role_name, server_name, password):
 
     for server in servers:
         host_string = "%s@%s" % (server['user'], server['address'])
+
         msg = "Provisioning %s..." % host_string
+        print
         print "*" * len(msg)
         print msg
         print "*" * len(msg)
@@ -46,6 +48,7 @@ def run(provfile_path, role_name, server_name, password):
         print "*" * len(msg)
         print msg
         print "*" * len(msg)
+        print
 
 def get_roles_for(prov, role_name):
     return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
@@ -58,6 +61,7 @@ def get_items(prov, item_name, item_key, test_func, recursive=False):
         raise ConfigurationError('The %s collection was not found in the provyfile file.' % item_key)
 
     items = getattr(prov, item_key)
+
     for item_part in item_name.split('.'):
         items = items[item_part]
 
@@ -72,9 +76,12 @@ def recurse_items(col, test_func, found_items):
     if not isinstance(col, dict):
         return
 
-    for key, val in col.iteritems():
-        if test_func(val):
-            found_items.append(val)
-        else:
-            recurse_items(val, test_func, found_items)
+    if test_func(col):
+        found_items.append(col)
+    else:
+        for key, val in col.iteritems():
+            if test_func(val):
+                found_items.append(val)
+            else:
+                recurse_items(val, test_func, found_items)
 
