@@ -6,8 +6,9 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 class GitRole(Role):
     def provision(self):
-        self.use(AptitudeRole).ensure_up_to_date()
-        self.use(AptitudeRole).ensure_package_installed('git-core')
+        with self.using(AptitudeRole) as role:
+            role.ensure_up_to_date()
+            role.ensure_package_installed('git-core')
 
     def ensure_repository(self, repo, path, owner=None):
         if not self.remote_exists_dir(path):

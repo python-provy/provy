@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
+from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
-class NginxRole(AptitudeRole):
+class NginxRole(Role):
     def available_site_for(self, name):
         return '/etc/nginx/sites-available/%s' % name
 
@@ -12,8 +12,9 @@ class NginxRole(AptitudeRole):
         return '/etc/nginx/sites-enabled/%s' % name
 
     def provision(self):
-        self.ensure_up_to_date()
-        self.ensure_package_installed('nginx')
+        with self.using(AptitudeRole) as role:
+            role.ensure_up_to_date()
+            role.ensure_package_installed('nginx')
 
     def cleanup(self):
         if 'must-restart-nginx' in self.context and self.context['must-restart-nginx']:

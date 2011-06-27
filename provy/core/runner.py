@@ -16,7 +16,8 @@ def run(provfile_path, role_name, server_name, password):
 
     context = {
         'abspath': dirname(abspath(provfile_path)),
-        'path': dirname(provfile_path)
+        'path': dirname(provfile_path),
+        'cleanup': []
     }
 
     for server in servers:
@@ -41,6 +42,9 @@ def run(provfile_path, role_name, server_name, password):
                 instance.provision()
 
             for role in role_instances:
+                role.cleanup()
+
+            for role in context['cleanup']:
                 role.cleanup()
 
         msg = "%s provisioned!" % host_string

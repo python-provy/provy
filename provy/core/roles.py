@@ -11,6 +11,27 @@ from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
 from jinja2 import Template
 
+class UsingRole(object):
+    def __init__(self, role, prov, context):
+        self.role = role
+        self.prov = prov
+        self.context = context
+
+    def __enter__(self):
+        role = self.role(self.prov, self.context)
+        role.provision()
+        return role
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        role = self.role(self.prov, self.context)
+        has_role = False
+        for role in self.context['cleanup']:
+            if role.__class__ == self.role:
+                has_role = True
+
+        if not has_role:
+            self.context['cleanup'].append(role)
+
 class Role(object):
     def __init__(self, prov, context):
         self.prov = prov
@@ -162,6 +183,5 @@ class Role(object):
         template = Template(open(template_file).read())
         return template.render(**options)
 
-    def use(self, role):
-
-        return role(self.prov, self.context)
+    def using(self, role):
+        return UsingRole(role, self.prov, self.context)
