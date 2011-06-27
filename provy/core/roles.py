@@ -162,4 +162,6 @@ class Role(object):
         template = Template(open(template_file).read())
         return template.render(**options)
 
+    def use(self, role):
 
+        return role(self.prov, self.context)

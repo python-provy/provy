@@ -5,6 +5,7 @@
 from provy.more.debian.web.nginx import NginxRole
 from provy.more.debian.users import UserRole, SSHRole
 from provy.more.debian.package.pip import PipRole
+from provy.more.debian.cvs.git import GitRole
 
 class User(UserRole, SSHRole):
     def provision(self):
@@ -14,27 +15,25 @@ class User(UserRole, SSHRole):
 class Nginx(NginxRole):
     def provision(self):
         super(Nginx, self).provision()
-        self.ensure_conf(conf_template='test-conf.conf', 
-                         options={
-                            'user': 'test'
-                         }
-        )
+        self.ensure_conf(conf_template='test-conf.conf', options={'user': 'test'})
         self.ensure_site_disabled('default')
-        self.create_site(site='test', 
-                         template='test-site', 
-                         options = {
-                            'root_path': '/var/www/nginx-default',
-                            'media_path': '/var/www/nginx-default'
-                         }
-        )
+        self.create_site(site='test', template='test-site', options = {
+            'root_path': '/var/www/nginx-default',
+            'media_path': '/var/www/nginx-default'
+        })
         self.ensure_site_enabled('test')
 
 class PythonPackages(PipRole):
     def provision(self):
         super(PythonPackages, self).provision()
-        self.ensure_pip_package_installed("django", "1.2.1")
-        self.ensure_pip_package_up_to_date("virtualenv")
-        self.ensure_pip_package_installed("pygeoip")
+        self.ensure_package_installed("django", "1.2.1")
+        self.ensure_package_up_to_date("virtualenv")
+        self.ensure_package_installed("pygeoip")
+
+class PyVowsRole(GitRole):
+    def provision(self):
+        super(PyVowsRole, self).provision()
+        self.ensure_repository('git://github.com/heynemann/provy.git', '/home/test/provy')
 
 roles = {
     'test': [
