@@ -3,6 +3,7 @@
 
 from provy.core import Role
 from provy.more.debian.web.nginx import NginxRole
+from provy.more.debian.web.tornado import TornadoRole
 from provy.more.debian.users import UserRole, SSHRole
 from provy.more.debian.package.pip import PipRole
 from provy.more.debian.vcs.git import GitRole
@@ -33,24 +34,24 @@ class WebServer(Role):
             role.ensure_package_installed("django", "1.2.1")
             role.ensure_package_up_to_date("virtualenv")
             role.ensure_package_installed("pygeoip")
-            role.ensure_package_up_to_date("tornado")
-            role.ensure_package_up_to_date("pycurl")
 
-roles = {
-    'test': [
-        WebServer
-    ]
-}
+        self.provision_role(TornadoRole)
 
 servers = {
     'test': {
         'host1': {
             'address': '33.33.33.33',
-            'user': 'vagrant'
+            'user': 'vagrant',
+            'roles': [
+                WebServer
+            ]
         },
         'host2': {
             'address': '33.33.33.34',
-            'user': 'vagrant'
+            'user': 'vagrant',
+            'roles': [
+                WebServer
+            ]
         }
     }
 }

@@ -24,13 +24,7 @@ class UsingRole(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         role = self.role(self.prov, self.context)
-        has_role = False
-        for role in self.context['cleanup']:
-            if role.__class__ == self.role:
-                has_role = True
-
-        if not has_role:
-            self.context['cleanup'].append(role)
+        role.schedule_cleanup()
 
 class Role(object):
     def __init__(self, prov, context):
@@ -39,6 +33,20 @@ class Role(object):
 
     def log(self, msg):
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
+
+    def schedule_cleanup(self):
+        has_role = False
+        for role in self.context['cleanup']:
+            if role.__class__ == self.__class__:
+                has_role = True
+
+        if not has_role:
+            self.context['cleanup'].append(self)
+
+    def provision_role(self, role):
+        instance = role(self.prov, self.context)
+        instance.provision()
+        self.schedule_cleanup()
 
     def provision(self):
         pass

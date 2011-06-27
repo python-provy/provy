@@ -37,7 +37,7 @@ class AptitudeRole(Role):
 
     def is_package_installed(self, package_name):
         with settings(warn_only=True):
-            return package_name in self.execute("dpkg -l | grep %s" % package_name, stdout=False, sudo=True)
+            return package_name in self.execute("dpkg -l | egrep '\\b%s\\b'" % package_name, stdout=False, sudo=True)
 
     def ensure_package_installed(self, package_name):
         if not self.is_package_installed(package_name):

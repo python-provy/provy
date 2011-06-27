@@ -8,10 +8,9 @@ from fabric.context_managers import settings as _settings
 from provy.core.utils import import_module
 from provy.core.errors import ConfigurationError
 
-def run(provfile_path, role_name, server_name, password):
+def run(provfile_path, server_name, password):
     module_path = provfile_path.replace(sep, '.')
     prov = import_module(module_path)
-    roles = get_roles_for(prov, role_name)
     servers = get_servers_for(prov, server_name)
 
     context = {
@@ -35,7 +34,7 @@ def run(provfile_path, role_name, server_name, password):
             context['host'] = server['address']
             context['user'] = server['user']
             role_instances = []
-            for role in roles:
+            for role in server['roles']:
                 context['role'] = role
                 instance = role(prov, context)
                 role_instances.append(instance)

@@ -25,7 +25,6 @@ class Messages(object):
 
 def __get_arguments():
     parser = OptionParser()
-    parser.add_option("-r", "--role", dest="role", help=Messages.role)
     parser.add_option("-s", "--server", dest="server", help=Messages.server)
     parser.add_option("-p", "--password", dest="password", default=None, help=Messages.password)
 
@@ -47,7 +46,7 @@ def main():
     sys.path.insert(0, os.curdir)
     provyfile_path = __get_provy_file_path()
 
-    run(provyfile_path, options.role, options.server, options.password)
+    run(provyfile_path, options.server, options.password)
 
 if __name__ == '__main__':
     main()
