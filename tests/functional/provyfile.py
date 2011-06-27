@@ -5,7 +5,7 @@
 from provy.more.debian.web.nginx import NginxRole
 from provy.more.debian.users import UserRole, SSHRole
 from provy.more.debian.package.pip import PipRole
-from provy.more.debian.cvs.git import GitRole
+from provy.more.debian.vcs.git import GitRole
 
 class User(UserRole, SSHRole):
     def provision(self):
@@ -30,16 +30,17 @@ class PythonPackages(PipRole):
         self.ensure_package_up_to_date("virtualenv")
         self.ensure_package_installed("pygeoip")
 
-class PyVowsRole(GitRole):
+class PyvowsSource(GitRole):
     def provision(self):
-        super(PyVowsRole, self).provision()
-        self.ensure_repository('git://github.com/heynemann/provy.git', '/home/test/provy')
+        super(PyvowsSource, self).provision()
+        self.ensure_repository('git://github.com/heynemann/provy.git', '/home/test/provy', owner='test')
 
 roles = {
     'test': [
         User,
         Nginx,
-        PythonPackages
+        PythonPackages,
+        PyvowsSource
     ]
 }
 
