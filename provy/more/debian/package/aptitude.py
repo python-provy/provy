@@ -12,6 +12,26 @@ class AptitudeRole(Role):
     time_format = "%d-%m-%y %H:%M:%S"
     key = 'aptitude-up-to-date'
 
+    def provision(self):
+        self.ensure_up_to_date()
+        self.ensure_package_installed('curl')
+
+    def ensure_gpg_key(self, url):
+        command = "curl %s | apt-key add -" % url
+        self.execute(command, stdout=False, sudo=True)
+
+    def has_source(self, source_string):
+        return source_string in self.execute('cat /etc/apt/sources.list', stdout=False, sudo=True)
+
+    def ensure_aptitude_source(self, source_string):
+        if self.has_source(source_string):
+            return False
+
+        self.log("Aptitude source %s not found! Adding it..." % source_string)
+        command = 'echo "%s" >> /etc/apt/sources.list' % source_string
+        self.execute(command, stdout=False, sudo=True)
+        return True
+
     @property
     def update_date_file(self):
         return join(self.remote_temp_dir(), 'last_aptitude_update')
@@ -29,11 +49,14 @@ class AptitudeRole(Role):
     def ensure_up_to_date(self):
         last_updated = self.get_last_update_date()
         if not self.key in self.context and (not last_updated or (datetime.now() - last_updated > timedelta(minutes=30))):
-            self.log('Updating aptitude sources...')
-            self.execute('aptitude update', stdout=False, sudo=True)
-            self.store_update_date()
-            self.log('Aptitude sources up-to-date')
-            self.context[self.key] = True
+            self.force_update()
+
+    def force_update(self):
+        self.log('Updating aptitude sources...')
+        self.execute('aptitude update', stdout=False, sudo=True)
+        self.store_update_date()
+        self.log('Aptitude sources up-to-date')
+        self.context[self.key] = True
 
     def is_package_installed(self, package_name):
         with settings(warn_only=True):

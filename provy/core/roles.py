@@ -118,6 +118,9 @@ class Role(object):
         put(from_file, to_file)
 
     def remote_symlink(self, from_file, to_file, sudo=False):
+        if not self.remote_exists(from_file):
+            raise RuntimeError("The file to create a symlink from (%s) was not found!" % from_file)
+
         command = 'ln -sf %s %s' % (from_file, to_file)
         if self.remote_exists(to_file):
             result = self.execute('ls -la %s' % to_file, stdout=False, sudo=sudo)

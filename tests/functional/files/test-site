@@ -1,6 +1,6 @@
 server {
 
-    listen 80;
+    listen 8888;
 
     server_name  localhost 33.33.33.33;
 

@@ -7,8 +7,14 @@ setup:
 vms:
 	@cd vagrant && vagrant destroy && vagrant up
 
-test:
-	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.host1 -p vagrant
+front:
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.frontend -p vagrant
+
+back:
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.backend -p vagrant
 
 ssh:
-	@cd vagrant && vagrant ssh test
+	@cd vagrant && vagrant ssh frontend
+
+ssh-back:
+	@cd vagrant && vagrant ssh backend
