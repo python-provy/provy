@@ -46,13 +46,13 @@ servers = {
                 WebServer
             ]
         },
-        'host2': {
-            'address': '33.33.33.34',
-            'user': 'vagrant',
-            'roles': [
-                WebServer
-            ]
-        }
+        #'host2': {
+            #'address': '33.33.33.34',
+            #'user': 'vagrant',
+            #'roles': [
+                #WebServer
+            #]
+        #}
     }
 }
 
