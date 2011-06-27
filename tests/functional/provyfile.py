@@ -34,6 +34,7 @@ class BackEnd(Role):
         with self.using(GitRole) as role:
             role.ensure_repository(repo='git://github.com/heynemann/provy.git',
                                    path='/home/backend/provy',
+                                   branch="master",
                                    owner='backend')
 
         with self.using(AptitudeRole) as role:
