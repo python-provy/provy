@@ -19,6 +19,7 @@ class WebServer(Role):
         with self.using(GitRole) as role:
             role.ensure_repository(repo='git://github.com/heynemann/provy.git',
                                    path='/home/test/provy',
+                                   branch="master",
                                    owner='test')
 
         with self.using(NginxRole) as role:
