@@ -32,7 +32,9 @@ class Role(object):
         self.context = context
 
     def register_template_loader(self, package_name):
-        self.context['loader'].loaders.append(PackageLoader(package_name))
+        if package_name not in self.context['registered_loaders']:
+            self.context['loader'].loaders.append(PackageLoader(package_name))
+            self.context['registered_loaders'].append(package_name)
 
     def log(self, msg):
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)

@@ -3,7 +3,7 @@
 
 from provy.core import Role
 from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole, PipRole
-from provy.more.debian import VarnishRole, AptitudeRole, GitRole
+from provy.more.debian import VarnishRole, AptitudeRole, GitRole, SupervisorRole
 
 class FrontEnd(Role):
     def provision(self):
@@ -44,6 +44,44 @@ class BackEnd(Role):
             role.ensure_package_up_to_date("pil")
 
         self.provision_role(TornadoRole)
+
+        with self.using(SupervisorRole) as role:
+            role.config(
+                config_file_directory='/home/backend',
+                logfile='/var/logs/supervisord.log',
+                logfile_max_mb=50,
+                logfile_backups=10,
+                loglevel='info',
+                pidfile='/var/run/supervisord.pid',
+                user='backend'
+            )
+
+            with role.with_program('website') as program:
+                program.directory = '/home/backend/provy/tests/functional'
+                program.command = 'python website.py'
+                program.process_name = 'website-%(process_num)s'
+                program.number_of_processes = 1
+                program.priority = 100
+                program.user = 'backend'
+
+                program.auto_start = True
+                program.auto_restart = True
+                program.start_retries = 3
+                program.stop_signal = 'TERM'
+
+                program.log_folder = '/var/logs'
+                program.log_file_max_mb = 1
+                program.log_file_backups = 10
+
+                program.environment = {
+                    "a": 1,
+                    "b": 2
+                }
+
+            #minimum
+            #with role.with_program('website') as program:
+                #program.command = 'python website.py'
+                #program.directory = '/home/backend/provy/tests/functional'
 
 servers = {
     'test': {

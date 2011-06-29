@@ -48,3 +48,5 @@ class UserRole(Role):
         if identified_by:
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
+        self.context['owner'] = username
+

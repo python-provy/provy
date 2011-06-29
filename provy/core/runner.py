@@ -17,7 +17,8 @@ def run(provfile_path, server_name, password):
     context = {
         'abspath': dirname(abspath(provfile_path)),
         'path': dirname(provfile_path),
-        'cleanup': []
+        'cleanup': [],
+        'registered_loaders': []
     }
 
     loader = ChoiceLoader([
