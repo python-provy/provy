@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import exists, join, split, dirname
+from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 from hashlib import md5
 
 from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
-from jinja2 import Template
+from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 class UsingRole(object):
     def __init__(self, role, prov, context):
@@ -30,6 +30,9 @@ class Role(object):
     def __init__(self, prov, context):
         self.prov = prov
         self.context = context
+
+    def register_template_loader(self, package_name):
+        self.context['loader'].loaders.append(PackageLoader(package_name))
 
     def log(self, msg):
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
@@ -102,9 +105,6 @@ class Role(object):
         command = "from hashlib import md5; print md5(open('%s').read()).hexdigest()" % file_path
         return self.execute_python(command, stdout=False)
 
-    def local_file(self, file_path):
-        return join(self.context['abspath'], 'files', file_path)
-
     def remove_file(self, file_path, sudo=False):
         if self.remote_exists(file_path):
             self.log('File %s found at %s. Removing it...' % (file_path, self.context['host']))
@@ -147,9 +147,7 @@ class Role(object):
         put(from_file, to_file)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
-        if not self.local_exists(from_file):
-            raise RuntimeError('File does not exist locally at %s' % from_file)
-
+        local_temp_path = None
         try:
             template = self.render(from_file, options)
 
@@ -174,7 +172,7 @@ class Role(object):
  
                 return True
         finally:
-            if exists(local_temp_path):
+            if local_temp_path and exists(local_temp_path):
                 os.remove(local_temp_path)
 
         return False
@@ -190,8 +188,14 @@ class Role(object):
     def read_remote_file(self, file_path, sudo=False):
         return self.execute('cat %s' % file_path, stdout=False, sudo=sudo)
 
-    def render(self, template_file, options):
-        template = Template(open(template_file).read())
+    def render(self, template_file, options={}):
+        if isabs(template_file):
+            env = Environment(loader=FileSystemLoader(dirname(template_file)))
+            template_path = split(template_file)[-1]
+        else:
+            env = Environment(loader=self.context['loader'])
+            template_path = template_file
+        template = env.get_template(template_path)
         return template.render(**options)
 
     def using(self, role):

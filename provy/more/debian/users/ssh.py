@@ -13,8 +13,8 @@ class SSHRole(Role):
         ssh_path = join(path, '.ssh')
         self.ensure_dir(ssh_path, sudo=True, owner=user)
 
-        private_key = open(self.local_file(private_key_file)).read()
-        key = M2Crypto.RSA.load_key_string(private_key)
+        private_key = self.render(private_key_file)
+        key = M2Crypto.RSA.load_key_string(str(private_key))
         public_key = 'ssh-rsa %s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s' % key.pub()))
 
         self.write_keys(user, private_key, public_key)

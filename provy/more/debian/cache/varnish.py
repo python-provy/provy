@@ -15,13 +15,13 @@ class VarnishRole(Role):
             role.ensure_package_installed('varnish')
 
     def ensure_vcl(self, template, varnish_vcl_path='/etc/varnish/default.vcl', options={}, owner=None):
-        result = self.update_file(self.local_file(template), varnish_vcl_path, options=options, sudo=True, owner=owner)
+        result = self.update_file(template, varnish_vcl_path, options=options, sudo=True, owner=owner)
         if result:
             self.log('varnish vcl updated!')
             self.ensure_restart()
 
     def ensure_conf(self, template, varnish_conf_path='/etc/default/varnish', options={}, owner=None):
-        result = self.update_file(self.local_file(template), varnish_conf_path, options=options, sudo=True, owner=owner)
+        result = self.update_file(template, varnish_conf_path, options=options, sudo=True, owner=owner)
         if result:
             self.log('varnish conf updated!')
             self.ensure_restart()

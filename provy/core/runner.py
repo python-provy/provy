@@ -1,12 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from os.path import sep, abspath, dirname
+from os.path import sep, abspath, dirname, join
 
 from fabric.context_managers import settings as _settings
 
 from provy.core.utils import import_module
 from provy.core.errors import ConfigurationError
+from jinja2 import FileSystemLoader, ChoiceLoader
 
 def run(provfile_path, server_name, password):
     module_path = provfile_path.replace(sep, '.')
@@ -18,6 +19,11 @@ def run(provfile_path, server_name, password):
         'path': dirname(provfile_path),
         'cleanup': []
     }
+
+    loader = ChoiceLoader([
+        FileSystemLoader(join(context['abspath'], 'files'))
+    ])
+    context['loader'] = loader
 
     for server in servers:
         host_string = "%s@%s" % (server['user'], server['address'])
@@ -34,17 +40,19 @@ def run(provfile_path, server_name, password):
             context['host'] = server['address']
             context['user'] = server['user']
             role_instances = []
-            for role in server['roles']:
-                context['role'] = role
-                instance = role(prov, context)
-                role_instances.append(instance)
-                instance.provision()
 
-            for role in role_instances:
-                role.cleanup()
+            try:
+                for role in server['roles']:
+                    context['role'] = role
+                    instance = role(prov, context)
+                    role_instances.append(instance)
+                    instance.provision()
+            finally:
+                for role in role_instances:
+                    role.cleanup()
 
-            for role in context['cleanup']:
-                role.cleanup()
+                for role in context['cleanup']:
+                    role.cleanup()
 
         msg = "%s provisioned!" % host_string
         print

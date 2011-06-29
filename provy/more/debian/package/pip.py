@@ -16,6 +16,7 @@ class PipRole(Role):
         with self.using(AptitudeRole) as role:
             role.ensure_up_to_date()
             role.ensure_package_installed('python-setuptools')
+            role.ensure_package_installed('python-dev')
         self.execute("easy_install pip", sudo=True, stdout=False)
 
     def is_package_installed(self, package_name, version=None):

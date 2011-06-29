@@ -21,7 +21,7 @@ class NginxRole(Role):
             self.restart()
 
     def ensure_conf(self, conf_template, options, nginx_conf_path='/etc/nginx/nginx.conf'):
-        result = self.update_file(self.local_file(conf_template), nginx_conf_path, options=options, sudo=True)
+        result = self.update_file(conf_template, nginx_conf_path, options=options, sudo=True)
         if result:
             self.log('nginx conf updated!')
             self.ensure_restart()
@@ -39,7 +39,7 @@ class NginxRole(Role):
             self.ensure_restart()
 
     def create_site(self, site, template, options):
-        result = self.update_file(self.local_file(template), self.available_site_for(site), options=options, sudo=True)
+        result = self.update_file(template, self.available_site_for(site), options=options, sudo=True)
         if result:
             self.log('%s nginx site created!' % site)
             self.ensure_restart()
