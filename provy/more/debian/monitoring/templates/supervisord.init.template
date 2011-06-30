@@ -5,6 +5,7 @@
 # pidfile: /var/run/supervisord.pid
 
 SUPERVISORD=/usr/local/bin/supervisord
+SUPERVISORCTL=/usr/local/bin/supervisorctl
 
 case $1 in
 start)

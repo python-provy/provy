@@ -1,11 +1,11 @@
 [unix_http_server]
-file=/tmp/supervisor.sock               ; (the path to the socket file)
+file=/tmp/supervisor.sock
 
 [supervisord]
 logfile={{ log_file }}
-logfile_maxbytes={{ logfile_max_mb }}MB
-logfile_backups={{ logfile_backups }}
-loglevel={{ loglevel }}
+logfile_maxbytes={{ log_file_max_mb }}MB
+logfile_backups={{ log_file_backups }}
+loglevel={{ log_level }}
 pidfile={{ pidfile }}
 nodaemon=false
 minfds=1024
@@ -24,14 +24,14 @@ command={{ program.command }}
 process_name={{ program.name }}{% if program.number_of_processes > 1 %}_%(process_num)s{% endif %}
 numprocs={{ program.number_of_processes }}
 directory={{ program.directory }}
-{% if program.priority is not None %}
+{% if program.priority %}
 priority={{ program.priority }}
 {% endif %}
 autostart={{ program.auto_start | lower }}
 autorestart={{ program.auto_restart | lower }}
 startretries={{ program.start_retries }}
 stopsignal={{ program.stop_signal }}
-{% if program.user is not None %}
+{% if program.user %}
 user={{ program.user }}
 {% endif %}
 redirect_stderr=false

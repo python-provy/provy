@@ -38,27 +38,30 @@ class BackEnd(Role):
                                    owner='backend')
 
         with self.using(AptitudeRole) as role:
-            role.ensure_package_installed('libjpeg')
+            role.ensure_package_installed('libjpeg8')
+            role.ensure_package_installed('libjpeg8-dev')
 
         with self.using(PipRole) as role:
-            role.ensure_package_up_to_date("pil")
+            role.ensure_package_installed("pil")
 
         self.provision_role(TornadoRole)
+
+        self.ensure_dir('/home/backend/logs', sudo=True, owner='backend')
 
         with self.using(SupervisorRole) as role:
             role.config(
                 config_file_directory='/home/backend',
-                logfile='/var/logs/supervisord.log',
-                logfile_max_mb=50,
-                logfile_backups=10,
-                loglevel='info',
+                log_file='/home/backend/logs/supervisord.log',
+                log_file_max_mb=50,
+                log_file_backups=10,
+                log_level='info',
                 pidfile='/var/run/supervisord.pid',
                 user='backend'
             )
 
             with role.with_program('website') as program:
                 program.directory = '/home/backend/provy/tests/functional'
-                program.command = 'python website.py'
+                program.command = 'python website.py 800%(process_num)s'
                 program.process_name = 'website-%(process_num)s'
                 program.number_of_processes = 1
                 program.priority = 100
@@ -69,7 +72,7 @@ class BackEnd(Role):
                 program.start_retries = 3
                 program.stop_signal = 'TERM'
 
-                program.log_folder = '/var/logs'
+                program.log_folder = '/home/backend/logs'
                 program.log_file_max_mb = 1
                 program.log_file_backups = 10
 

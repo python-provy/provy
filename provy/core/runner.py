@@ -14,20 +14,21 @@ def run(provfile_path, server_name, password):
     prov = import_module(module_path)
     servers = get_servers_for(prov, server_name)
 
-    context = {
-        'abspath': dirname(abspath(provfile_path)),
-        'path': dirname(provfile_path),
-        'cleanup': [],
-        'registered_loaders': []
-    }
-
-    loader = ChoiceLoader([
-        FileSystemLoader(join(context['abspath'], 'files'))
-    ])
-    context['loader'] = loader
-
     for server in servers:
         host_string = "%s@%s" % (server['user'], server['address'])
+
+        context = {
+            'abspath': dirname(abspath(provfile_path)),
+            'path': dirname(provfile_path),
+            'owner': server['user'],
+            'cleanup': [],
+            'registered_loaders': []
+        }
+
+        loader = ChoiceLoader([
+            FileSystemLoader(join(context['abspath'], 'files'))
+        ])
+        context['loader'] = loader
 
         msg = "Provisioning %s..." % host_string
         print

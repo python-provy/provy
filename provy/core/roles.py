@@ -69,8 +69,11 @@ class Role(object):
         ):
             return func(command)
 
-    def execute_python(self, command, stdout=True):
-        return self.execute('''python -c "%s"''' % command, stdout)
+    def execute_python(self, command, stdout=True, sudo=False):
+        return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
+
+    def get_logged_user(self):
+        return self.execute_python('import os; print os.getlogin()', stdout=False)
 
     def local_exists(self, file_path):
         return exists(file_path)
@@ -199,6 +202,9 @@ class Role(object):
             template_path = template_file
         template = env.get_template(template_path)
         return template.render(**options)
+
+    def is_process_running(self, process, sudo=False):
+        return self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo) == '0'
 
     def using(self, role):
         return UsingRole(role, self.prov, self.context)

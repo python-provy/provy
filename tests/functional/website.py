@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import tornado.ioloop
 import tornado.web
 
@@ -13,5 +14,5 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
-    application.listen(8888)
+    application.listen(int(sys.argv[1]), '0.0.0.0')
     tornado.ioloop.IOLoop.instance().start()
