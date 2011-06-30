@@ -20,7 +20,8 @@ stop)
         ;;
 restart)
         echo -n "Restarting supervisord: "
-        $SUPERVISORCTL -c {{ config_file }} restart
+        $SUPERVISORCTL -c {{ config_file }} update
+        $SUPERVISORCTL -c {{ config_file }} restart all
         echo
         ;;
 esac

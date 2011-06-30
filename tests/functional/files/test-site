@@ -1,20 +1,23 @@
+upstream frontends {
+    server 33.33.33.34:8000;
+    server 33.33.33.34:8001;
+    server 33.33.33.34:8002;
+    server 33.33.33.34:8003;
+}
+
 server {
-
     listen 8888;
-
     server_name  localhost 33.33.33.33;
 
     access_log  /tmp/localhost.access.log;
 
     location / {
-        root   {{ root_path }};
-        index  index.html index.htm;
+        proxy_pass_header Server;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_pass http://frontends;
     }
-
-    location /media {
-        root   {{ media_path }};
-        autoindex on;
-    }
-
 }
 

@@ -63,7 +63,7 @@ class BackEnd(Role):
                 program.directory = '/home/backend/provy/tests/functional'
                 program.command = 'python website.py 800%(process_num)s'
                 program.process_name = 'website-%(process_num)s'
-                program.number_of_processes = 1
+                program.number_of_processes = 4
                 program.priority = 100
                 program.user = 'backend'
 

@@ -204,7 +204,11 @@ class Role(object):
         return template.render(**options)
 
     def is_process_running(self, process, sudo=False):
-        return self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo) == '0'
+        result = self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo)
+        results = result.split('\n')
+        if not results:
+            return False
+        return results[-1] == '0'
 
     def using(self, role):
         return UsingRole(role, self.prov, self.context)
