@@ -52,39 +52,15 @@ class BackEnd(Role):
             role.config(
                 config_file_directory='/home/backend',
                 log_file='/home/backend/logs/supervisord.log',
-                log_file_max_mb=50,
-                log_file_backups=10,
-                log_level='info',
-                pidfile='/var/run/supervisord.pid',
                 user='backend'
             )
 
             with role.with_program('website') as program:
                 program.directory = '/home/backend/provy/tests/functional'
                 program.command = 'python website.py 800%(process_num)s'
-                program.process_name = 'website-%(process_num)s'
                 program.number_of_processes = 4
-                program.priority = 100
-                program.user = 'backend'
-
-                program.auto_start = True
-                program.auto_restart = True
-                program.start_retries = 3
-                program.stop_signal = 'TERM'
 
                 program.log_folder = '/home/backend/logs'
-                program.log_file_max_mb = 1
-                program.log_file_backups = 10
-
-                program.environment = {
-                    "a": 1,
-                    "b": 2
-                }
-
-            #minimum
-            #with role.with_program('website') as program:
-                #program.command = 'python website.py'
-                #program.directory = '/home/backend/provy/tests/functional'
 
 servers = {
     'test': {
