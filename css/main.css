@@ -48,9 +48,9 @@ p {
 
 .header p.logo {
     width: 525px;
-    margin-bottom: 18px;
     font-size: 18px;
     color: #4e4e4e;
+    margin: 0px 0px 18px 0px !important;
 }
 
 .header p.logo .important {
