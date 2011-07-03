@@ -1,0 +1,117 @@
+body {
+    min-width: 960px;
+    background-color: #f2f2f2;
+    font-family: 'Maven Pro', Arial, cursive; font-weight: 400; 
+}
+
+a {
+    color: #0018c3 !important;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #6875db !important;
+}
+
+em {
+    color: #d65400;
+}
+
+p {
+    font-size: 16px;
+    margin: 18px 30px;
+}
+
+.container {
+    margin: 0 auto;
+    width: 960px;
+    background-color: #fff;
+}
+
+.header {
+    padding: 50px 0 0 65px;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.header h1.logo {
+    font-size: 32px;
+    font-family: 'Maven Pro', Arial, cursive; font-weight: 400; 
+    color: #4e4e4e;
+    letter-spacing: 1px;
+    margin-bottom: 50px;
+}
+
+.header h1.logo .important {
+    color: #d65400;
+}
+
+.header p.logo {
+    width: 525px;
+    margin-bottom: 18px;
+    font-size: 18px;
+    color: #4e4e4e;
+}
+
+.header p.logo .important {
+    color: #d65400;
+}
+
+.header div.logo {
+    width: 296px;
+    height: 90px;
+    position: absolute;
+    top: 90px;
+    right: 30px;
+    background: url('../images/logo.png') 0 0 no-repeat;
+}
+
+.disclaimer {
+    font-size: 11px !important;
+    text-align: right;
+    margin: 0 10px -10px; !important;
+    padding: 0 !important;
+}
+.disclaimer em {
+    color: #333;
+}
+
+h2.title {
+    font-family: 'Lobster', Arial, cursive; font-weight: 400; 
+    margin-top: 30px;
+    margin-bottom: 18px;
+    padding: 9px 0 0 30px;
+    height: 40px;
+    background-color: #fa7d2b;
+    color: #fff;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, .15);
+}
+
+.gist {
+    width: 90%;
+    margin: 10px auto 10px auto;
+}
+.gist-meta {
+    display: none;
+}
+
+.auto-center {
+    display: block;
+    margin: 0 auto;
+}
+
+.diagram {
+    margin-top: 10px;
+}
+
+.footer {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    text-align: center;
+}
+
+pre.license {
+    font-size: 13px;
+    margin: 18px 30px;
+}

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>provy - Python provisioning made simple</title>
+
+        <link href='http://fonts.googleapis.com/css?family=Maven+Pro|Lobster&v2' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="/css/reset.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen" charset="utf-8" />
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1 class="logo"><span class="important">Python</span>
+                    provisioning made <span class="important">easy</span>!</h1>
+                <p class="logo"><span class="important">provy</span> is an
+                easy-to-use provisioning system in python.</p>
+                <p class="logo">Turn that tedious task of provisioning the
+                infrastructure of your website into a repeatable no-frills
+                reliable process.</p>
+                <div class="logo"></div>
+            </div>
+
+            <p class="disclaimer"><em>Disclaimer: all code samples in this page are
+                brought to you by <a href="http://github.com/">GitHub gists</a></em></p>
+
+            <h2 class="title">What's provy and provisioning</h2>
+            <p>According to <a href="http://en.wikipedia.org/wiki/Provisioning">Wikipedia</a>, provisioning is "the
+            process of preparing and equipping a network to allow it to provide
+            (new) services to its users".</p>
+            <p>We'll draw from this concept the part of preparing and
+            equipping.</p>
+            <p><em>provy</em> is a infrastructure provisioning automation tool.
+            It's main goal is making it easy to create highly-scalable
+            architectures with simple scripts.</p>
+            <p><em>provy</em> stands on the shoulder of giants! <a
+                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a> for the networking part and <a
+                href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a>
+                for templating capabilities.</p>
+
+            <p>A very simple, yet working example of a valid <em>provyfile.py</em>:</p>
+            <script src="https://gist.github.com/1061912.js?file=simples-provyfile.py"></script>
+
+            <h2 class="title">Installing provy</h2>
+            <p>Installing <em>provy</em> is as easy as:</p>
+            <script src="https://gist.github.com/1061888.js?file=gistfile1.txt"></script>
+            <p>It can be easily installed from source as well,
+            like this:</p>
+            <script src="https://gist.github.com/1061894.js"></script>
+
+            <p>As can be seen above, after being installed
+            a <em>provy</em> command becomes available</p>
+
+            <p><em>provy</em> is <a
+                href="http://en.wikipedia.org/wiki/Free_and_open_source_software">FOSS</a>
+            and you can find it's source code at <a href="">it's github page</a>.</p>
+
+            <h2 class="title">Getting started</h2>
+            <p>Starting to provision servers with
+            <em>provy</em> is extremely simple. We'll provision a fairly
+            scalable infrastructure (yet simple) for a <a href="http://tornadoweb.org">Tornado</a> website.</p>
+            <p><a href="http://tornadoweb.org">Tornado</a> is
+            facebook's python web server. It features non-blocking I/O and is
+            extremely fast.</p>
+            <p>Below you can see a diagram of our solution:</p>
+            <img class="auto-center diagram" src="images/provy_sample.png" alt="Architecture for our
+            solution" />
+            <p>Our solution will feature a front-end server
+            with <a href="http://www.nginx.org">one nginx instance</a> doing
+            the load-balancing among the <a
+                href="http://tornadoweb.org">tornado</a> instances in our back-end
+            server.</p>
+            <p>The back-end server will feature 4 <a href="http://tornadoweb.org">tornado</a> instances kept alive
+            by <a href="http://supervisord.org/">supervisor</a> (a process monitoring tool).</p>
+
+            <p>Create a file called <em>website.py</em> at some
+            folder with this contents:</p>
+            <script src="https://gist.github.com/1061912.js?file=website.py"></script>
+
+            <p>Yes, it is not a very involved example, but
+            <em>Hello World</em> suffices for our purposes. This python
+            application takes a port as command-line argument and can
+            be run with:</p>
+            <script src="https://gist.github.com/1061912.js?file=running"></script>
+
+            <p>Ok, now that we have a functioning application,
+            let's deploy it to production.</p>
+            <p>First, let's create a local "production" environment using <a
+                href="http://vagrantup.com/">Vagrant</a>. Using <a
+                href="http://vagrantup.com/">Vagrant</a> is beyond the scope
+            of this tutorial.</p>
+            <p>First make sure you have the <em>base</em> box installed. If you
+            don't, use:</p>
+            <script src="https://gist.github.com/1061912.js?file=vagrant-command"></script>
+
+            <p>In the same folder that we created the website.py
+            file, type:</p>
+            <script src="https://gist.github.com/1061912.js?file=vagrant-init"></script>
+            <p>This will create a file called VagrantFile. This is the file
+            that configures our <a href="http://vagrantup.com/">Vagrant</a>
+            instances. Open it up in your editor of choice and change it to
+            read:</p>
+            <script src="https://gist.github.com/1061912.js?file=VagrantFile"></script>
+            <p>Ok, now when we run vagrant we'll have two servers up:
+            33.33.33.33 and 33.33.33.34. The first one will be our front-end
+               server and the latter our back-end server.</p>
+
+            <p>It's now time to start provisioning our servers. In the same
+            folder that we created the <em>website.py</em> file, let's create a file
+            called <em>provyfile.py</em>.</p>
+
+            <p>The first thing we'll do in this file is importing the <em>provy</em>
+            classes we'll use. We'll also define <em>FrontEnd</em> and
+            <em>BackEnd</em> roles and assign them to our two vagrant servers.</p>
+            <script src="https://gist.github.com/1061912.js?file=provyfile.py"></script>
+
+            <p>Another thing to notice is the <em>servers</em> dictionary. This
+            is where we tell <em>provy</em> how to connect to each server and
+            what roles does it have.</p>
+
+            <p>Even though our script does not actually provision anything yet,
+            let's stop to see some interesting points of it.</p>
+
+            <p>You can see that our roles (<em>FrontEnd</em> and
+            <em>BackEnd</em>) both inherit from <em>provy.Role</em>. This is
+            needed so that these roles can inherit a lot of functionality
+            needed for interacting with our servers.</p>
+            <p>We can run this script (even if it won't do anything) with:</p>
+            <script src="https://gist.github.com/1061912.js?file=running-provy-file"></script>
+
+            <p>Let's start working in our back-end server, since our front-end
+            server depends on it to run.</p>
+            <p>First we'll make sure we are running our app under our own user
+            and not root:</p>
+            <script src="https://gist.github.com/1061912.js?file=provyfile2.py"></script>
+
+            <p>Then we'll need to copy the <em>website.py</em> file to the
+            server. <em>provy</em> can easily copy files to the servers, as
+            long as it can find them. Just move the <em>website.py</em> file to a folder
+            named <em>files</em> in the same folder as <em>provyfile.py</em>.</p>
+
+            <p>Now we can easily copy it to the <em>/home/frontend</em> folder:</p>
+            <script src="https://gist.github.com/1061912.js?file=provyfile3.py"></script>
+
+            <p>The <em>update_file</em> method tells provy to compare the
+            source and target files and if they are different update the target
+            file. For more information check the documentation.</p>
+
+            <p>Next we must make sure <a
+                href="http://tornadoweb.org">Tornado</a> is installed.
+            <em>provy</em> already comes with a role that does that:</p>
+            <script src="https://gist.github.com/1061953.js?file=provyfile4.py"></script>
+
+            <p>Now all we have to do is instruct supervisor to run four
+            instances of our app:</p>
+            <script src="https://gist.github.com/1061953.js?file=provyfile5.py"></script>
+
+            <p>Ok, now let's get our front-end up and running. <em>provy</em>
+            comes with an <a href="http://www.nginx.org">nginx</a> module, so it is pretty easy configuring it.</p>
+
+            <p>We have to provide template files for both <em>nginx.conf</em>
+            and our website's site. Following what <a
+                href="http://tornadoweb.org">Tornado</a>'s documentation
+            instructs, these are good templates:</p>
+            <script src="https://gist.github.com/1061953.js?file=nginx.conf"></script>
+            <script src="https://gist.github.com/1061953.js?file=website"></script>
+
+            <p>Save them as <em>files/nginx.conf</em> and
+            <em>files/website</em>, respectively.</p>
+
+            <p>Now all that's left is making sure that <em>provy</em>
+            configures our front-end server:</p>
+            <script src="https://gist.github.com/1061953.js?file=provyfile6.py"></script>
+            <p>See how we passed the user name as an option to the
+            <em>nginx.conf</em> template? <em>provy</em> allows this kind of
+            template interaction in may places. For more information, check the
+            documentation.</p>
+
+            <p>We can now fire our brand new infrastructure and check that the
+            website is working:</p>
+            <script src="https://gist.github.com/1061953.js?file=running%20the%20website"></script>
+            <p>After these 3 commands finished running (it might take a long
+            time depending on your connection speed), you should see <em>Hello
+            World</em> as the result of the curl command.</p>
+
+            <h2 class="title">License</h2>
+            <p><em>provy</em> is licensed under the <a
+                href="http://www.opensource.org/licenses/MIT">MIT License</a></p>
+            <pre class="license">
+Copyright (c) 2011 Bernardo Heynemann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+            </pre>
+
+            <div class="footer">
+                provy is the work of <a
+                    href="http://blog.heynemann.com.br">Bernardo Heynemann</a>
+                - 2011
+            </div>
+        </div>
+    </body>
+
+</html>
