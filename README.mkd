@@ -5,7 +5,9 @@ provyfile.py](https://github.com/heynemann/provy/blob/master/tests/functional/pr
 
 To run the provyfile script in the command-line you use::
 
-    provy -r webserver -s webservers
+    provy -s prod                   # provisions all prod servers
+    provy -s prod.frontends         # provision all front-end servers in prod
+    provy -s prod.frontends.server1 # provision only server1
 
 This command will provision all the webservers described under webservers (-s) with
 the webserver role (-r).
