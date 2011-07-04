@@ -115,3 +115,19 @@ pre.license {
     font-size: 13px;
     margin: 18px 30px;
 }
+
+h3 {
+    background-color: #333;
+    color: #fff;
+    height: 22px;
+    padding: 15px 24px;
+    margin: 24px 0 16px 0;
+    float: right;
+    width: 92%;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
