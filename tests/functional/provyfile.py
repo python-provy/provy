@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from provy.core import Role
-from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole, PipRole
-from provy.more.debian import VarnishRole, AptitudeRole, GitRole, SupervisorRole
+from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole
+from provy.more.debian import PipRole, VarnishRole, AptitudeRole, GitRole
+from provy.more.debian import SupervisorRole
+
 
 class FrontEnd(Role):
     def provision(self):
@@ -15,13 +17,16 @@ class FrontEnd(Role):
             role.ensure_conf('default_varnish', owner='frontend')
 
         with self.using(NginxRole) as role:
-            role.ensure_conf(conf_template='test-conf.conf', options={'user': 'frontend'})
+            role.ensure_conf(conf_template='test-conf.conf',
+                             options={'user': 'frontend'})
             role.ensure_site_disabled('default')
-            role.create_site(site='frontend', template='test-site', options = {
-                'root_path': '/var/www/nginx-default',
-                'media_path': '/var/www/nginx-default'
-            })
+            role.create_site(site='frontend', template='test-site',
+                             options={
+                                'root_path': '/var/www/nginx-default',
+                                'media_path': '/var/www/nginx-default'
+                             })
             role.ensure_site_enabled('frontend')
+
 
 class BackEnd(Role):
     def provision(self):
