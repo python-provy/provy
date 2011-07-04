@@ -76,7 +76,7 @@
             by <a href="http://supervisord.org/">supervisor</a> (a process monitoring tool).</p>
 
             <p>Create a file called <em>website.py</em> at some
-            folder with this contents:</p>
+            directory with this contents:</p>
             <script src="https://gist.github.com/1061912.js?file=website.py"></script>
 
             <p>Yes, it is not a very involved example, but
@@ -95,7 +95,7 @@
             don't, use:</p>
             <script src="https://gist.github.com/1061912.js?file=vagrant-command"></script>
 
-            <p>In the same folder that we created the website.py
+            <p>In the same directory that we created the website.py
             file, type:</p>
             <script src="https://gist.github.com/1061912.js?file=vagrant-init"></script>
             <p>This will create a file called VagrantFile. This is the file
@@ -108,7 +108,7 @@
                server and the latter our back-end server.</p>
 
             <p>It's now time to start provisioning our servers. In the same
-            folder that we created the <em>website.py</em> file, let's create a file
+            directory that we created the <em>website.py</em> file, let's create a file
             called <em>provyfile.py</em>.</p>
 
             <p>The first thing we'll do in this file is importing the <em>provy</em>
@@ -138,10 +138,10 @@
 
             <p>Then we'll need to copy the <em>website.py</em> file to the
             server. <em>provy</em> can easily copy files to the servers, as
-            long as it can find them. Just move the <em>website.py</em> file to a folder
-            named <em>files</em> in the same folder as <em>provyfile.py</em>.</p>
+            long as it can find them. Just move the <em>website.py</em> file to a directory
+            named <em>files</em> in the same directory as <em>provyfile.py</em>.</p>
 
-            <p>Now we can easily copy it to the <em>/home/frontend</em> folder:</p>
+            <p>Now we can easily copy it to the <em>/home/frontend</em> directory:</p>
             <script src="https://gist.github.com/1061912.js?file=provyfile3.py"></script>
 
             <p>The <em>update_file</em> method tells provy to compare the
@@ -225,10 +225,32 @@
             instead just have it provisioned.</p>
 
             <h2 class="title">Custom Files and Templating</h2>
-            <p>It's being written. Will come soon.</p>
+            <p>Some methods provided by provy (including <em>update_file</em>) support 
+            passing in options that may be used in templates.</p>
+            <p><em>provy</em> uses <a
+                href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a> for
+                templating, thus supporting if/else statements, loops and much more. It's advised
+                that you take a look at <a
+                href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a>
+                docs.
+            </p>
+            <p><a
+                href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a> will
+                look for files in two different places. The first one and probably the one you'll use the most,
+                is a directory called <em>files</em> in the same path as <em>provyfile.py</em>.</p>
+            <p>Any files you place inside this directory may be used as templates to be uploaded to the server
+            being provisioned. Since <em>provy</em> is built on top of <a
+                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use it's <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
+            <p>The other place you can put files is in a <em>templates</em> directory inside Role apps. The supervisor role uses this approach, if you want to take a look at an example. If you do place files in the <em>templates</em> directory, do not forget to call the <em>register_template_loader</em> method passing in the full namespace of your app (more details in the provy.more section below).</p>
+            <p>We used custom files in the <em>Getting Started</em> section to provide the needed configuration files for <a href="http://www.nginx.org">nginx</a>.</p>
 
-            <h2 class="title">provy.more</h2>
-            <p>It's being written. Will come soon.</p>
+            <h2 class="title">provy.core and provy.more</h2>
+            <p>
+                <em>provy</em> is divided in two namespaces: <em>provy.core</em> and <em>provy.more</em>. It is divided like this to make it easier to find the roles you need.
+            </p>
+            <p><em>provy.core</em> features the code that actually makes <em>provy</em> run, like the console app or the base Role.</p>
+            <p><em>provy.more</em> features every single specialized role that helps users in provisioning servers, like <em>NginxRole</em> or <em>AptitudeRole</em>.</p>
+            <p>Both will be documented here, even though you are advised to take a look at the code, since the docs might not be up-to-date yet.</p>
 
             <h2 class="title">Core Docs</h2>
             <p>It's being written. Will come soon.</p>
