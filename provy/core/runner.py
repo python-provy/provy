@@ -9,6 +9,7 @@ from provy.core.utils import import_module
 from provy.core.errors import ConfigurationError
 from jinja2 import FileSystemLoader, ChoiceLoader
 
+
 def run(provfile_path, server_name, password):
     module_path = provfile_path.replace(sep, '.')
     prov = import_module(module_path)
@@ -63,11 +64,14 @@ def run(provfile_path, server_name, password):
         print "*" * len(msg)
         print
 
+
 def get_roles_for(prov, role_name):
     return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
 
+
 def get_servers_for(prov, server_name):
     return get_items(prov, server_name, 'servers', lambda item: isinstance(item, dict) and 'address' in item, recursive=True)
+
 
 def get_items(prov, item_name, item_key, test_func, recursive=False):
     if not hasattr(prov, item_key):
@@ -85,6 +89,7 @@ def get_items(prov, item_name, item_key, test_func, recursive=False):
     recurse_items(items, test_func, found_items)
     return found_items
 
+
 def recurse_items(col, test_func, found_items):
     if not isinstance(col, dict):
         return
@@ -97,4 +102,3 @@ def recurse_items(col, test_func, found_items):
                 found_items.append(val)
             else:
                 recurse_items(val, test_func, found_items)
-
