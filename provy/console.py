@@ -15,22 +15,26 @@ from optparse import OptionParser
 
 from provy.core import run
 
+
 class Messages(object):
     role = """Role to provision the specified servers with. This is a recursive
     option"""
-    server = """Servers to provision with the specified role. This is a recursive
-    option."""
-    password = """Password to use for authentication with servers. 
+    server = """Servers to provision with the specified role. This is a
+    recursive option."""
+    password = """Password to use for authentication with servers.
     If passwords differ from server to server this does not work."""
+
 
 def __get_arguments():
     parser = OptionParser()
     parser.add_option("-s", "--server", dest="server", help=Messages.server)
-    parser.add_option("-p", "--password", dest="password", default=None, help=Messages.password)
+    parser.add_option("-p", "--password", dest="password", default=None,
+                      help=Messages.password)
 
     (options, args) = parser.parse_args()
 
     return (options, args)
+
 
 def __get_provy_file_path():
     path = abspath('provyfile.py')
@@ -39,6 +43,7 @@ def __get_provy_file_path():
         if not exists(path):
             return None
     return splitext(path.replace(abspath('.'), '').lstrip('/').rstrip('/'))[0]
+
 
 def main():
     (options, args) = __get_arguments()
