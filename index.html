@@ -120,10 +120,6 @@
             <em>BackEnd</em> roles and assign them to our two vagrant servers.</p>
             <script src="https://gist.github.com/1061912.js?file=provyfile.py"></script>
 
-            <p>Another thing to notice is the <em>servers</em> dictionary. This
-            is where we tell <em>provy</em> how to connect to each server and
-            what roles does it have.</p>
-
             <p>Even though our script does not actually provision anything yet,
             let's stop to see some interesting points of it.</p>
 
@@ -131,6 +127,11 @@
             <em>BackEnd</em>) both inherit from <em>provy.Role</em>. This is
             needed so that these roles can inherit a lot of functionality
             needed for interacting with our servers.</p>
+
+            <p>Another thing to notice is the <em>servers</em> dictionary. This
+            is where we tell <em>provy</em> how to connect to each server and
+            what roles does it have.</p>
+
             <p>We can run this script (even if it won't do anything) with:</p>
             <script src="https://gist.github.com/1061912.js?file=running-provy-file"></script>
 
