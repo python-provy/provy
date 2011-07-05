@@ -64,6 +64,8 @@
             <p><a href="http://tornadoweb.org">Tornado</a> is
             facebook's python web server. It features non-blocking I/O and is
             extremely fast.</p>
+
+            <h3>The solution</h3>
             <p>Below you can see a diagram of our solution:</p>
             <img class="auto-center diagram" src="images/provy_sample.png" alt="Architecture for our
             solution" />
@@ -85,6 +87,7 @@
             be run with:</p>
             <script src="https://gist.github.com/1061912.js?file=running"></script>
 
+            <h3>The servers</h3>
             <p>Ok, now that we have a functioning application,
             let's deploy it to production.</p>
             <p>First, let's create a local "production" environment using <a
@@ -107,6 +110,7 @@
             33.33.33.33 and 33.33.33.34. The first one will be our front-end
                server and the latter our back-end server.</p>
 
+            <h3>Provisioning file</h3>
             <p>It's now time to start provisioning our servers. In the same
             directory that we created the <em>website.py</em> file, let's create a file
             called <em>provyfile.py</em>.</p>
@@ -130,6 +134,7 @@
             <p>We can run this script (even if it won't do anything) with:</p>
             <script src="https://gist.github.com/1061912.js?file=running-provy-file"></script>
 
+            <h3>Provisioning the back-end server</h3>
             <p>Let's start working in our back-end server, since our front-end
             server depends on it to run.</p>
             <p>First we'll make sure we are running our app under our own user
@@ -157,6 +162,7 @@
             instances of our app:</p>
             <script src="https://gist.github.com/1061953.js?file=provyfile5.py"></script>
 
+            <h3>Provisioning the front-end server</h3>
             <p>Ok, now let's get our front-end up and running. <em>provy</em>
             comes with an <a href="http://www.nginx.org">nginx</a> module, so it is pretty easy configuring it.</p>
 
@@ -178,6 +184,7 @@
             template interaction in many places. For more information, check the
             documentation.</p>
 
+            <h3>Running and verifying it works</h3>
             <p>We can now fire our brand new infrastructure and check that the
             website is working:</p>
             <script src="https://gist.github.com/1061953.js?file=running%20the%20website"></script>
