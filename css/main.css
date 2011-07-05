@@ -63,7 +63,7 @@ p {
     position: absolute;
     top: 90px;
     right: 30px;
-    cursor: hand;
+    cursor: pointer;
     background: url('../images/logo.png') 0 0 no-repeat;
 }
 
