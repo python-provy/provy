@@ -142,3 +142,8 @@ input.email {
     height: 22px;
     width: 100px;
 }
+
+.google-logo {
+    margin: 0 10px;
+    padding-top: 4px;
+}
