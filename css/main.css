@@ -131,3 +131,14 @@ h3 {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
 }
+
+input.email {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    border: solid 1px #333;
+    background-color: #333;
+    color: #fff;
+    height: 22px;
+    width: 100px;
+}
