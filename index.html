@@ -44,7 +44,36 @@
             <script src="https://gist.github.com/1061912.js?file=simples-provyfile.py"></script>
 
             <h2 class="title">Installing provy</h2>
-            <p>Installing <em>provy</em> is as easy as:</p>
+            <p>Before installing provy you will need to ensure you have swig
+            installed, as m2crypto needs it. Here is how to install it in
+            some platforms.<p>
+
+            <p><em>MacOSX</em></p>
+
+            <p>To install swig on a mac, the easiest way is to install using the
+            <a href="http://mxcl.github.com/homebrew/">homebrew package manager</a>
+            (which we will not cover here). After installing it, execute this command:
+            </p>
+            <script src="https://gist.github.com/1066364.js?file=install_swig_mac.sh"></script>
+            <p>Just ensure that you have <em>/usr/local/bin</em> on your path.</p>
+
+            <p><em>Arch Linux</em></p>
+
+            <p>Swig is in the extra repository and can be installed with:<p>
+            <script src="https://gist.github.com/1066392.js?file=gistfile1.bash"></script>
+
+            <p><em>Ubuntu and Debian GNU/Linux</em></p>
+
+            <p>It is just an apt-get install away =)<p>
+            <script src="https://gist.github.com/1066406.js?file=gistfile1.txt"></script>
+
+            <p><em>Other platforms</em></p>
+            <p>If your platform is not listed above, try searching in your package
+            manager for <em>swig</em> and install it given the search results.</p>
+
+            <p><em>Install provy</em></p>
+
+            <p>Now that you have <em>swig</em>, installing <em>provy</em> is as easy as:</p>
             <script src="https://gist.github.com/1061888.js?file=gistfile1.txt"></script>
             <p>It can be easily installed from source as well,
             like this:</p>
