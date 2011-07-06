@@ -20,7 +20,7 @@ class NginxRole(Role):
         if 'must-restart-nginx' in self.context and self.context['must-restart-nginx']:
             self.restart()
 
-    def ensure_conf(self, conf_template, options, nginx_conf_path='/etc/nginx/nginx.conf'):
+    def ensure_conf(self, conf_template, options={}, nginx_conf_path='/etc/nginx/nginx.conf'):
         result = self.update_file(conf_template, nginx_conf_path, options=options, sudo=True)
         if result:
             self.log('nginx conf updated!')
@@ -38,7 +38,7 @@ class NginxRole(Role):
             self.log('%s nginx site is enabled!' % site)
             self.ensure_restart()
 
-    def create_site(self, site, template, options):
+    def create_site(self, site, template, options={}):
         result = self.update_file(template, self.available_site_for(site), options=options, sudo=True)
         if result:
             self.log('%s nginx site created!' % site)

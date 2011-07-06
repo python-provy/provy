@@ -17,16 +17,10 @@ class FrontEnd(Role):
             role.ensure_conf('default_varnish', owner='frontend')
 
         with self.using(NginxRole) as role:
-            role.ensure_conf(conf_template='test-conf.conf',
-                             options={'user': 'frontend'})
+            role.ensure_conf(conf_template='test-conf.conf')
             role.ensure_site_disabled('default')
-            role.create_site(site='frontend', template='test-site',
-                             options={
-                                'root_path': '/var/www/nginx-default',
-                                'media_path': '/var/www/nginx-default'
-                             })
+            role.create_site(site='frontend', template='test-site')
             role.ensure_site_enabled('frontend')
-
 
 class BackEnd(Role):
     def provision(self):
@@ -57,7 +51,7 @@ class BackEnd(Role):
             role.config(
                 config_file_directory='/home/backend',
                 log_file='/home/backend/logs/supervisord.log',
-                user='backend'
+                user=self.context['supervisor-user']
             )
 
             with role.with_program('website') as program:
@@ -74,14 +68,21 @@ servers = {
             'user': 'vagrant',
             'roles': [
                 FrontEnd
-            ]
+            ],
+            'options': {
+                'user': 'frontend'
+            }
         },
         'backend': {
             'address': '33.33.33.34',
             'user': 'vagrant',
             'roles': [
                 BackEnd
-            ]
+            ],
+            'options': {
+                'supervisor-user': 'backend'
+            }
+
         }
     }
 }

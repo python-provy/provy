@@ -26,6 +26,10 @@ def run(provfile_path, server_name, password):
             'registered_loaders': []
         }
 
+        if server['options']:
+            for key, value in server['options'].iteritems():
+                context[key] = value
+
         loader = ChoiceLoader([
             FileSystemLoader(join(context['abspath'], 'files'))
         ])

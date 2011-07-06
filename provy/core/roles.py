@@ -144,7 +144,15 @@ class Role(object):
 
         return False
 
-    def put_file(self, from_file, to_file, options={}, sudo=False):
+    def extend_context(self, options):
+        extended = {}
+        for key, value in self.context.iteritems():
+            extended[key] = value
+        for key,value in options.iteritems():
+            extended[key] = value
+        return extended
+
+    def put_file(self, from_file, to_file, sudo=False):
         if sudo:
             temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
             put(from_file, temp_path)
@@ -161,7 +169,7 @@ class Role(object):
             local_temp_path = self.write_to_temp_file(template)
 
             if not self.remote_exists(to_file):
-                self.put_file(local_temp_path, to_file, options, sudo)
+                self.put_file(local_temp_path, to_file, sudo)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -172,7 +180,7 @@ class Role(object):
             to_md5 = self.md5_remote(to_file)
             if from_md5.strip() != to_md5.strip():
                 self.log('Hashes differ %s => %s! Copying %s to server %s!' % (from_md5, to_md5, from_file, self.context['host']))
-                self.put_file(local_temp_path, to_file, options, sudo)
+                self.put_file(local_temp_path, to_file, sudo)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -203,7 +211,8 @@ class Role(object):
             env = Environment(loader=self.context['loader'])
             template_path = template_file
         template = env.get_template(template_path)
-        return template.render(**options)
+
+        return template.render(**self.extend_context(options))
 
     def is_process_running(self, process, sudo=False):
         result = self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo)
