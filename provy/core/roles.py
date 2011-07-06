@@ -11,6 +11,7 @@ from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
+
 class UsingRole(object):
     def __init__(self, role, prov, context):
         self.role = role
@@ -25,6 +26,7 @@ class UsingRole(object):
     def __exit__(self, exc_type, exc_value, traceback):
         role = self.role(self.prov, self.context)
         role.schedule_cleanup()
+
 
 class Role(object):
     def __init__(self, prov, context):
@@ -174,7 +176,7 @@ class Role(object):
 
                 if owner:
                     self.change_file_owner(to_file, owner)
- 
+
                 return True
         finally:
             if local_temp_path and exists(local_temp_path):
