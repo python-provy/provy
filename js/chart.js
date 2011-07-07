@@ -13,8 +13,13 @@ $(function() {
 google.load('visualization', '1', {packages:['orgchart']});
 google.setOnLoadCallback(getData);
 function getData() {
-    $.getJSON('js/docs.json', function(docs) {
-        drawChart(docs);
+    $.ajax({
+        url: 'js/docs.json',
+        dataType: 'json',
+        cache: false,
+        success: function(docs) {
+            drawChart(docs);
+        }
     });
 }
 
