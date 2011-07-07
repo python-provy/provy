@@ -366,31 +366,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             }
 
             function getRows(docs) {
-                /*[
-                    [{v:'Mike', f:'Mike'}, '', 'The President'],
-                    [{v:'Jim', f:'Jim'}, 'Mike', 'VP'],
-                    ['Alice', 'Mike', ''],
-                    ['Bob', 'Jim', 'Bob Sponge'],
-                    ['Carol', 'Bob', '']
-                ]);*/
-
                 var rows = [];
                 recurseDocs(docs, '', rows);
-                console.log(rows);
                 return rows;
             }
 
             function recurseDocs(rootNode, parentNode, rows) {
                 for (key in rootNode) {
-                    console.log(key);
                     if (key == '__proto__') continue;
+                    if (key.substr(0,2) == '__') continue;
 
                     if (rootNode[key]['__methods__'] == null) {
-                        rows.push([key, parentNode, '']);
+                        rows.push([key, parentNode, rootNode[key]['__name__']]);
                         recurseDocs(rootNode[key], key, rows)
                     }
                     else {
-                        rows.push([rootNode[key]['__name__'], parentNode, '']);
+                        rows.push([rootNode[key]['__name__'], parentNode, rootNode[key]['__fullName__']]);
                     }
                 }
             }
@@ -404,6 +395,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 var rows = getRows(docs)
                 data.addRows(rows);
                 var chart = new google.visualization.OrgChart(document.getElementById('docs'));
+
+                google.visualization.events.addListener(chart, 'select', selectHandler);
+
+                function selectHandler(e) {
+                    var item = chart.getSelection()[0]
+                    var selectedValue = null;
+                    if (item.row != null && item.column != null) {
+                        selectedValue = data.getValue(item.row, item.column);
+                    } else if (item.row != null) {
+                        selectedValue = data.getValue(item.row, 2);
+                    } else if (item.column != null) {
+                        selectedValue = data.getValue(0, item.column);
+                    }
+                    console.log(selectedValue);
+                }
+
                 chart.draw(data, {allowHtml:true});
             }
         </script>
