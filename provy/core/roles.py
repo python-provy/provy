@@ -139,7 +139,7 @@ The cleanup method is the method that provy calls after all Roles have been prov
     def execute(self, command, stdout=True, sudo=False):
         '''
 This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
-It allows you to perform any shell action in the remote server. It is an abstraction over fabric's run and sudo methods.
+It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
 <em>Parameters</em>
 stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
 sudo - Defaults to False. Specifies whether this command needs to be run as the super-user.
@@ -268,32 +268,119 @@ sudo - If specified, the directory is created under the super-user. This is part
         if owner:
             self.change_dir_owner(directory, owner)
 
-    def change_dir_owner(self, path, owner):
-        self.execute('cd %s && chown -R %s .' % (path, owner), stdout=False, sudo=True)
+    def change_dir_owner(self, directory, owner):
+        '''
+Changes the owner of a given directory. Please be advised that this method is recursive, so all contents of directory will belong to the specified user.
+<em>Parameters</em>
+directory - Directory to change owner.
+owner - User that should own this directory.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.change_dir_owner(directory='/etc/my-path', owner='someuser')
+</pre>
+        '''
+        self.execute('cd %s && chown -R %s .' % (directory, owner), stdout=False, sudo=True)
 
     def change_file_owner(self, path, owner):
+        '''
+Changes the owner of a given file.
+<em>Parameters</em>
+path - Path of the file.
+owner - User that should own this file.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.change_file_owner(directory='/etc/init.d/someapp', owner='someuser')
+</pre>
+        '''
         self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
 
-    def md5_local(self, file_path):
-        return md5(open(file_path).read()).hexdigest()
+    def md5_local(self, path):
+        '''
+Calculates an md5 hash for a given file in the local system. Returns None if file does not exist.
+<em>Parameters</em>
+path - Path of the local file.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            hash = self.md5_local('/tmp/my-file')
+</pre>
+        '''
+        if not self.local_exists(path):
+            return None
+        return md5(open(path).read()).hexdigest()
 
-    def md5_remote(self, file_path):
-        command = "from hashlib import md5; print md5(open('%s').read()).hexdigest()" % file_path
+    def md5_remote(self, path):
+        '''
+Calculates an md5 hash for a given file in the remote server. Returns None if file does not exist.
+<em>Parameters</em>
+path - Path of the remote file.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            hash = self.md5_remote('/tmp/my-file')
+</pre>
+        '''
+        if not self.remote_exists(path):
+            return None
+        command = "from hashlib import md5; print md5(open('%s').read()).hexdigest()" % path
         return self.execute_python(command, stdout=False)
 
-    def remove_file(self, file_path, sudo=False):
-        if self.remote_exists(file_path):
-            self.log('File %s found at %s. Removing it...' % (file_path, self.context['host']))
-            command = 'rm -f %s' % file_path
+    def remove_file(self, path, sudo=False):
+        '''
+Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
+<em>Parameters</em>
+path - Path of the remote file.
+sudo - Indicates whether the file should be removed by the super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.remove_file('/tmp/my-file', sudo=True)
+</pre>
+        '''
+
+        if self.remote_exists(path):
+            command = 'rm -f %s' % path
             self.execute(command, stdout=False, sudo=sudo)
-            self.log('%s removed!' % file_path)
+            self.log('%s removed!' % path)
             return True
         return False
 
     def replace_file(self, from_file, to_file):
+        '''
+Replaces a file in the remote server with a file from the local system.
+<em>Parameters</em>
+from_file - Path in the local system.
+to_file - Path in the remote system.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.replace_file('/tmp/my-file', '/tmp/my-file')
+</pre>
+        '''
         put(from_file, to_file)
 
     def remote_symlink(self, from_file, to_file, sudo=False):
+        '''
+Creates a symlink in the remote server.
+<em>Parameters</em>
+from_file - Symlink source.
+to_file - Symlink target.
+sudo - Indicates whether the symlink should be created by the super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.remote_symlink('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
+</pre>
+        '''
         if not self.remote_exists(from_file):
             raise RuntimeError("The file to create a symlink from (%s) was not found!" % from_file)
 
@@ -313,7 +400,7 @@ sudo - If specified, the directory is created under the super-user. This is part
 
         return False
 
-    def extend_context(self, options):
+    def __extend_context(self, options):
         extended = {}
         for key, value in self.context.iteritems():
             extended[key] = value
@@ -322,6 +409,19 @@ sudo - If specified, the directory is created under the super-user. This is part
         return extended
 
     def put_file(self, from_file, to_file, sudo=False):
+        '''
+Puts a file to the remote server.
+<em>Parameters</em>
+from_file - Source file in the local system.
+to_file - Target path in the remote server.
+sudo - Indicates whether the file should be created by the super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.put('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
+</pre>
+        '''
         if sudo:
             temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
             put(from_file, temp_path)
@@ -331,6 +431,27 @@ sudo - If specified, the directory is created under the super-user. This is part
         put(from_file, to_file)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
+        '''
+One of the most used methods in provy. This method renders a template, then if the contents differ from the remote server (or the file does not exist at the remote server), it sends the results there.
+Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
+Returns True if the file was updated, False otherwise.
+<em>Parameters</em>
+from_file - Template file in the local system.
+to_file - Target path in the remote server.
+owner - Owner for the file in the remote server.
+options - Dictionary of options that can be used in the template.
+sudo - Indicates whether the file should be created by the super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.update_file('/home/user/my-app', '/etc/init.d/my-app',
+                                owner='my-user', {
+                                    'option_a': 1,
+                                    'option_b': 2
+                                }, sudo=True)
+</pre>
+        '''
         local_temp_path = None
         try:
             template = self.render(from_file, options)
@@ -362,6 +483,18 @@ sudo - If specified, the directory is created under the super-user. This is part
         return False
 
     def write_to_temp_file(self, text):
+        '''
+Writes some text to a temporary file and returns the file path.
+<em>Parameters</em>
+text - Text to be written to the temp file.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            path = self.write_to_temp_file('some random text')
+            self.put_file(path, '/tmp/some-file')
+</pre>
+        '''
         local_temp_path = ''
         with NamedTemporaryFile(delete=False) as f:
             f.write(text)
@@ -369,10 +502,36 @@ sudo - If specified, the directory is created under the super-user. This is part
 
         return local_temp_path
 
-    def read_remote_file(self, file_path, sudo=False):
-        return self.execute('cat %s' % file_path, stdout=False, sudo=sudo)
+    def read_remote_file(self, path, sudo=False):
+        '''
+Returns the contents of a remote file.
+<em>Parameters</em>
+path - File path on the remote server.
+sudo - Indicates whether the file should be read by a super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            last_update = self.read_remote_file('/tmp/last-update')
+</pre>
+        '''
+        return self.execute('cat %s' % path, stdout=False, sudo=sudo)
 
     def render(self, template_file, options={}):
+        '''
+Renders a template with the given options and returns the rendered text.
+The template_file parameter should be just the name of the file and not the file path. Jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em>).
+The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
+<em>Parameters</em>
+template_file - Template file path in the local system.
+options - options to be passed to the template. 
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            contents = self.render('my-template', { 'user': 'heynemann' })
+        '''
+
         if isabs(template_file):
             env = Environment(loader=FileSystemLoader(dirname(template_file)))
             template_path = split(template_file)[-1]
@@ -381,9 +540,21 @@ sudo - If specified, the directory is created under the super-user. This is part
             template_path = template_file
         template = env.get_template(template_path)
 
-        return template.render(**self.extend_context(options))
+        return template.render(**self.__extend_context(options))
 
     def is_process_running(self, process, sudo=False):
+        '''
+Returns True if the given process is running (listed in the process listing), False otherwise.
+<em>Parameters</em>
+process - Regular expression string that specifies the process name.
+sudo - Indicates if the process listing should be done by the super-user.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            if self.is_process_running('nginx', sudo=True):
+                self.execute('pkill nginx', stdout=False, sudo=True)
+        '''
         result = self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo)
         results = result.split('\n')
         if not results:
@@ -391,4 +562,16 @@ sudo - If specified, the directory is created under the super-user. This is part
         return results[-1] == '0'
 
     def using(self, role):
+        '''
+This method should be used when you want to use a different Role inside your own Role methods.
+It returns a ContextManager object, so this is meant to go inside a <em>with</em> block.
+<em>Parameters</em>
+role - Role to be used.
+<em>Sample Usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                role.ensure_package_installed('nginx')
+        '''
         return UsingRole(role, self.prov, self.context)
