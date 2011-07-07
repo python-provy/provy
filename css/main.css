@@ -159,3 +159,18 @@ input.email {
 #docs table {
     margin: 0 auto;
 }
+
+
+
+.google-visualization-orgchart-node {
+    border: 2px solid #333!important;
+    background: #333 none no-repeat 0 0 !important;
+    color: #fff;
+    font-family: 'Maven Pro', Arial, cursive !important;
+    cursor: pointer !important;
+}
+
+.google-visualization-orgchart-nodesel {
+    background: #dedede none no-repeat 0 0 !important;
+    color: #333 !important;
+}
