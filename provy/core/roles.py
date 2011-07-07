@@ -36,7 +36,7 @@ class Role(object):
     '''
 Base Role class. This is the class that is inherited by all provy's roles.
 This class provides many utility methods for interacting with the remote server.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -53,7 +53,7 @@ Sample usage:
 Register the <<package_name>> module as a valid source for templates in Jinja2.
 Jinja2 will look inside a folder called 'templates' in the specified module.
 It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -67,7 +67,7 @@ Sample usage:
     def log(self, msg):
         '''
 Logs a message to the console with the hour prepended.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -79,8 +79,8 @@ Sample usage:
     def schedule_cleanup(self):
         '''
 Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
-Warning: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
-Sample usage:
+<strong>Warning</strong>: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -99,7 +99,7 @@ Sample usage:
         '''
 Provisions a role inside your role. This method is the way to call other roles if you don't need to call any methods other than provision.
 provision_role keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -114,7 +114,7 @@ Sample usage:
         '''
 Base provision method. This is meant to be overriden and does not do anything.
 The provision method of each Role is what provy calls on to provision servers.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -127,7 +127,7 @@ Sample usage:
         '''
 Base cleanup method. This is meant to be overriden and does not do anything.
 The cleanup method is the method that provy calls after all Roles have been provisioned and is meant to allow Roles to perform any cleaning of resources or finish any pending operations.
-Sample usage:
+<em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def cleanup(self):
@@ -140,10 +140,10 @@ Sample usage:
         '''
 This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
 It allows you to perform any shell action in the remote server. It is an abstraction over fabric's run and sudo methods.
-Parameters:
+<em>Parameters</em>
 stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
 sudo - Defaults to False. Specifies whether this command needs to be run as the super-user.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -163,7 +163,7 @@ Sample Usage:
         '''
 Just an abstraction over execute. This method executes the python code that is passed with python -c.
 It has the same arguments as execute.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -175,7 +175,7 @@ Sample Usage:
     def get_logged_user(self):
         '''
 Returns the currently logged user in the remote server.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -187,7 +187,7 @@ Sample Usage:
     def local_exists(self, file_path):
         '''
 Returns True if the file exists locally.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -200,7 +200,7 @@ Sample Usage:
     def remote_exists(self, file_path):
         '''
 Returns True if the file exists in the remote server.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -213,7 +213,7 @@ Sample Usage:
     def remote_exists_dir(self, file_path):
         '''
 Returns True if the directory exists in the remote server.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -226,7 +226,7 @@ Sample Usage:
     def local_temp_dir(self):
         '''
 Returns the path of a temporary directory in the local machine.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -238,7 +238,7 @@ Sample Usage:
     def remote_temp_dir(self):
         '''
 Returns the path of a temporary directory in the remote server.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
@@ -250,11 +250,11 @@ Sample Usage:
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
 Make sure the specified directory exists in the remote server.
-Parameters:
+<em>Parameters</em>
 directory - Directory to be created if it does not exist.
 owner - If specified, the directory will be created under this user, otherwise the currently logged user is the owner.
 sudo - If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
-Sample Usage:
+<em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
