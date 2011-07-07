@@ -521,7 +521,7 @@ sudo - Indicates whether the file should be read by a super-user.
     def render(self, template_file, options={}):
         '''
 Renders a template with the given options and returns the rendered text.
-The template_file parameter should be just the name of the file and not the file path. Jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em>).
+The template_file parameter should be just the name of the file and not the file path. Jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
 The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 <em>Parameters</em>
 template_file - Template file path in the local system.
