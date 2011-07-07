@@ -6,7 +6,7 @@ import xmlrpclib
 from fabric.api import settings
 
 from provy.core import Role
-from provy.more.centos.package.yu, import YumRole
+from provy.more.centos.package.yum import YumRole
 
 class PipRole(Role):
 

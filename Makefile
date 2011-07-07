@@ -18,3 +18,6 @@ ssh:
 
 ssh-back:
 	@cd vagrant && vagrant ssh backend
+
+docs:
+	@python docs.py > /tmp/docs.json
