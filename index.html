@@ -289,12 +289,9 @@
             <p><em>provy.more</em> features every single specialized role that helps users in provisioning servers, like <em>NginxRole</em> or <em>AptitudeRole</em>.</p>
             <p>Both will be documented here, even though you are advised to take a look at the code, since the docs might not be up-to-date yet.</p>
 
-            <h2 class="title">Core Docs</h2>
-            <h3>provy.Role</h3>
-            <p>It's being written. Will come soon.</p>
-
-            <h2 class="title">More Docs</h2>
-            <p>It's being written. Will come soon.</p>
+            <h2 class="title">Roles Documentation</h2>
+            <p>Click on the role/module you want help with.</p>
+            <div id="docs"></div>
 
             <h2 class="title">Contributing</h2>
             <p>Contributions are very welcome. Specially roles. If you
@@ -356,6 +353,61 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 - 2011
             </div>
         </div>
+
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
+        <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+        <script type='text/javascript'>
+            google.load('visualization', '1', {packages:['orgchart']});
+            google.setOnLoadCallback(getData);
+            function getData() {
+                $.getJSON('js/docs.json', function(docs) {
+                    drawChart(docs);
+                });
+            }
+
+            function getRows(docs) {
+                /*[
+                    [{v:'Mike', f:'Mike'}, '', 'The President'],
+                    [{v:'Jim', f:'Jim'}, 'Mike', 'VP'],
+                    ['Alice', 'Mike', ''],
+                    ['Bob', 'Jim', 'Bob Sponge'],
+                    ['Carol', 'Bob', '']
+                ]);*/
+
+                var rows = [];
+                recurseDocs(docs, '', rows);
+                console.log(rows);
+                return rows;
+            }
+
+            function recurseDocs(rootNode, parentNode, rows) {
+                for (key in rootNode) {
+                    console.log(key);
+                    if (key == '__proto__') continue;
+
+                    if (rootNode[key]['__methods__'] == null) {
+                        rows.push([key, parentNode, '']);
+                        recurseDocs(rootNode[key], key, rows)
+                    }
+                    else {
+                        rows.push([rootNode[key]['__name__'], parentNode, '']);
+                    }
+                }
+            }
+
+            function drawChart(docs) {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Name');
+                data.addColumn('string', 'Parent');
+                data.addColumn('string', 'ToolTip');
+
+                var rows = getRows(docs)
+                data.addRows(rows);
+                var chart = new google.visualization.OrgChart(document.getElementById('docs'));
+                chart.draw(data, {allowHtml:true});
+            }
+        </script>
+
         <script type="text/javascript">
 
           var _gaq = _gaq || [];

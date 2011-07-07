@@ -121,6 +121,7 @@ h3 {
     background-color: #333;
     color: #fff;
     height: 22px;
+    font-weight: 400;
     padding: 15px 24px;
     margin: 24px 0 16px 0;
     float: right;
@@ -147,4 +148,14 @@ input.email {
 .google-logo {
     margin: 0 10px;
     padding-top: 4px;
+}
+
+#docs {
+    width: 900px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+#docs table {
+    margin: 0 auto;
 }
