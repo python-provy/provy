@@ -167,7 +167,8 @@ It has the same arguments as execute.
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
-            self.python_execute('import os; print os.curdir', stdout=False, sudo=True)
+            self.python_execute('import os; print os.curdir',
+                                    stdout=False, sudo=True)
 </pre>
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
