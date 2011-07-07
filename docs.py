@@ -35,7 +35,7 @@ class RoleDoc(object):
             '__name__': self.name,
             '__fullName__': self.fullname,
             '__module__': self.module,
-            '__doc__': self.docs,
+            '__doc__': self.docs and self.docs.strip() or None,
             '__methods__': []
         }
         for method in self.methods:
@@ -51,7 +51,7 @@ class NameDoc(object):
     def to_dict(self):
         return {
             '__name__': self.name,
-            '__doc__': self.doc
+            '__doc__': self.doc and self.doc.strip() or None
         }
 
 def main():
@@ -97,7 +97,7 @@ def main():
             if not part in current:
                 current[part] = {
                     '__name__': module.__name__,
-                    '__doc__': module.__doc__
+                    '__doc__': module.__doc__ and module.__doc__.strip() or None
                 }
             if part == role.__module__.split('.')[-1]:
                 current[part][role_doc.name] = role_doc.to_dict()

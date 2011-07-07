@@ -11,8 +11,12 @@ from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
+'''
+Module responsible for the base Role and its operations.
+'''
 
 class UsingRole(object):
+    '''ContextManager that allows using Roles in other Roles.'''
     def __init__(self, role, prov, context):
         self.role = role
         self.prov = prov
@@ -29,6 +33,17 @@ class UsingRole(object):
 
 
 class Role(object):
+    '''
+Base Role class. This is the class that is inherited by all provy's roles.
+This class provides many utility methods for interacting with the remote server.
+Sample usage:
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.register_template_loader('my.full.namespace')
+            self.execute('ls /home/myuser', sudo=False, stdout=False)
+</pre>
+    '''
     def __init__(self, prov, context):
         self.prov = prov
         self.context = context
