@@ -198,6 +198,10 @@ input.email {
     display: none;
 }
 
+#current-doc .methods-header {
+    margin-left: 58px;
+}
+
 #current-doc .methods {
-    margin-left: 20px;
+    margin-left: 48px;
 }
