@@ -25,7 +25,7 @@ class RoleDoc(object):
                 continue
             if not member.__module__ == role.__module__:
                 continue
-            self.add_method(MethodDoc(name, member.__doc__))
+            self.add_method(NameDoc(name, member.__doc__))
 
     def add_method(self, method_doc):
         self.methods.append(method_doc)
@@ -43,7 +43,7 @@ class RoleDoc(object):
 
         return obj
 
-class MethodDoc(object):
+class NameDoc(object):
     def __init__(self, name, doc):
         self.name = name
         self.doc = doc
@@ -90,11 +90,17 @@ def main():
     for name, role_doc in roles_to_document.iteritems():
         role = role_doc.role
         current = tree
+        module = __import__(role.__module__)
         for part in role.__module__.split('.'):
+            if hasattr(module, part):
+                module = getattr(module, part)
             if not part in current:
-                current[part] = {}
+                current[part] = {
+                    '__name__': module.__name__,
+                    '__doc__': module.__doc__
+                }
             if part == role.__module__.split('.')[-1]:
-                current[part] = role_doc.to_dict()
+                current[part][role_doc.name] = role_doc.to_dict()
             current = current[part]
 
     print dumps(tree)
