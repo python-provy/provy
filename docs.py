@@ -83,12 +83,13 @@ def main():
                 if member.__module__ != module_path:
                     continue
 
-                roles_to_document[name] = RoleDoc(member, name, member.__module__, member.__doc__)
+                roles_to_document[module_path] = RoleDoc(member, name, member.__module__, member.__doc__)
 
     tree = {}
 
-    for name, role_doc in roles_to_document.iteritems():
+    for full_name, role_doc in roles_to_document.iteritems():
         role = role_doc.role
+        name = role_doc.name
         current = tree
         module = __import__(role.__module__)
         for part in role.__module__.split('.'):
