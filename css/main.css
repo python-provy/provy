@@ -150,17 +150,28 @@ input.email {
     padding-top: 4px;
 }
 
-#docs {
+#docs-container {
+    overflow: auto;
     width: 900px;
-    text-align: center;
+    height: 328px;
     margin: 0 auto;
+    border: solid 1px #333;
+}
+
+#current-doc{
+    width: 900px;
+    margin: 0 auto;
+}
+
+#docs {
+    width: 1200px;
+    padding: 10px;
+    text-align: center;
 }
 
 #docs table {
     margin: 0 auto;
 }
-
-
 
 .google-visualization-orgchart-node {
     border: 2px solid #333!important;
@@ -173,4 +184,20 @@ input.email {
 .google-visualization-orgchart-nodesel {
     background: #dedede none no-repeat 0 0 !important;
     color: #333 !important;
+}
+
+#module-template {
+    display: none;
+}
+
+#role-template {
+    display: none;
+}
+
+#method-template {
+    display: none;
+}
+
+#current-doc .methods {
+    margin-left: 20px;
 }
