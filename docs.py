@@ -64,7 +64,7 @@ def main():
     root_namespace = 'provy.more'
 
     roles_to_document = {
-        'Role': RoleDoc(Role, 'Role', 'provy.core', Role.__doc__)
+        'Role': RoleDoc(Role, 'Role', 'provy.core.roles', Role.__doc__)
     }
 
     for root, dirs, files in os.walk(source_path):
