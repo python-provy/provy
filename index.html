@@ -409,6 +409,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                         selectedValue = data.getValue(0, item.column);
                     }
                     console.log(selectedValue);
+
+                    var parts = selectedValue.split('.');
+                    var doc = docs;
+                    for (var i=0; i<parts.length; i++) {
+                        doc = doc[parts[i]];
+                    }
+                    console.log(doc);
                 }
 
                 chart.draw(data, {allowHtml:true});
