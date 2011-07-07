@@ -104,7 +104,7 @@ def main():
                 current[part][role_doc.name] = role_doc.to_dict()
             current = current[part]
 
-    print dumps(tree)
+    print dumps(tree, sort_keys=True, separators=(',',':'))
 
 def import_module(module_path):
     module = __import__(module_path)

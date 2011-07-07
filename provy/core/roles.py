@@ -293,7 +293,8 @@ owner - User that should own this file.
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
-            self.change_file_owner(directory='/etc/init.d/someapp', owner='someuser')
+            self.change_file_owner(directory='/etc/init.d/someapp',
+                                   owner='someuser')
 </pre>
         '''
         self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
@@ -524,7 +525,7 @@ The template_file parameter should be just the name of the file and not the file
 The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 <em>Parameters</em>
 template_file - Template file path in the local system.
-options - options to be passed to the template. 
+options - options to be passed to the template.
 <em>Sample Usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
