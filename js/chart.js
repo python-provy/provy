@@ -48,7 +48,9 @@ function formatHTML(text) {
     var returnText = []
     var lines = text.split('\n');
     for (var i=0; i<lines.length; i++) {
-        returnText.push('<p>' + lines[i] + '</p>');
+        var line = lines[i];
+        if (line.replace(/\s/gi,'') == '') continue;
+        returnText.push('<p>' + line + '</p>');
     }
     return returnText.join('\n');
 }
@@ -119,6 +121,7 @@ function drawChart(docs) {
             template.removeAttr('id');
             template.show();
             currentDoc.append(template);
+            sh_highlightDocument();
             currentDoc.fadeIn('fast');
         });
         
