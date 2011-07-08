@@ -96,7 +96,7 @@ source_string - repository string
     @property
     def update_date_file(self):
         '''
-Returns the last update to Yum's list of packages file path.
+Returns the path for the file that contains the last update date to yum's list of packages.
 <em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
@@ -132,7 +132,6 @@ Returns the date in the <em>update_date_file</em>.
                 last_update = role.get_last_update_date()
 </pre>
         '''
-
         if not self.remote_exists(self.update_date_file):
             return None
 
