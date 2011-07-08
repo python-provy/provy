@@ -33,7 +33,7 @@ Installs pip dependencies. This method should be called upon if overriden in bas
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
-            self.provision_role(PipRole)
+            self.provision_role(PipRole) # does not need to be called if using with block.
 </pre>
         '''
         with self.using(AptitudeRole) as role:

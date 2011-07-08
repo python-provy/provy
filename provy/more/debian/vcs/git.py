@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide version control system capabilities to provy's users.
+Roles in this namespace are meant to provide Git repository creation operations within Debian distributions.
 '''
 
 from provy.core import Role
@@ -30,7 +30,7 @@ Installs git dependencies. This method should be called upon if overriden in bas
 <pre class="sh_python">
     class MySampleRole(Role):
         def provision(self):
-            self.provision_role(GitRole)
+            self.provision_role(GitRole) # does not need to be called if using with block.
 </pre>
         '''
         with self.using(AptitudeRole) as role:
