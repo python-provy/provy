@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provision packages installed via the Aptitude package manager for CentOS distributions.
+Roles in this namespace are meant to provision packages installed via the Aptitude package manager for Debian distributions.
 '''
 
 from os.path import join
