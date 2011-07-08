@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Module responsible for the base Role and its operations.
+'''
+
 import os
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
@@ -10,10 +14,6 @@ from hashlib import md5
 from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
-
-'''
-Module responsible for the base Role and its operations.
-'''
 
 class UsingRole(object):
     '''ContextManager that allows using Roles in other Roles.'''
