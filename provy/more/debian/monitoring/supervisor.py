@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Roles in this namespace are meant to provide Supervisor monitoring utility methods for Debian distributions.
+'''
+
 from os.path import join
 
 from provy.core import Role
@@ -68,7 +72,38 @@ class WithProgram(object):
         })
 
 class SupervisorRole(Role):
+    '''
+This role provides supervisor monitoring utilities for Debian distributions.
+<em>Sample usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(SupervisorRole) as role:
+                role.config(
+                    config_file_directory='/home/backend',
+                    log_file='/home/backend/logs/supervisord.log',
+                    user=self.context['supervisor-user']
+                )
+
+                with role.with_program('website') as program:
+                    program.directory = '/home/backend/provy/tests/functional'
+                    program.command = 'python website.py 800%(process_num)s'
+                    program.number_of_processes = 4
+
+                    program.log_folder = '/home/backend/logs'
+</pre>
+    '''
+
     def provision(self):
+        '''
+Installs Supervisor and its dependencies. This method should be called upon if overriden in base classes, or Supervisor won't work properly in the remote server.
+<em>Sample usage</em>
+<pre class="sh_python">
+    class MySampleRole(Role):
+        def provision(self):
+            self.provision_role(SupervisorRole) # no need to call this if using with block.
+</pre>
+        '''
         self.register_template_loader('provy.more.debian.monitoring')
 
         with self.using(PipRole) as role:
