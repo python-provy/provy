@@ -34,15 +34,15 @@ class UsingRole(object):
 
 class Role(object):
     '''
-Base Role class. This is the class that is inherited by all provy's roles.
-This class provides many utility methods for interacting with the remote server.
-<em>Sample usage</em>
-<pre class="sh_python">
-    class MySampleRole(Role):
-        def provision(self):
-            self.register_template_loader('my.full.namespace')
-            self.execute('ls /home/myuser', sudo=False, stdout=False)
-</pre>
+    Base Role class. This is the class that is inherited by all provy's roles.
+    This class provides many utility methods for interacting with the remote server.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+        class MySampleRole(Role):
+            def provision(self):
+                self.register_template_loader('my.full.namespace')
+                self.execute('ls /home/myuser', sudo=False, stdout=False)
+    </pre>
     '''
     def __init__(self, prov, context):
         self.prov = prov
@@ -50,17 +50,17 @@ This class provides many utility methods for interacting with the remote server.
 
     def register_template_loader(self, package_name):
         '''
-Register the <<package_name>> module as a valid source for templates in jinja2.
-Jinja2 will look inside a folder called 'templates' in the specified module.
-It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
-<em>Parameters</em>
-package_name - full name of the module that jinja2 will try to import.
-<em>Sample usage</em>
-<pre class="sh_python">
-    class MySampleRole(Role):
-        def provision(self):
-            self.register_template_loader('my.full.namespace')
-</pre>
+        Register the <<package_name>> module as a valid source for templates in jinja2.
+        Jinja2 will look inside a folder called 'templates' in the specified module.
+        It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
+        <em>Parameters</em>
+        package_name - full name of the module that jinja2 will try to import.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    self.register_template_loader('my.full.namespace')
+        </pre>
         '''
         if package_name not in self.context['registered_loaders']:
             self.context['loader'].loaders.append(PackageLoader(package_name))
@@ -68,28 +68,28 @@ package_name - full name of the module that jinja2 will try to import.
 
     def log(self, msg):
         '''
-Logs a message to the console with the hour prepended.
-<em>Parameters</em>
-msg - Message to log.
-<em>Sample usage</em>
-<pre class="sh_python">
-    class MySampleRole(Role):
-        def provision(self):
-            self.log('Hello World')
-</pre>
+        Logs a message to the console with the hour prepended.
+        <em>Parameters</em>
+        msg - Message to log.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    self.log('Hello World')
+        </pre>
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
 
     def schedule_cleanup(self):
         '''
-Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
-<strong>Warning</strong>: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
-<em>Sample usage</em>
-<pre class="sh_python">
-    class MySampleRole(Role):
-        def provision(self):
-            self.schedule_cleanup()
-</pre>
+        Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
+        <strong>Warning</strong>: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    self.schedule_cleanup()
+        </pre>
         '''
         has_role = False
         for role in self.context['cleanup']:
