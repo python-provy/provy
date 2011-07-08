@@ -1,13 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 from os.path import exists, join, abspath, sep, splitext, dirname
-import fnmatch
-import inspect
 from json import dumps
 
 from provy.core import Role
+
+import os
+import fnmatch
+import inspect
+import textwrap
+
 
 class RoleDoc(object):
     def __init__(self, role, name, module, docs):
@@ -15,7 +18,7 @@ class RoleDoc(object):
         self.name = name
         self.module = module
         self.fullname = "%s.%s" % (module, name)
-        self.docs = docs
+        self.docs = textwrap.dedent(docs)
         self.methods = []
         self.parse_methods(role)
 
@@ -45,16 +48,18 @@ class RoleDoc(object):
 
         return obj
 
+
 class NameDoc(object):
     def __init__(self, name, doc):
         self.name = name
         self.doc = doc
-    
+
     def to_dict(self):
         return {
             '__name__': self.name,
             '__doc__': self.doc and self.doc.strip() or None
         }
+
 
 def main():
     path = "/tmp/docs.json"
@@ -76,7 +81,10 @@ def main():
             if not fnmatch.fnmatch(file_name, '*.py'):
                 continue
 
-            module_path = '%s.%s.%s' % (root_namespace, get_namespace_for(root), splitext(file_name)[0])
+            module_path = '%s.%s.%s' % (root_namespace,
+                                        get_namespace_for(root),
+                                        splitext(file_name)[0])
+
             module = import_module(module_path)
 
             for name, member in inspect.getmembers(module):
@@ -88,7 +96,10 @@ def main():
                 if not member.__doc__:
                     print "Warning: Role %s.%s does not have docstring." % (member.__module__, name)
 
-                roles_to_document[module_path] = RoleDoc(member, name, member.__module__, member.__doc__)
+                roles_to_document[module_path] = RoleDoc(member,
+                                                         name,
+                                                         member.__module__,
+                                                         member.__doc__)
 
     tree = {}
 
@@ -112,13 +123,15 @@ def main():
                 current[part][role_doc.name] = role_doc.to_dict()
             current = current[part]
 
-    contents = dumps(tree, sort_keys=True, separators=(',',':'))
+    contents = dumps(tree, sort_keys=True, separators=(',', ':'))
     with open(path, 'w') as f:
         f.write(contents)
+
 
 def import_module(module_path):
     module = __import__(module_path)
     return reduce(getattr, module_path.split('.')[1:], module)
+
 
 def get_namespace_for(directory):
     source_path = abspath(join(os.curdir, 'provy', 'more'))
