@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provision packages installed via the PIP package manager.
+Roles in this namespace are meant to provision packages installed via the PIP package manager for Debian distributions.
 '''
 
 import xmlrpclib
