@@ -50,9 +50,11 @@ This class provides many utility methods for interacting with the remote server.
 
     def register_template_loader(self, package_name):
         '''
-Register the <<package_name>> module as a valid source for templates in Jinja2.
+Register the <<package_name>> module as a valid source for templates in jinja2.
 Jinja2 will look inside a folder called 'templates' in the specified module.
 It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
+<em>Parameters</em>
+package_name - full name of the module that jinja2 will try to import.
 <em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
@@ -67,6 +69,8 @@ It is paramount that this module can be imported by python. The path must be wel
     def log(self, msg):
         '''
 Logs a message to the console with the hour prepended.
+<em>Parameters</em>
+msg - Message to log.
 <em>Sample usage</em>
 <pre class="sh_python">
     class MySampleRole(Role):
@@ -521,7 +525,7 @@ sudo - Indicates whether the file should be read by a super-user.
     def render(self, template_file, options={}):
         '''
 Renders a template with the given options and returns the rendered text.
-The template_file parameter should be just the name of the file and not the file path. Jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
+The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
 The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 <em>Parameters</em>
 template_file - Template file path in the local system.

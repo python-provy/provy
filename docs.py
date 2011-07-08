@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import exists, join, abspath, sep, splitext
+from os.path import exists, join, abspath, sep, splitext, dirname
 import fnmatch
 import inspect
 from json import dumps
@@ -25,6 +25,8 @@ class RoleDoc(object):
                 continue
             if not member.__module__ == role.__module__:
                 continue
+            if not member.__doc__:
+                print "Warning: Method %s of role %s does not have docstring." % (name, role.__name__)
             self.add_method(NameDoc(name, member.__doc__))
 
     def add_method(self, method_doc):
@@ -55,11 +57,11 @@ class NameDoc(object):
         }
 
 def main():
-    directory = "/tmp/provy-docs"
+    path = "/tmp/docs.json"
     source_path = join(os.curdir, 'provy', 'more')
 
-    if not exists(directory):
-        os.makedirs(directory)
+    if not exists(dirname(path)):
+        os.makedirs(dirname(path))
 
     root_namespace = 'provy.more'
 
@@ -83,6 +85,9 @@ def main():
                 if member.__module__ != module_path:
                     continue
 
+                if not member.__doc__:
+                    print "Warning: Role %s.%s does not have docstring." % (member.__module__, name)
+
                 roles_to_document[module_path] = RoleDoc(member, name, member.__module__, member.__doc__)
 
     tree = {}
@@ -96,6 +101,9 @@ def main():
             if hasattr(module, part):
                 module = getattr(module, part)
             if not part in current:
+                if not module.__doc__:
+                    print "Warning: Module %s does not have docstring." % module.__name__
+
                 current[part] = {
                     '__name__': module.__name__,
                     '__doc__': module.__doc__ and module.__doc__.strip() or None
@@ -104,7 +112,9 @@ def main():
                 current[part][role_doc.name] = role_doc.to_dict()
             current = current[part]
 
-    print dumps(tree, sort_keys=True, separators=(',',':'))
+    contents = dumps(tree, sort_keys=True, separators=(',',':'))
+    with open(path, 'w') as f:
+        f.write(contents)
 
 def import_module(module_path):
     module = __import__(module_path)
