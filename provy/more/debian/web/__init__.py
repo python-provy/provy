@@ -6,3 +6,4 @@ Roles in this namespace are meant to configure either Web Servers (apache, nginx
 '''
 from provy.more.debian.web.nginx import NginxRole
 from provy.more.debian.web.tornado import TornadoRole
+from provy.more.debian.web.django import DjangoRole

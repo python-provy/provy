@@ -36,22 +36,30 @@ def __get_arguments():
     return (options, args)
 
 
-def __get_provy_file_path():
-    path = abspath('provyfile.py')
+def __get_provy_file_path(provyfile_name):
+    path = abspath(provyfile_name)
     if not exists(path):
-        path = abspath('provy_file.py')
-        if not exists(path):
-            return None
+        return None
     return splitext(path.replace(abspath('.'), '').lstrip('/').rstrip('/'))[0]
-
 
 def main():
     (options, args) = __get_arguments()
 
     sys.path.insert(0, os.curdir)
-    provyfile_path = __get_provy_file_path()
+    if args:
+        provyfile_name = args[0]
+    else:
+        provyfile_name = 'provyfile.py'
 
+    provyfile_path = __get_provy_file_path(provyfile_name)
+    if not provyfile_path:
+        provyfile_path = __get_provy_file_path('provy_file.py')
+
+    if not provyfile_path:
+        print "The file %s could not be found!" % provyfile_name
+        sys.exit(1)
     run(provyfile_path, options.server, options.password)
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()

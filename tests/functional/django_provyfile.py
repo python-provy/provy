@@ -1,0 +1,75 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from provy.core import Role
+from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole
+from provy.more.debian import PipRole, VarnishRole, AptitudeRole, GitRole
+from provy.more.debian import SupervisorRole, DjangoRole
+
+class FrontEnd(Role):
+    def provision(self):
+        with self.using(UserRole) as role:
+            role.ensure_user('frontend', identified_by='pass', is_admin=True)
+
+        with self.using(NginxRole) as role:
+            role.ensure_conf(conf_template='test-conf.conf', options={
+                'user': 'frontend'
+            })
+            role.ensure_site_disabled('default')
+            role.create_site(site='frontend', template='test-site')
+            role.ensure_site_enabled('frontend')
+
+class BackEnd(Role):
+    def provision(self):
+        with self.using(UserRole) as role:
+            role.ensure_user('backend', identified_by='pass', is_admin=True)
+
+        with self.using(GitRole) as role:
+            role.ensure_repository(repo='git://github.com/heynemann/provy.git',
+                                   path='/home/backend/provy',
+                                   branch="master",
+                                   owner='backend')
+
+        self.ensure_dir('/home/backend/logs', sudo=True, owner='backend')
+
+        with self.using(DjangoRole) as role:
+            with role.create_site('website') as site:
+                site.path = '/home/backend/provy/tests/functional/djangosite'
+                site.threads = 2
+                site.settings = {
+                    'CREATED_BY': 'provy'
+                }
+
+        with self.using(SupervisorRole) as role:
+            role.config(
+                config_file_directory='/home/backend',
+                log_file='/home/backend/logs/supervisord.log',
+                user='backend'
+            )
+
+            with role.with_program('website') as program:
+                program.directory = '/home/backend/provy/tests/functional/djangosite'
+                program.command = '/etc/init.d/website 800%(process_num)s'
+                program.number_of_processes = 4
+
+                program.log_folder = '/home/backend/logs'
+
+servers = {
+    'test': {
+        'frontend': {
+            'address': '33.33.33.33',
+            'user': 'vagrant',
+            'roles': [
+                FrontEnd
+            ]
+        },
+        'backend': {
+            'address': '33.33.33.34',
+            'user': 'vagrant',
+            'roles': [
+                BackEnd
+            ]
+        }
+    }
+}
+
