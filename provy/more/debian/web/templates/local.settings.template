@@ -4,5 +4,5 @@
 from {{ settings_file }} import *
 
 {% for key, value in settings.iteritems() %}
-{{ key }} = "{{ value }}"
+{{ key }} = "{{ str(value) }}"
 {% endfor %}

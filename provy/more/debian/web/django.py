@@ -22,8 +22,6 @@ class WithSite(object):
         self.name = name
         self.settings_path = None
         self.host = '0.0.0.0'
-        self.log_file_path = '/var/log'
-        self.log_level = "info"
         self.pid_file_path = '/var/run'
         self.threads = 1
         self.processes = 1
@@ -46,11 +44,25 @@ class WithSite(object):
 class DjangoRole(Role):
     '''
     This role provides Django app server management utilities for Debian distributions.
+    When running Django under supervisor, remember to set <em>restart_supervisor_on_changes</em> to True.
+    When creating a new site using <em>with role.create_site('somesite') as site</em> these are properties available in the site object:
+    auto_start - Indicates whether the site should be automatically started by the operating system. Defaults to True. If using supervisor, explicitly set this to False.
+    daemon - Indicates whether the init.d command for the website should daemonize itself. Defaults to True. If using supervisor, explicitly set this to False.
+    settings_path - This is the only mandatory argument. This is the full path to django's settings.py file.
+    host - The host IP address that django will listen to incoming requests. Defaults to '0.0.0.0'.
+    starting_port - The first port that Django will be started in the event that more than one process is used. Defaults to 8000.
+    processes - The number of processes that will have commands created at the server. As an example, if this is set to 2 and the name of the site is 'website', two commands will be created: /etc/init.d/website-8000 and /etc/init.d/website-8001. Defaults to 1.
+    pid_file_path - Path to create the pid file. Defaults to '/var/run'.
+    threads - Number of worker threads that Green Unicorn will use when spawning Django. Defaults to 1.
+    user - User that gunicorn will run under. Defaults to the last created user. When using supervisor it is VERY important that this user is the same user as supervisor's.
+    settings - Dictionary with settings that will overwrite Django's defaults. These settings will be included in a local_settings.py module that imports the original settings as KEY=value pairs. All values included here will have their string representation used in the local_settings.
+
     <em>Sample usage</em>
     <pre class="sh_python">
         class MySampleRole(Role):
             def provision(self):
                 with self.using(DjangoRole) as role:
+                    role.restart_supervisor_on_changes = True
                     with role.create_site('mysite') as site:
                         site.path = '/some/folder/with/settings.py'
                         site.threads = 4
