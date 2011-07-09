@@ -39,8 +39,7 @@ class AptitudeRole(Role):
                     self.provision_role(AptitudeRole) # does not need to be called if using with block.
         </pre>
         '''
-        is_present = self.execute('which aptitude; echo $?', stdout=False, sudo=True) == '0'
-        if not is_present:
+        if not self.is_package_installed('aptitude'):
             self.execute('apt-get install aptitude', stdout=False, sudo=True)
 
         self.ensure_up_to_date()
@@ -180,6 +179,8 @@ class AptitudeRole(Role):
         '''
         Returns True if the given package is installed via aptitude, False otherwise.
         <em>Sample usage</em>
+        <em>Parameters</em>
+        package_name - Name of the package to verify
         <pre class="sh_python">
             class MySampleRole(Role):
                 def provision(self):
@@ -192,9 +193,13 @@ class AptitudeRole(Role):
         with settings(warn_only=True):
             return package_name in self.execute("dpkg -l | egrep '\\b%s\\b'" % package_name, stdout=False, sudo=True)
 
-    def ensure_package_installed(self, package_name):
+    def ensure_package_installed(self, package_name, stdout=False, sudo=True):
         '''
         Ensures that the given package is installed via aptitude.
+        <em>Parameters</em>
+        package_name - Name of the package to install
+        stdout - Indicates whether install progress should be shown to stdout. Defaults to False.
+        sudo - Indicates whether the package should be installed with the super user. Defaults to True.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -206,5 +211,5 @@ class AptitudeRole(Role):
 
         if not self.is_package_installed(package_name):
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
-            self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=False, sudo=True)
+            self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=stdout, sudo=sudo)
             self.log('%s is installed (via aptitude).' % package_name)
