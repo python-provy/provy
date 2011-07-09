@@ -18,10 +18,13 @@ class AptitudeRole(Role):
     This role provides package management operations with Aptitude within Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_package_installed('nginx')
+    from provy.core import Role
+    from provy.more.debian.package.aptitude import AptitudeRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                role.ensure_package_installed('nginx')
     </pre>
     '''
 
@@ -34,9 +37,12 @@ class AptitudeRole(Role):
         Installs Aptitude dependencies. This method should be called upon if overriden in base classes, or Aptitude won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(AptitudeRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(AptitudeRole) # does not need to be called if using with block.
         </pre>
         '''
         is_present = self.execute('which aptitude; echo $?', stdout=False, sudo=True) == '0'
@@ -53,10 +59,13 @@ class AptitudeRole(Role):
         url - Url of the gpg key file.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.ensure_gpg_key('http://some.url.com/to/key.gpg')
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_gpg_key('http://some.url.com/to/key.gpg')
         </pre>
         '''
         command = "curl %s | apt-key add -" % url
@@ -69,11 +78,14 @@ class AptitudeRole(Role):
         source_string - repository string
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        if role.has_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted'):
-                            # do something
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    if role.has_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted'):
+                        # do something
         </pre>
         '''
 
@@ -86,10 +98,13 @@ class AptitudeRole(Role):
         source_string - repository string
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.ensure_aptitude_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted')
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_aptitude_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted')
         </pre>
         '''
         if self.has_source(source_string):
@@ -106,10 +121,13 @@ class AptitudeRole(Role):
         Returns the path for the file that contains the last update date to aptitudes's list of packages.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        file_path = role.update_date_file
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    file_path = role.update_date_file
         </pre>
         '''
         return join(self.remote_temp_dir(), 'last_aptitude_update')
@@ -119,10 +137,13 @@ class AptitudeRole(Role):
         Updates the date in the <em>update_date_file</em>.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.store_update_date()
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.store_update_date()
         </pre>
         '''
         self.execute('echo "%s" > %s' % (datetime.now().strftime(self.time_format), self.update_date_file), stdout=False)
@@ -132,10 +153,13 @@ class AptitudeRole(Role):
         Returns the date in the <em>update_date_file</em>.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        last_update = role.get_last_update_date()
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    last_update = role.get_last_update_date()
         </pre>
         '''
         if not self.remote_exists(self.update_date_file):
@@ -149,10 +173,13 @@ class AptitudeRole(Role):
         Makes sure aptitude's repository is updated if it hasn't been updated in the last 30 minutes.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.ensure_up_to_date()
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_up_to_date()
         </pre>
         '''
         last_updated = self.get_last_update_date()
@@ -164,10 +191,13 @@ class AptitudeRole(Role):
         Forces an update to aptitude's repository.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.force_update()
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.force_update()
         </pre>
         '''
         self.log('Updating aptitude sources...')
@@ -181,11 +211,14 @@ class AptitudeRole(Role):
         Returns True if the given package is installed via aptitude, False otherwise.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        if role.is_package_installed('nginx'):
-                            # do something
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    if role.is_package_installed('nginx'):
+                        # do something
         </pre>
         '''
 
@@ -197,10 +230,13 @@ class AptitudeRole(Role):
         Ensures that the given package is installed via aptitude.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.ensure_package_installed('nginx')
+        from provy.core import Role
+        from provy.more.debian.package.aptitude import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_package_installed('nginx')
         </pre>
         '''
 
