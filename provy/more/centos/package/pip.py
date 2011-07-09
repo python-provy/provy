@@ -18,10 +18,13 @@ class PipRole(Role):
     This role provides package management operations with PIP within CentOS distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_package_installed('django', version='1.1.1')
+    from provy.core import Role
+    from provy.more.centos.package.pip import PipRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(PipRole) as role:
+                role.ensure_package_installed('django', version='1.1.1')
     </pre>
     '''
 
@@ -32,9 +35,12 @@ class PipRole(Role):
         Installs pip dependencies. This method should be called upon if overriden in base classes, or PIP won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(PipRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(PipRole) # does not need to be called if using with block.
         </pre>
         '''
 
@@ -51,11 +57,14 @@ class PipRole(Role):
         package_name - Name of the package to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        if role.is_package_installed('django', version='1.1.1'):
-                            # do something
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    if role.is_package_installed('django', version='1.1.1'):
+                        # do something
         </pre>
         '''
 
@@ -70,12 +79,15 @@ class PipRole(Role):
         package_name - Name of the package to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        version = role.get_package_remote_version('django')
-                        if version and version == '1.1.1':
-                            # do something
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    version = role.get_package_remote_version('django')
+                    if version and version == '1.1.1':
+                        # do something
         </pre>
         '''
 
@@ -94,14 +106,17 @@ class PipRole(Role):
         package_name - Name of the package to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        version = role.get_package_remote_version('django')
-                        latest = role.get_package_latest_version('django')
-                        if version != latest:
-                            # do something
-                            # this check is not needed if you use ensure_package_up_to_date.
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    version = role.get_package_remote_version('django')
+                    latest = role.get_package_latest_version('django')
+                    if version != latest:
+                        # do something
+                        # this check is not needed if you use ensure_package_up_to_date.
         </pre>
         '''
 
@@ -123,12 +138,15 @@ class PipRole(Role):
         package_name - Name of the package to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        if role.package_can_be_updated('django'):
-                            # do something
-                            # this check is not needed if you use ensure_package_up_to_date.
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    if role.package_can_be_updated('django'):
+                        # do something
+                        # this check is not needed if you use ensure_package_up_to_date.
         </pre>
         '''
 
@@ -145,10 +163,13 @@ class PipRole(Role):
         version - If specified, installs this version of the package. Installs latest version otherwise.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        role.ensure_package_installed('django', version='1.1.1')
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_package_installed('django', version='1.1.1')
         </pre>
         '''
 
@@ -172,10 +193,13 @@ class PipRole(Role):
         package_name - Name of the package to install.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        role.ensure_package_is_up_to_date('django')
+        from provy.core import Role
+        from provy.more.centos.package.pip import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_package_is_up_to_date('django')
         </pre>
         '''
 
