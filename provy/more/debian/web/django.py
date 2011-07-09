@@ -14,9 +14,10 @@ from provy.more.debian.monitoring.supervisor import SupervisorRole
 SITES_KEY = 'django-sites'
 MUST_RESTART_KEY = 'restart-django-sites'
 
+
 class WithSite(object):
     def __init__(self, django, name):
-        self.django = django 
+        self.django = django
         self.auto_start = True
         self.daemon = True
         self.name = name
@@ -41,6 +42,7 @@ class WithSite(object):
 
         self.django.context[SITES_KEY].append(self)
 
+
 class DjangoRole(Role):
     '''
     This role provides Django app server management utilities for Debian distributions.
@@ -59,17 +61,20 @@ class DjangoRole(Role):
 
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(DjangoRole) as role:
-                    role.restart_supervisor_on_changes = True
-                    with role.create_site('mysite') as site:
-                        site.path = '/some/folder/with/settings.py'
-                        site.threads = 4
-                        # settings that override the website defaults.
-                        site.settings = {
+    from provy.core import Role
+    from provy.more.debian.web.django import DjangoRole
 
-                        }
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(DjangoRole) as role:
+                role.restart_supervisor_on_changes = True
+                with role.create_site('mysite') as site:
+                    site.path = '/some/folder/with/settings.py'
+                    site.threads = 4
+                    # settings that override the website defaults.
+                    site.settings = {
+
+                    }
     </pre>
     '''
     def __init__(self, prov, context):
@@ -82,16 +87,19 @@ class DjangoRole(Role):
         If you set a variable called django-version in the context, that version of django will be installed instead of latest.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(DjangoRole) # no need to call this if using with block.
+        from provy.core import Role
+        from provy.more.debian.web.django import DjangoRole
 
-            # or
-            class MySampleRole(Role):
-                def provision(self):
-                    self.context['django-version'] = '1.1.1'
-                    self.provision_role(DjangoRole) # no need to call this if using with block.
-                    # now django 1.1.1 is installed.
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(DjangoRole) # no need to call this if using with block.
+
+        # or
+        class MySampleRole(Role):
+            def provision(self):
+                self.context['django-version'] = '1.1.1'
+                self.provision_role(DjangoRole) # no need to call this if using with block.
+                # now django 1.1.1 is installed.
         </pre>
         '''
         self.register_template_loader('provy.more.debian.web')
@@ -110,16 +118,19 @@ class DjangoRole(Role):
         name - name of the website.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(DjangoRole) as role:
-                        with role.create_site('website') as program:
-                            site.path = '/some/folder/with/settings.py'
-                            site.threads = 4
-                            # settings that override the website defaults.
-                            site.settings = {
+        from provy.core import Role
+        from provy.more.debian.web.django import DjangoRole
 
-                            }
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(DjangoRole) as role:
+                    with role.create_site('website') as program:
+                        site.path = '/some/folder/with/settings.py'
+                        site.threads = 4
+                        # settings that override the website defaults.
+                        site.settings = {
+
+                        }
         </pre>
         '''
         return WithSite(self, name)
