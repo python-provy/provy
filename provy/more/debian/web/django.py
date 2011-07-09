@@ -135,21 +135,21 @@ class DjangoRole(Role):
                 updated = self.__update_init_script(website)
                 settings_updated = self.__update_settings(website)
                 if updated or settings_updated:
-                    self.ensure_restart(website)
+                    self.__ensure_restart(website)
 
         if MUST_RESTART_KEY in self.context and self.context[MUST_RESTART_KEY]:
             if self.restart_supervisor_on_changes:
                 with self.using(SupervisorRole) as role:
                     role.ensure_restart()
             for site in self.context[MUST_RESTART_KEY]:
-                self.restart(site)
+                self.__restart(site)
 
-    def ensure_restart(self, website):
+    def __ensure_restart(self, website):
         if not MUST_RESTART_KEY in self.context:
             self.context[MUST_RESTART_KEY] = []
         self.context[MUST_RESTART_KEY].append(website)
 
-    def restart(self, website):
+    def __restart(self, website):
         if not website.auto_start:
             return
         for process_number in range(website.processes):
