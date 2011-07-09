@@ -19,7 +19,7 @@ class YumRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.centos.package.yum import YumRole
+    from provy.more.centos import YumRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -37,7 +37,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -55,7 +55,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -74,7 +74,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -93,7 +93,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -116,7 +116,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -132,7 +132,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -149,7 +149,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -169,7 +169,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -188,7 +188,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -208,7 +208,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -226,7 +226,7 @@ class YumRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.yum import YumRole
+        from provy.more.centos import YumRole
 
         class MySampleRole(Role):
             def provision(self):

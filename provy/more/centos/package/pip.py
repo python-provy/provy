@@ -19,7 +19,7 @@ class PipRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.centos.package.pip import PipRole
+    from provy.more.centos import PipRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -36,7 +36,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -58,7 +58,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -80,7 +80,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -107,7 +107,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -139,7 +139,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -164,7 +164,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -194,7 +194,7 @@ class PipRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.package.pip import PipRole
+        from provy.more.centos import PipRole
 
         class MySampleRole(Role):
             def provision(self):

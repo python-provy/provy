@@ -12,7 +12,7 @@ class UserRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.centos.users.user import UserRole
+    from provy.more.centos import UserRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -29,7 +29,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.users.user import UserRole
+        from provy.more.centos import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -48,7 +48,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.users.user import UserRole
+        from provy.more.centos import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -68,7 +68,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.users.user import UserRole
+        from provy.more.centos import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -87,7 +87,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.users.user import UserRole
+        from provy.more.centos import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -113,7 +113,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos.users.user import UserRole
+        from provy.more.centos import UserRole
 
         class MySampleRole(Role):
             def provision(self):
