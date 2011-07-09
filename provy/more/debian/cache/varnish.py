@@ -14,11 +14,14 @@ class VarnishRole(Role):
     This role provides utility methods for Varnish configuration and execution within Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(VarnishRole) as role:
-                    role.ensure_vcl('default.vcl', owner='user')
-                    role.ensure_conf('default_varnish', owner='user')
+    from provy.core import Role
+    from provy.more.debian import VarnishRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(VarnishRole) as role:
+                role.ensure_vcl('default.vcl', owner='user')
+                role.ensure_conf('default_varnish', owner='user')
     </pre>
     '''
 
@@ -27,9 +30,12 @@ class VarnishRole(Role):
         Installs Varnish and its dependencies. This method should be called upon if overriden in base classes, or Varnish won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(VarnishRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(VarnishRole) # does not need to be called if using with block.
         </pre>
         '''
 
@@ -50,10 +56,13 @@ class VarnishRole(Role):
         owner - Owner of the VCL file at the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as role:
-                        role.ensure_vcl('default.vcl', owner='user')
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VarnishRole) as role:
+                    role.ensure_vcl('default.vcl', owner='user')
         </pre>
         '''
 
@@ -72,10 +81,13 @@ class VarnishRole(Role):
         owner - Owner of the configuration file at the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as role:
-                        role.ensure_conf('default_varnish', owner='user')
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VarnishRole) as role:
+                    role.ensure_conf('default_varnish', owner='user')
         </pre>
         '''
 
@@ -89,10 +101,13 @@ class VarnishRole(Role):
         Restarts Varnish if it needs to be restarted (any changes made during this server's provisioning).
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as role:
-                        role.cleanup() # No need to call this if using a with block.
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VarnishRole) as role:
+                    role.cleanup() # No need to call this if using a with block.
         </pre>
         '''
         if 'must-restart-varnish' in self.context and self.context['must-restart-varnish']:
@@ -103,10 +118,13 @@ class VarnishRole(Role):
         Ensures that Varnish is restarted on cleanup phase.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as role:
-                        role.ensure_restart() # No need to call this if using a with block.
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VarnishRole) as role:
+                    role.ensure_restart() # No need to call this if using a with block.
         </pre>
         '''
         self.context['must-restart-varnish'] = True
@@ -116,11 +134,14 @@ class VarnishRole(Role):
         Forcefully restarts Varnish in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as role:
-                        if not self.is_process_running('varnishd'):
-                            role.restart()
+        from provy.core import Role
+        from provy.more.debian import VarnishRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VarnishRole) as role:
+                    if not self.is_process_running('varnishd'):
+                        role.restart()
         </pre>
         '''
         command = '/etc/init.d/varnish restart'

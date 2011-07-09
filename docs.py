@@ -9,7 +9,6 @@ from provy.core import Role
 import os
 import fnmatch
 import inspect
-import textwrap
 
 
 class RoleDoc(object):
@@ -18,7 +17,7 @@ class RoleDoc(object):
         self.name = name
         self.module = module
         self.fullname = "%s.%s" % (module, name)
-        self.docs = textwrap.dedent(docs)
+        self.docs = docs
         self.methods = []
         self.parse_methods(role)
 

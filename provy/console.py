@@ -42,6 +42,7 @@ def __get_provy_file_path(provyfile_name):
         return None
     return splitext(path.replace(abspath('.'), '').lstrip('/').rstrip('/'))[0]
 
+
 def main():
     (options, args) = __get_arguments()
 

@@ -17,10 +17,13 @@ class SSHRole(Role):
     This role provides SSH keygen utilities for Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SSHRole) as role:
-                    role.ensure_ssh_key(user='someuser', private_key_file="private-key")
+    from provy.core import Role
+    from provy.more.debian import SSHRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(SSHRole) as role:
+                role.ensure_ssh_key(user='someuser', private_key_file="private-key")
     </pre>
     '''
 
@@ -33,10 +36,13 @@ class SSHRole(Role):
         private_key_file - Template file for the private key.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SSHRole) as role:
-                        role.ensure_ssh_key(user='someuser', private_key_file="private-key")
+        from provy.core import Role
+        from provy.more.debian import SSHRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SSHRole) as role:
+                    role.ensure_ssh_key(user='someuser', private_key_file="private-key")
         </pre>
 
         '''

@@ -11,10 +11,13 @@ class UserRole(Role):
     This role provides many utility methods for user management operations within Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(UserRole) as role:
-                    role.ensure_user('myuser', identified_by='mypass', is_admin=True)
+    from provy.core import Role
+    from provy.more.debian import UserRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(UserRole) as role:
+                role.ensure_user('myuser', identified_by='mypass', is_admin=True)
     </pre>
     '''
 
@@ -25,11 +28,14 @@ class UserRole(Role):
         group_name - Name of the group to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(UserRole) as role:
-                        if role.group_exists('usersgroup'):
-                            # do something
+        from provy.core import Role
+        from provy.more.debian import UserRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UserRole) as role:
+                    if role.group_exists('usersgroup'):
+                        # do something
         </pre>
         '''
         return group_name in self.execute("cat /etc/group", stdout=False)
@@ -41,11 +47,14 @@ class UserRole(Role):
         username - Name of the user to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(UserRole) as role:
-                        if role.user_exists('myuser'):
-                            # do something
+        from provy.core import Role
+        from provy.more.debian import UserRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UserRole) as role:
+                    if role.user_exists('myuser'):
+                        # do something
         </pre>
         '''
         return username in self.execute("cat /etc/passwd", stdout=False)
@@ -58,11 +67,14 @@ class UserRole(Role):
         group_name - Name of the group to verify.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(UserRole) as role:
-                        if role.user_in_group('myuser', 'mygroup'):
-                            # do something
+        from provy.core import Role
+        from provy.more.debian import UserRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UserRole) as role:
+                    if role.user_in_group('myuser', 'mygroup'):
+                        # do something
         </pre>
         '''
 
@@ -75,10 +87,13 @@ class UserRole(Role):
         group_name - Name of the group to create.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(UserRole) as role:
-                        role.ensure_group('users-group')
+        from provy.core import Role
+        from provy.more.debian import UserRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UserRole) as role:
+                    role.ensure_group('users-group')
         </pre>
         '''
         if not self.group_exists(group_name):
@@ -98,10 +113,13 @@ class UserRole(Role):
         is_admin - If set to True the user is added to the 'admin' user group as well.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(UserRole) as role:
-                        role.ensure_user('myuser', identified_by='mypass', is_admin=True)
+        from provy.core import Role
+        from provy.more.debian import UserRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UserRole) as role:
+                    role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         </pre>
         '''
 
