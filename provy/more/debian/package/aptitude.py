@@ -19,7 +19,7 @@ class AptitudeRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.package.aptitude import AptitudeRole
+    from provy.more.debian import AptitudeRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -38,7 +38,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -60,7 +60,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -79,7 +79,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -99,7 +99,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -122,7 +122,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -138,7 +138,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -154,7 +154,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -174,7 +174,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -192,7 +192,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -212,7 +212,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -231,7 +231,7 @@ class AptitudeRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.package.aptitude import AptitudeRole
+        from provy.more.debian import AptitudeRole
 
         class MySampleRole(Role):
             def provision(self):

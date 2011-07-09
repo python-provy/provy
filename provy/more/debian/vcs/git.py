@@ -15,7 +15,7 @@ class GitRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.vcs.git import GitRole
+    from provy.more.debian import GitRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -33,7 +33,7 @@ class GitRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.vcs.git import GitRole
+        from provy.more.debian import GitRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -55,7 +55,7 @@ class GitRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.vcs.git import GitRole
+        from provy.more.debian import GitRole
 
         class MySampleRole(Role):
             def provision(self):

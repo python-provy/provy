@@ -62,7 +62,7 @@ class DjangoRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.web.django import DjangoRole
+    from provy.more.debian import DjangoRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -88,7 +88,7 @@ class DjangoRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.django import DjangoRole
+        from provy.more.debian import DjangoRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -119,7 +119,7 @@ class DjangoRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.django import DjangoRole
+        from provy.more.debian import DjangoRole
 
         class MySampleRole(Role):
             def provision(self):

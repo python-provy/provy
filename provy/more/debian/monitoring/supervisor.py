@@ -79,7 +79,7 @@ class SupervisorRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.monitoring.supervisor import SupervisorRole
+    from provy.more.debian import SupervisorRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -105,7 +105,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -125,7 +125,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -148,7 +148,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -181,7 +181,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -220,7 +220,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -241,7 +241,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -293,7 +293,7 @@ class SupervisorRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.monitoring.supervisor import SupervisorRole
+        from provy.more.debian import SupervisorRole
 
         class MySampleRole(Role):
             def provision(self):

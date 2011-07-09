@@ -15,7 +15,7 @@ class NginxRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.web.nginx import NginxRole
+    from provy.more.debian import NginxRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -39,7 +39,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -68,7 +68,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -93,7 +93,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -114,7 +114,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -140,7 +140,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -162,7 +162,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -178,7 +178,7 @@ class NginxRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.web.nginx import NginxRole
+        from provy.more.debian import NginxRole
 
         class MySampleRole(Role):
             def provision(self):

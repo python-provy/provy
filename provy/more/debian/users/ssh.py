@@ -18,7 +18,7 @@ class SSHRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.users.ssh import SSHRole
+    from provy.more.debian import SSHRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -37,7 +37,7 @@ class SSHRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.ssh import SSHRole
+        from provy.more.debian import SSHRole
 
         class MySampleRole(Role):
             def provision(self):

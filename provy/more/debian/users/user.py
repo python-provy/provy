@@ -12,7 +12,7 @@ class UserRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.users.user import UserRole
+    from provy.more.debian import UserRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -29,7 +29,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.user import UserRole
+        from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -48,7 +48,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.user import UserRole
+        from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -68,7 +68,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.user import UserRole
+        from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -88,7 +88,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.user import UserRole
+        from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -114,7 +114,7 @@ class UserRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.users.user import UserRole
+        from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):

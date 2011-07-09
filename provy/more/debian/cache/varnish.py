@@ -15,7 +15,7 @@ class VarnishRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian.cache.varnish import VarnishRole
+    from provy.more.debian import VarnishRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -31,7 +31,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -57,7 +57,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -82,7 +82,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -102,7 +102,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -119,7 +119,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -135,7 +135,7 @@ class VarnishRole(Role):
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
-        from provy.more.debian.cache.varnish import VarnishRole
+        from provy.more.debian import VarnishRole
 
         class MySampleRole(Role):
             def provision(self):
