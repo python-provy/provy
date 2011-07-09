@@ -15,6 +15,7 @@ CONFIG_KEY = 'supervisor-config'
 MUST_UPDATE_CONFIG_KEY = 'must-update-supervisor-config'
 MUST_RESTART_KEY = 'must-restart-supervisor'
 
+
 class WithProgram(object):
     def __init__(self, supervisor, name):
         self.supervisor = supervisor
@@ -77,21 +78,24 @@ class SupervisorRole(Role):
     This role provides supervisor monitoring utilities for Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SupervisorRole) as role:
-                    role.config(
-                        config_file_directory='/home/backend',
-                        log_file='/home/backend/logs/supervisord.log',
-                        user=self.context['supervisor-user']
-                    )
+    from provy.core import Role
+    from provy.more.debian.monitoring.supervisor import SupervisorRole
 
-                    with role.with_program('website') as program:
-                        program.directory = '/home/backend/provy/tests/functional'
-                        program.command = 'python website.py 800%(process_num)s'
-                        program.number_of_processes = 4
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(SupervisorRole) as role:
+                role.config(
+                    config_file_directory='/home/backend',
+                    log_file='/home/backend/logs/supervisord.log',
+                    user=self.context['supervisor-user']
+                )
 
-                        program.log_folder = '/home/backend/logs'
+                with role.with_program('website') as program:
+                    program.directory = '/home/backend/provy/tests/functional'
+                    program.command = 'python website.py 800%(process_num)s'
+                    program.number_of_processes = 4
+
+                    program.log_folder = '/home/backend/logs'
     </pre>
     '''
 
@@ -100,9 +104,12 @@ class SupervisorRole(Role):
         Installs Supervisor and its dependencies. This method should be called upon if overriden in base classes, or Supervisor won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(SupervisorRole) # no need to call this if using with block.
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(SupervisorRole) # no need to call this if using with block.
         </pre>
         '''
         self.register_template_loader('provy.more.debian.monitoring')
@@ -117,10 +124,13 @@ class SupervisorRole(Role):
         config_file_path - path to the supervisord.conf at the server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        role.update_init_script('/etc/supervisord.conf')
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.update_init_script('/etc/supervisord.conf')
         </pre>
         '''
 
@@ -137,10 +147,13 @@ class SupervisorRole(Role):
         Makes sure that the config file is updated upon cleanup.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        role.ensure_config_update()
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.ensure_config_update()
         </pre>
         '''
 
@@ -167,15 +180,18 @@ class SupervisorRole(Role):
 
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        role.config(
-                            config_file_directory='/home/backend',
-                            log_file='/home/backend/logs/supervisord.log',
-                            pidfile='/home/backend/supervisord.pid',
-                            user='backend'
-                        )
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.config(
+                        config_file_directory='/home/backend',
+                        log_file='/home/backend/logs/supervisord.log',
+                        pidfile='/home/backend/supervisord.pid',
+                        user='backend'
+                    )
         </pre>
         '''
 
@@ -203,14 +219,17 @@ class SupervisorRole(Role):
         name - name of the program being supervised.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        with role.with_program('website') as program:
-                            program.directory = '/home/backend/provy/tests/functional'
-                            program.command = 'python website.py 800%(process_num)s'
-                            program.number_of_processes = 4
-                            program.log_folder = '/home/backend/logs'
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    with role.with_program('website') as program:
+                        program.directory = '/home/backend/provy/tests/functional'
+                        program.command = 'python website.py 800%(process_num)s'
+                        program.number_of_processes = 4
+                        program.log_folder = '/home/backend/logs'
         </pre>
         '''
         return WithProgram(self, name)
@@ -221,10 +240,13 @@ class SupervisorRole(Role):
         There's no need to call this method after config, since SupervisorRole cleanup will call it for you.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        role.update_config_file()
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.update_config_file()
         </pre>
         '''
         if CONFIG_KEY in self.context or PROGRAMS_KEY in self.context:
@@ -270,10 +292,13 @@ class SupervisorRole(Role):
         Forcefully restarts supervisor.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(SupervisorRole) as role:
-                        role.restart()
+        from provy.core import Role
+        from provy.more.debian.monitoring.supervisor import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.restart()
         </pre>
         '''
         if not self.is_process_running('supervisord'):
