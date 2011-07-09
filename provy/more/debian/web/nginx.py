@@ -14,13 +14,16 @@ class NginxRole(Role):
     This role provides Nginx web server management utilities for Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(NginxRole) as role:
-                    role.ensure_conf(conf_template='nginx.conf')
-                    role.ensure_site_disabled('default')
-                    role.create_site(site='my-site', template='my-site')
-                    role.ensure_site_enabled('my-site')
+    from provy.core import Role
+    from provy.more.debian.web.nginx import NginxRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(NginxRole) as role:
+                role.ensure_conf(conf_template='nginx.conf')
+                role.ensure_site_disabled('default')
+                role.create_site(site='my-site', template='my-site')
+                role.ensure_site_enabled('my-site')
     </pre>
     '''
 
@@ -35,9 +38,12 @@ class NginxRole(Role):
         Installs Nginx dependencies. This method should be called upon if overriden in base classes, or Nginx won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(NginxRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(NginxRole) # does not need to be called if using with block.
         </pre>
         '''
         with self.using(AptitudeRole) as role:
@@ -61,10 +67,13 @@ class NginxRole(Role):
         nginx_conf_path - Path of the nginx configuration file. Defaults to /etc/nginx/nginx.conf.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.ensure_conf(conf_template='nginx.conf')
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.ensure_conf(conf_template='nginx.conf')
         </pre>
         '''
 
@@ -83,10 +92,13 @@ class NginxRole(Role):
         site - Name of the site to disable.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.ensure_site_disabled('default')
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.ensure_site_disabled('default')
         </pre>
         '''
         result = self.remove_file(self.__enabled_site_for(site), sudo=True)
@@ -101,10 +113,13 @@ class NginxRole(Role):
         site - Name of the site to enable.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.ensure_site_enabled('my-site')
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.ensure_site_enabled('my-site')
         </pre>
         '''
 
@@ -124,10 +139,13 @@ class NginxRole(Role):
         template - Site configuration template.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.create_site(site='my-site', template='my-site')
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.create_site(site='my-site', template='my-site')
         </pre>
         '''
 
@@ -143,10 +161,13 @@ class NginxRole(Role):
         Ensures that nginx gets restarted on cleanup. There's no need to call this method as any changes to nginx will trigger it.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.ensure_restart()
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.ensure_restart()
         </pre>
         '''
         self.context['must-restart-nginx'] = True
@@ -156,10 +177,13 @@ class NginxRole(Role):
         Forcefully restarts nginx.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(NginxRole) as role:
-                        role.restart()
+        from provy.core import Role
+        from provy.more.debian.web.nginx import NginxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NginxRole) as role:
+                    role.restart()
         </pre>
         '''
         command = '/etc/init.d/nginx restart'
