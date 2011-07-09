@@ -86,7 +86,7 @@ class UserRole(Role):
             self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
-    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
+    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", group=None, is_admin=False):
         '''
         Ensures that a given user is present in the remote server.
         <em>Parameters</em>

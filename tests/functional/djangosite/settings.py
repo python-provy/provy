@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Django settings for djangosite project.
 
 DEBUG = True

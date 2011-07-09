@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from provy.core import Role
-from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole
-from provy.more.debian import PipRole, VarnishRole, AptitudeRole, GitRole
+from provy.more.debian import NginxRole, UserRole
+from provy.more.debian import GitRole
 from provy.more.debian import SupervisorRole, DjangoRole
 
 class FrontEnd(Role):
@@ -33,9 +33,16 @@ class BackEnd(Role):
         self.ensure_dir('/home/backend/logs', sudo=True, owner='backend')
 
         with self.using(DjangoRole) as role:
+            role.restart_supervisor_on_changes = True
             with role.create_site('website') as site:
-                site.path = '/home/backend/provy/tests/functional/djangosite'
+                site.settings_path = '/home/backend/provy/tests/functional/djangosite/settings.py'
+                site.auto_start = False # using with supervisor there's no need to auto-start.
+                site.daemon = False # supervisor fails if the site daemonizes itself.
                 site.threads = 2
+                site.processes = 2
+                site.user = 'backend'
+                site.pid_file_path = '/home/backend'
+                site.log_file_path = '/home/backend'
                 site.settings = {
                     'CREATED_BY': 'provy'
                 }
@@ -48,9 +55,11 @@ class BackEnd(Role):
             )
 
             with role.with_program('website') as program:
-                program.directory = '/home/backend/provy/tests/functional/djangosite'
-                program.command = '/etc/init.d/website 800%(process_num)s'
-                program.number_of_processes = 4
+                program.directory = '/home/backend'
+                program.command = '/etc/init.d/website-80%(process_num)02d start'
+                program.name = 'website-80%(process_num)02d'
+                program.number_of_processes = 2
+                program.user = 'backend'
 
                 program.log_folder = '/home/backend/logs'
 

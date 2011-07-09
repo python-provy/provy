@@ -25,7 +25,7 @@ class WithProgram(object):
         self.process_name = name + '-%(process_num)s'
         self.number_of_processes = 1
         self.priority = 100
-        self.user = self.supervisor.context['owner']
+        self.user = None
 
         self.auto_start = True
         self.auto_restart = True

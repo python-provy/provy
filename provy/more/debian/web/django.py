@@ -5,37 +5,43 @@
 Roles in this namespace are meant to provide Django app server utility methods for Debian distributions.
 '''
 
+from os.path import dirname, join, splitext, split
+
 from provy.core import Role
 from provy.more.debian.package.pip import PipRole
+from provy.more.debian.monitoring.supervisor import SupervisorRole
 
 SITES_KEY = 'django-sites'
+MUST_RESTART_KEY = 'restart-django-sites'
 
 class WithSite(object):
     def __init__(self, django, name):
         self.django = django 
+        self.auto_start = True
+        self.daemon = True
         self.name = name
-        self.path = None
+        self.settings_path = None
+        self.host = '0.0.0.0'
+        self.log_file_path = '/var/log'
+        self.log_level = "info"
+        self.pid_file_path = '/var/run'
         self.threads = 1
-        self.user = self.django.context['owner']
+        self.processes = 1
+        self.starting_port = 8000
+        self.user = None
         self.settings = {}
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if not self.path:
+        if not self.settings_path:
             raise RuntimeError('[Django] The path to the site must be specified and should correspond to the directory where the settings.py file is for site %s.' % self.name)
 
         if SITES_KEY not in self.django.context:
             self.django.context[SITES_KEY] = []
 
-        self.django.context[SITES_KEY].append({
-            'name': self.name,
-            'path': self.path,
-            'threads': self.threads,
-            'user': self.user,
-            'settings': self.settings
-        })
+        self.django.context[SITES_KEY].append(self)
 
 class DjangoRole(Role):
     '''
@@ -54,6 +60,9 @@ class DjangoRole(Role):
                         }
     </pre>
     '''
+    def __init__(self, prov, context):
+        super(DjangoRole, self).__init__(prov, context)
+        self.restart_supervisor_on_changes = False
 
     def provision(self):
         '''
@@ -73,6 +82,7 @@ class DjangoRole(Role):
                     # now django 1.1.1 is installed.
         </pre>
         '''
+        self.register_template_loader('provy.more.debian.web')
         with self.using(PipRole) as role:
             if 'django-version' in self.context:
                 role.ensure_package_installed('django', version=self.context['django-version'])
@@ -102,3 +112,72 @@ class DjangoRole(Role):
         '''
         return WithSite(self, name)
 
+    def cleanup(self):
+        '''
+        Updates the website and/or init files and restarts websites if needed.
+        There's no need to call this method since provy's lifecycle will make sure it is called.
+        '''
+
+        if SITES_KEY in self.context:
+            for website in self.context[SITES_KEY]:
+                updated = self.__update_init_script(website)
+                settings_updated = self.__update_settings(website)
+                if updated or settings_updated:
+                    self.ensure_restart(website)
+
+        if MUST_RESTART_KEY in self.context and self.context[MUST_RESTART_KEY]:
+            if self.restart_supervisor_on_changes:
+                with self.using(SupervisorRole) as role:
+                    role.ensure_restart()
+            for site in self.context[MUST_RESTART_KEY]:
+                self.restart(site)
+
+    def ensure_restart(self, website):
+        if not MUST_RESTART_KEY in self.context:
+            self.context[MUST_RESTART_KEY] = []
+        self.context[MUST_RESTART_KEY].append(website)
+
+    def restart(self, website):
+        if not website.auto_start:
+            return
+        for process_number in range(website.processes):
+            port = website.starting_port + process_number
+            script_name = "%s-%d" % (website.name, port)
+            if self.remote_exists(join(website.pid_file_path.rstrip('/'), '%s_%s.pid' % (website.name, port))):
+                self.execute('/etc/init.d/%s stop' % script_name, stdout=False, sudo=True)
+            self.execute('/etc/init.d/%s start' % script_name, stdout=False, sudo=True)
+
+    def __update_settings(self, website):
+        local_settings_path = join(dirname(website.settings_path), 'local_settings.py')
+        options = {
+            'settings_file': splitext(split(website.settings_path)[-1])[0],
+            'settings': website.settings
+        }
+        result = self.update_file('local.settings.template', local_settings_path, owner=website.user, options=options, sudo=True)
+        return result
+
+    def __update_init_script(self, website):
+        at_least_one_updated = False
+        for process_number in range(website.processes):
+            port = website.starting_port + process_number
+            options = {
+                'name': website.name,
+                'pid_file_path': website.pid_file_path.rstrip('/'),
+                'user': website.user,
+                'host': website.host,
+                'port': port,
+                'threads': website.threads,
+                'daemon': website.daemon,
+                'user': website.user,
+                'settings_directory': dirname(website.settings_path)
+            }
+            script_name = '%s-%d' % (website.name, port)
+            result = self.update_file('website.init.template', '/etc/init.d/%s' % script_name, owner=website.user, options=options, sudo=True)
+
+            if result:
+                at_least_one_updated = True
+                self.execute('chmod +x /etc/init.d/%s' % script_name, stdout=False, sudo=True)
+                if website.auto_start:
+                    self.execute('update-rc.d %s defaults' % script_name, stdout=False, sudo=True)
+
+        return at_least_one_updated
