@@ -229,7 +229,11 @@ class MySQLRole(Role):
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(MySQLRole) as role:
-                        if role.has_grant('ALL PRIVILEGES', 'database', 'user', login_from='%', with_grant_option=True):
+                        if role.has_grant('ALL PRIVILEGES',
+                                          'database',
+                                          'user',
+                                          login_from='%',
+                                          with_grant_option=True):
                             # do something
         </pre>
         '''
