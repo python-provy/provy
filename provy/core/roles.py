@@ -39,10 +39,12 @@ class Role(object):
     This class provides many utility methods for interacting with the remote server.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                self.register_template_loader('my.full.namespace')
-                self.execute('ls /home/myuser', sudo=False, stdout=False)
+    from provy.core.roles import Role
+
+    class MySampleRole(Role):
+        def provision(self):
+            self.register_template_loader('my.full.namespace')
+            self.execute('ls /home/myuser', sudo=False, stdout=False)
     </pre>
     '''
     def __init__(self, prov, context):
@@ -58,9 +60,11 @@ class Role(object):
         package_name - full name of the module that jinja2 will try to import.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.register_template_loader('my.full.namespace')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.register_template_loader('my.full.namespace')
         </pre>
         '''
         if package_name not in self.context['registered_loaders']:
@@ -74,9 +78,11 @@ class Role(object):
         msg - Message to log.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.log('Hello World')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.log('Hello World')
         </pre>
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
@@ -87,9 +93,11 @@ class Role(object):
         <strong>Warning</strong>: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.schedule_cleanup()
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.schedule_cleanup()
         </pre>
         '''
         has_role = False
@@ -106,9 +114,11 @@ class Role(object):
         provision_role keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(SomeOtherRole)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(SomeOtherRole)
         </pre>
         '''
         instance = role(self.prov, self.context)
@@ -121,9 +131,11 @@ class Role(object):
         The provision method of each Role is what provy calls on to provision servers.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    pass
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                pass
         </pre>
         '''
         pass
@@ -134,9 +146,11 @@ class Role(object):
         The cleanup method is the method that provy calls after all Roles have been provisioned and is meant to allow Roles to perform any cleaning of resources or finish any pending operations.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def cleanup(self):
-                    pass
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def cleanup(self):
+                pass
         </pre>
         '''
         pass
@@ -150,9 +164,11 @@ class Role(object):
         sudo - Defaults to False. Specifies whether this command needs to be run as the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.execute('ls /', stdout=False, sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.execute('ls /', stdout=False, sudo=True)
         </pre>
         '''
         func = sudo and fab_sudo or run
@@ -170,10 +186,12 @@ class Role(object):
         It has the same arguments as execute.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.python_execute('import os; print os.curdir',
-                                            stdout=False, sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.python_execute('import os; print os.curdir',
+                                        stdout=False, sudo=True)
         </pre>
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
@@ -183,9 +201,11 @@ class Role(object):
         Returns the currently logged user in the remote server.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.context['my-user'] = self.get_logged_user()
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.context['my-user'] = self.get_logged_user()
         </pre>
         '''
         return self.execute_python('import os; print os.getlogin()', stdout=False)
@@ -195,10 +215,12 @@ class Role(object):
         Returns True if the file exists locally.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    if self.local_exists('/tmp/my-file'):
-                        # do something
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.local_exists('/tmp/my-file'):
+                    # do something
         </pre>
         '''
         return exists(file_path)
@@ -208,10 +230,12 @@ class Role(object):
         Returns True if the file exists in the remote server.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    if self.remote_exists('/tmp/my-file'):
-                        # do something
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.remote_exists('/tmp/my-file'):
+                    # do something
         </pre>
         '''
         return self.execute('test -f %s; echo $?' % file_path, stdout=False) == '0'
@@ -221,10 +245,12 @@ class Role(object):
         Returns True if the directory exists in the remote server.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    if self.remote_exists_dir('/tmp'):
-                        # do something
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.remote_exists_dir('/tmp'):
+                    # do something
         </pre>
         '''
         return self.execute('test -d %s; echo $?' % file_path, stdout=False) == '0'
@@ -234,9 +260,11 @@ class Role(object):
         Returns the path of a temporary directory in the local machine.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.context['source_dir'] = self.local_temp_dir()
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.context['source_dir'] = self.local_temp_dir()
         </pre>
         '''
         return gettempdir()
@@ -246,9 +274,11 @@ class Role(object):
         Returns the path of a temporary directory in the remote server.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.context['target_dir'] = self.remote_temp_dir()
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.context['target_dir'] = self.remote_temp_dir()
         </pre>
         '''
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
@@ -262,9 +292,11 @@ class Role(object):
         sudo - If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
         </pre>
         '''
         if not self.remote_exists_dir(directory):
@@ -281,9 +313,11 @@ class Role(object):
         owner - User that should own this directory.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_dir_owner(directory='/etc/my-path', owner='someuser')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_dir_owner(directory='/etc/my-path', owner='someuser')
         </pre>
         '''
         self.execute('cd %s && chown -R %s .' % (directory, owner), stdout=False, sudo=True)
@@ -296,10 +330,12 @@ class Role(object):
         owner - User that should own this file.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_file_owner(directory='/etc/init.d/someapp',
-                                           owner='someuser')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_file_owner(directory='/etc/init.d/someapp',
+                                       owner='someuser')
         </pre>
         '''
         self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
@@ -311,9 +347,11 @@ class Role(object):
         path - Path of the local file.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    hash = self.md5_local('/tmp/my-file')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                hash = self.md5_local('/tmp/my-file')
         </pre>
         '''
         if not self.local_exists(path):
@@ -327,9 +365,11 @@ class Role(object):
         path - Path of the remote file.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    hash = self.md5_remote('/tmp/my-file')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                hash = self.md5_remote('/tmp/my-file')
         </pre>
         '''
         if not self.remote_exists(path):
@@ -345,9 +385,11 @@ class Role(object):
         sudo - Indicates whether the file should be removed by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.remove_file('/tmp/my-file', sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.remove_file('/tmp/my-file', sudo=True)
         </pre>
         '''
 
@@ -366,9 +408,11 @@ class Role(object):
         to_file - Path in the remote system.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.replace_file('/tmp/my-file', '/tmp/my-file')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.replace_file('/tmp/my-file', '/tmp/my-file')
         </pre>
         '''
         put(from_file, to_file)
@@ -382,9 +426,13 @@ class Role(object):
         sudo - Indicates whether the symlink should be created by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.remote_symlink('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.remote_symlink('/home/user/my-app',
+                                    '/etc/init.d/my-app',
+                                    sudo=True)
         </pre>
         '''
         if not self.remote_exists(from_file):
@@ -423,9 +471,13 @@ class Role(object):
         sudo - Indicates whether the file should be created by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.put('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.put('/home/user/my-app',
+                         '/etc/init.d/my-app',
+                         sudo=True)
         </pre>
         '''
         if sudo:
@@ -449,13 +501,18 @@ class Role(object):
         sudo - Indicates whether the file should be created by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.update_file('/home/user/my-app', '/etc/init.d/my-app',
-                                        owner='my-user', {
-                                            'option_a': 1,
-                                            'option_b': 2
-                                        }, sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.update_file('/home/user/my-app',
+                                 '/etc/init.d/my-app',
+                                 owner='my-user',
+                                 {
+                                    'option_a': 1,
+                                    'option_b': 2
+                                 },
+                                 sudo=True)
         </pre>
         '''
         local_temp_path = None
@@ -495,10 +552,12 @@ class Role(object):
         text - Text to be written to the temp file.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    path = self.write_to_temp_file('some random text')
-                    self.put_file(path, '/tmp/some-file')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                path = self.write_to_temp_file('some random text')
+                self.put_file(path, '/tmp/some-file')
         </pre>
         '''
         local_temp_path = ''
@@ -516,9 +575,11 @@ class Role(object):
         sudo - Indicates whether the file should be read by a super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    last_update = self.read_remote_file('/tmp/last-update')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                last_update = self.read_remote_file('/tmp/last-update')
         </pre>
         '''
         return self.execute('cat %s' % path, stdout=False, sudo=sudo)
@@ -533,9 +594,11 @@ class Role(object):
         options - options to be passed to the template.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    contents = self.render('my-template', { 'user': 'heynemann' })
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                contents = self.render('my-template', { 'user': 'heynemann' })
         '''
 
         if isabs(template_file):
@@ -556,10 +619,12 @@ class Role(object):
         sudo - Indicates if the process listing should be done by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    if self.is_process_running('nginx', sudo=True):
-                        self.execute('pkill nginx', stdout=False, sudo=True)
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.is_process_running('nginx', sudo=True):
+                    self.execute('pkill nginx', stdout=False, sudo=True)
         '''
         result = self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo)
         results = result.split('\n')
@@ -575,9 +640,11 @@ class Role(object):
         role - Role to be used.
         <em>Sample Usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(AptitudeRole) as role:
-                        role.ensure_package_installed('nginx')
+        from provy.core.roles import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_package_installed('nginx')
         '''
         return UsingRole(role, self.prov, self.context)
