@@ -3,7 +3,7 @@
 
 from provy.core import Role
 from provy.more.debian import NginxRole, UserRole
-from provy.more.debian import GitRole
+from provy.more.debian import GitRole, MySQLRole
 from provy.more.debian import SupervisorRole, DjangoRole
 
 class FrontEnd(Role):
@@ -31,6 +31,13 @@ class BackEnd(Role):
                                    owner='backend')
 
         self.ensure_dir('/home/backend/logs', sudo=True, owner='backend')
+
+        with self.using(MySQLRole) as role:
+            role.ensure_user(username=self.context['mysql_user'],
+                             login_from="%",
+                             identified_by=self.context['mysql_password'])
+            role.ensure_database(self.context['mysql_database'])
+            role.ensure_grant('ALL PRIVILEGES', on=self.context['mysql_database'], username=self.context['mysql_user'], login_from='%')
 
         with self.using(DjangoRole) as role:
             role.restart_supervisor_on_changes = True
@@ -77,7 +84,12 @@ servers = {
             'user': 'vagrant',
             'roles': [
                 BackEnd
-            ]
+            ],
+            'options': {
+                'mysql_user': 'backend',
+                'mysql_password': 'pass',
+                'mysql_database': 'djangosite'
+            }
         }
     }
 }
