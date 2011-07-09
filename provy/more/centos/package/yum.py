@@ -18,10 +18,13 @@ class YumRole(Role):
     This role provides package management operations with Yum within CentOS distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(YumRole) as role:
-                    role.ensure_package_installed('nginx')
+    from provy.core import Role
+    from provy.more.centos.package.yum import YumRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(YumRole) as role:
+                role.ensure_package_installed('nginx')
     </pre>
     '''
 
@@ -33,9 +36,12 @@ class YumRole(Role):
         Installs Yum dependencies. This method should be called upon if overriden in base classes, or Yum won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(YumRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(YumRole) # does not need to be called if using with block.
         </pre>
         '''
         self.ensure_up_to_date()
@@ -48,10 +54,13 @@ class YumRole(Role):
         url - Url of the gpg key file.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.ensure_gpg_key('http://some.url.com/to/key.gpg')
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.ensure_gpg_key('http://some.url.com/to/key.gpg')
         </pre>
         '''
         command = "curl %s | rpm --import -" % url
@@ -64,11 +73,14 @@ class YumRole(Role):
         source_string - repository string
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        if role.has_source('some-path-to-a-repo'):
-                            # do something
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    if role.has_source('some-path-to-a-repo'):
+                        # do something
         </pre>
         '''
         return source_string in self.execute('cat /etc/yum.repos.d/CentOS-Base.repo', stdout=False, sudo=True)
@@ -80,10 +92,13 @@ class YumRole(Role):
         source_string - repository string
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.ensure_yum_source('some-path-to-a-repo')
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.ensure_yum_source('some-path-to-a-repo')
         </pre>
         '''
         if self.has_source(source_string):
@@ -100,10 +115,13 @@ class YumRole(Role):
         Returns the path for the file that contains the last update date to yum's list of packages.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        file_path = role.update_date_file
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    file_path = role.update_date_file
         </pre>
         '''
         return join(self.remote_temp_dir(), 'last_yum_update')
@@ -113,10 +131,13 @@ class YumRole(Role):
         Updates the date in the <em>update_date_file</em>.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.store_update_date()
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.store_update_date()
         </pre>
         '''
 
@@ -127,10 +148,13 @@ class YumRole(Role):
         Returns the date in the <em>update_date_file</em>.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        last_update = role.get_last_update_date()
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    last_update = role.get_last_update_date()
         </pre>
         '''
         if not self.remote_exists(self.update_date_file):
@@ -144,10 +168,13 @@ class YumRole(Role):
         Makes sure Yum's repository is updated if it hasn't been updated in the last 30 minutes.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.ensure_up_to_date()
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.ensure_up_to_date()
         </pre>
         '''
 
@@ -160,10 +187,13 @@ class YumRole(Role):
         Forces an update to Yum's repository.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.force_update()
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.force_update()
         </pre>
         '''
         self.log('Updating yum sources...')
@@ -177,11 +207,14 @@ class YumRole(Role):
         Returns True if the given package is installed via Yum, False otherwise.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        if role.is_package_installed('nginx'):
-                            # do something
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    if role.is_package_installed('nginx'):
+                        # do something
         </pre>
         '''
         with settings(warn_only=True):
@@ -192,10 +225,13 @@ class YumRole(Role):
         Ensures that the given package is installed via Yum.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(YumRole) as role:
-                        role.ensure_package_installed('nginx')
+        from provy.core import Role
+        from provy.more.centos.package.yum import YumRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(YumRole) as role:
+                    role.ensure_package_installed('nginx')
         </pre>
         '''
         if not self.is_package_installed(package_name):
