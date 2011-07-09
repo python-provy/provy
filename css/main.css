@@ -4,20 +4,19 @@ body {
     font-family: 'Maven Pro', Arial, cursive; font-weight: 400; 
 }
 
-a {
-    color: #0018c3 !important;
-    text-decoration: none;
+.container a {
+    color: #D65400 !important;
 }
 
-a:hover {
-    color: #6875db !important;
+.container a:hover {
+    color: #FA7D2B !important;
 }
 
-em {
+.container em {
     color: #d65400;
 }
 
-p {
+.container p {
     font-size: 16px;
     margin: 18px 30px;
 }
@@ -28,13 +27,13 @@ p {
     background-color: #fff;
 }
 
-.header {
+.container .header {
     padding: 50px 0 0 65px;
     margin-bottom: 60px;
     position: relative;
 }
 
-.header h1.logo {
+.container .header h1.logo {
     font-size: 32px;
     font-family: 'Maven Pro', Arial, cursive; font-weight: 400; 
     color: #4e4e4e;
@@ -42,22 +41,22 @@ p {
     margin-bottom: 50px;
 }
 
-.header h1.logo .important {
+.container .header h1.logo .important {
     color: #d65400;
 }
 
-.header p.logo {
+.container .header p.logo {
     width: 525px;
     font-size: 18px;
     color: #4e4e4e;
     margin: 0px 0px 18px 0px !important;
 }
 
-.header p.logo .important {
+.container .header p.logo .important {
     color: #d65400;
 }
 
-.header div.logo {
+.container .header div.logo {
     width: 296px;
     height: 90px;
     position: absolute;
@@ -67,20 +66,20 @@ p {
     background: url('../images/logo.png') 0 0 no-repeat;
 }
 
-.disclaimer {
+.container .disclaimer {
     font-size: 11px !important;
     text-align: right;
     margin: 0 10px -10px; !important;
     padding: 0 !important;
 }
-.disclaimer em {
+.container .disclaimer em {
     color: #333;
 }
 
 .right-click-menu {
 }
 
-h2.title:after {
+.container h2.title:after {
     float: right;
     font-family: arial;
     font-weight: bold;
@@ -90,7 +89,7 @@ h2.title:after {
     content: 'right-click anywhere to open a navigation menu';
     margin: 9px 16px;
 }
-h2.title {
+.container h2.title {
     font-family: 'Lobster', Arial, cursive; font-weight: 400; 
     margin-top: 30px;
     margin-bottom: 18px;
@@ -101,36 +100,36 @@ h2.title {
     text-shadow: 3px 3px 5px rgba(0, 0, 0, .15);
 }
 
-.gist {
+.container .gist {
     width: 90%;
     margin: 10px auto 10px auto;
 }
-.gist-meta {
+.container .gist-meta {
     display: none;
 }
 
-.auto-center {
+.container .auto-center {
     display: block;
     margin: 0 auto;
 }
 
-.diagram {
+.container .diagram {
     margin-top: 10px;
 }
 
-.footer {
+.container .footer {
     margin-top: 30px;
     margin-bottom: 20px;
     font-size: 12px;
     text-align: center;
 }
 
-pre.license {
+.container pre.license {
     font-size: 13px;
     margin: 18px 30px;
 }
 
-h3 {
+.container h3 {
     background-color: #333;
     color: #fff;
     height: 22px;
@@ -147,7 +146,7 @@ h3 {
     border-bottom-left-radius: 10px;
 }
 
-input.email {
+.container input.email {
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -158,7 +157,7 @@ input.email {
     width: 100px;
 }
 
-.google-logo {
+.container .google-logo {
     margin: 0 10px;
     padding-top: 4px;
 }
@@ -219,7 +218,7 @@ input.email {
     margin-left: 48px;
 }
 
-pre p {
+.container pre p {
     margin: 0 0 !important;
 }
 
@@ -236,4 +235,43 @@ pre p {
 .contextMenu li.hover a {
     background: #D65400 !important;
     color: #333 !important
+}
+
+.container .header .version {
+    float: right;
+    margin-top: 18px;
+    margin-right: 6px;
+    font-size: 12px;
+}
+
+.container .header .version .python {
+    background: url('../images/python.png') no-repeat 0 0;
+    padding-left: 18px;
+    height: 18px;
+    display: block;
+    float: left;
+}
+
+.container .header .version .github {
+    background: url('../images/github.png') no-repeat 0 0;
+    padding-left: 18px;
+    height: 18px;
+    display: block;
+    float: left;
+    margin-right: 3px;
+}
+
+.container .header .version .google {
+    background: url('../images/gg.png') no-repeat 0 0;
+    padding-left: 18px;
+    height: 18px;
+    display: block;
+    float: left;
+    margin-right: 3px;
+}
+
+.container .ohloh {
+    display: block;
+    float: left;
+    margin-right: 5px;
 }

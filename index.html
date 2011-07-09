@@ -70,6 +70,7 @@
                 infrastructure of your website into a repeatable no-frills
                 reliable process.</p>
                 <div class="logo" onclick="window.location='http://provy.me';"></div>
+                    <div class="version"><div class="ohloh" title="provy's ohloh page"><script type="text/javascript" src="http://www.ohloh.net/p/584977/widgets/project_thin_badge.js"></script></div><a class="google" href="https://groups.google.com/group/provy" title="provy's google groups page" alt="provy's google groups page"></a><a class="github" alt="provy's github page" title="provy's github page" href="https://github.com/heynemann/provy"></a><a class="python" href="http://pypi.python.org/pypi/provy/0.2.0a" alt="provy's current release" title="provy's current release"></a></div>
             </div>
 
             <p class="disclaimer"><em>Disclaimer: all code samples in this page are
@@ -77,20 +78,22 @@
 
             <a name="whatsprovy"></a>
             <h2 class="title">What's provy and provisioning</h2>
-            <p>According to <a href="http://en.wikipedia.org/wiki/Provisioning">Wikipedia</a>, provisioning is "the
-            process of preparing and equipping a network to allow it to provide
-            (new) services to its users".</p>
-            <p>We'll draw from this concept the part of preparing and
-            equipping.</p>
-            <p><em>provy</em> is a infrastructure provisioning automation tool.
-            It's main goal is making it easy to create highly-scalable
-            architectures with simple scripts.</p>
-            <p><em>provy</em> stands on the shoulder of giants! <a
-                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a> for the networking part and <a
-                href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a>
-                for templating capabilities.</p>
+            <div class="intro-container">
+                <p>According to <a href="http://en.wikipedia.org/wiki/Provisioning">Wikipedia</a>, provisioning is "the
+                process of preparing and equipping a network to allow it to provide
+                (new) services to its users".</p>
+                <p>We'll draw from this concept the part of preparing and
+                equipping.</p>
+                <p><em>provy</em> is a infrastructure provisioning automation tool.
+                It's main goal is making it easy to create highly-scalable
+                architectures with simple scripts.</p>
+                <p><em>provy</em> stands on the shoulder of giants! <a
+                    href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a> for the networking part and <a
+                    href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a>
+                    for templating capabilities.</p>
 
-            <p>A very simple, yet working example of a valid <em>provyfile.py</em>:</p>
+                <p>A very simple, yet working example of a valid <em>provyfile.py</em>:</p>
+            </div>
             <script src="https://gist.github.com/1061912.js?file=simples-provyfile.py"></script>
 
             <a name="installing"></a>
@@ -318,7 +321,7 @@
 
             <a name="templating"></a>
             <h2 class="title">Custom Files and Templating</h2>
-            <p>Some methods provided by provy (including <em>update_file</em>) support 
+            <p>Some methods provided by provy (including <em>update_file</em>) support
             passing in options that may be used in templates.</p>
             <p><em>provy</em> uses <a
                 href="http://jinja.pocoo.org/" title="jinja2 - python templating engine">jinja2</a> for
