@@ -14,13 +14,16 @@ class GitRole(Role):
     This role provides utility methods for Git repositories management within Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(GitRole) as role:
-                    role.ensure_repository('git://github.com/heynemann/provy.git',
-                                           '/home/user/provy',
-                                           owner='user',
-                                           branch='some-branch')
+    from provy.core import Role
+    from provy.more.debian.vcs.git import GitRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(GitRole) as role:
+                role.ensure_repository('git://github.com/heynemann/provy.git',
+                                       '/home/user/provy',
+                                       owner='user',
+                                       branch='some-branch')
     </pre>
     '''
 
@@ -29,9 +32,12 @@ class GitRole(Role):
         Installs git dependencies. This method should be called upon if overriden in base classes, or Git won't work properly in the remote server.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(GitRole) # does not need to be called if using with block.
+        from provy.core import Role
+        from provy.more.debian.vcs.git import GitRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(GitRole) # does not need to be called if using with block.
         </pre>
         '''
         with self.using(AptitudeRole) as role:
@@ -48,13 +54,16 @@ class GitRole(Role):
         branch - If specified, the given branch will be checked-out, otherwise it stays in the master branch.
         <em>Sample usage</em>
         <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(GitRole) as role:
-                        role.ensure_repository('git://github.com/heynemann/provy.git',
-                                               '/home/user/provy',
-                                               owner='user',
-                                               branch='some-branch')
+        from provy.core import Role
+        from provy.more.debian.vcs.git import GitRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(GitRole) as role:
+                    role.ensure_repository('git://github.com/heynemann/provy.git',
+                                           '/home/user/provy',
+                                           owner='user',
+                                           branch='some-branch')
         </pre>
         '''
         if not self.remote_exists_dir(path):
