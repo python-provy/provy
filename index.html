@@ -9,10 +9,49 @@
         <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="css/main.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="css/sh_ide-anjuta.min.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="css/jquery.contextMenu.css" type="text/css" media="screen" charset="utf-8" />
+
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
+
+        <script type='text/javascript' src='js/jquery.contextMenu.js'></script>
+        <script type='text/javascript' src='js/menu.js'></script>
     </head>
 
     <body>
+        <ul id="context-menu" class="contextMenu">
+            <li class="home">
+                <a href="#top">Top</a>
+            </li>
+            <li class="whatsprovy separator">
+                <a href="#whatsprovy">What's provy and provisioning</a>
+            </li>
+            <li class="installing">
+                <a href="#installing">Installing provy</a>
+            </li>
+            <li class="getting-started">
+                <a href="#getting-started">Getting Started</a>
+            </li>
+            <li class="templating separator">
+                <a href="#templating">Custom Files and Templating</a>
+            </li>
+            <li class="core-and-more">
+                <a href="#core-and-more">provy.core and provy.more</a>
+            </li>
+            <li class="roles-doc">
+                <a href="#roles-doc">Roles Documentation</a>
+            </li>
+            <li class="contributing separator">
+                <a href="#contributing">Contributing</a>
+            </li>
+            <li class="contacts">
+                <a href="#contacts">Contacts</a>
+            </li>
+            <li class="license">
+                <a href="#license">License</a>
+            </li>
+        </ul>
         <div class="container">
+            <a name="top"></a>
             <div class="header">
                 <h1 class="logo"><span class="important">Python</span>
                     provisioning made <span class="important">easy</span>!</h1>
@@ -27,6 +66,7 @@
             <p class="disclaimer"><em>Disclaimer: all code samples in this page are
                 brought to you by <a href="http://github.com/">GitHub gists</a></em></p>
 
+            <a name="whatsprovy"></a>
             <h2 class="title">What's provy and provisioning</h2>
             <p>According to <a href="http://en.wikipedia.org/wiki/Provisioning">Wikipedia</a>, provisioning is "the
             process of preparing and equipping a network to allow it to provide
@@ -44,6 +84,7 @@
             <p>A very simple, yet working example of a valid <em>provyfile.py</em>:</p>
             <script src="https://gist.github.com/1061912.js?file=simples-provyfile.py"></script>
 
+            <a name="installing"></a>
             <h2 class="title">Installing provy</h2>
             <p>Before installing provy you will need to ensure you have swig
             installed, as m2crypto needs it. Here is how to install it in
@@ -87,6 +128,7 @@
                 href="http://en.wikipedia.org/wiki/Free_and_open_source_software">FOSS</a>
             and you can find it's source code at <a href="https://github.com/heynemann/provy">its github page</a>.</p>
 
+            <a name="getting-started"></a>
             <h2 class="title">Getting started</h2>
             <p>Starting to provision servers with
             <em>provy</em> is extremely simple. We'll provision a fairly
@@ -262,6 +304,7 @@
             should be used when you don't wnat to call anything in the role,
             instead just have it provisioned.</p>
 
+            <a name="templating"></a>
             <h2 class="title">Custom Files and Templating</h2>
             <p>Some methods provided by provy (including <em>update_file</em>) support 
             passing in options that may be used in templates.</p>
@@ -281,7 +324,7 @@
                 href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use it's <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
             <p>The other place you can put files is in a <em>templates</em> directory inside Role apps. The supervisor role uses this approach, if you want to take a look at an example. If you do place files in the <em>templates</em> directory, do not forget to call the <em>register_template_loader</em> method passing in the full namespace of your app (more details in the provy.more section below).</p>
             <p>We used custom files in the <em>Getting Started</em> section to provide the needed configuration files for <a href="http://www.nginx.org">nginx</a>.</p>
-
+            <a name="core-and-more"></a>
             <h2 class="title">provy.core and provy.more</h2>
             <p>
                 <em>provy</em> is divided in two namespaces: <em>provy.core</em> and <em>provy.more</em>. It is divided like this to make it easier to find the roles you need.
@@ -290,6 +333,7 @@
             <p><em>provy.more</em> features every single specialized role that helps users in provisioning servers, like <em>NginxRole</em> or <em>AptitudeRole</em>.</p>
             <p>Both will be documented here, even though you are advised to take a look at the code, since the docs might not be up-to-date yet.</p>
 
+            <a name="roles-doc"></a>
             <h2 class="title">Roles Documentation</h2>
             <p>Click on the role/module you want help with.</p>
             <div id="docs-container">
@@ -311,6 +355,7 @@
                 <p class="docs"></p>
             </div>
 
+            <a name="contributing"></a>
             <h2 class="title">Contributing</h2>
             <p>Contributions are very welcome. Specially roles. If you
             implement a role that you think others might be using, please
@@ -326,6 +371,7 @@
             <p> » <a href="https://github.com/dsarch">Douglas Andrade</a></p>
             <p> » <a href="http://avelino.us/">Thiago Avelino</a></p>
 
+            <a name="contacts"></a>
             <h2 class="title">Contacts</h2>
             <p>The place to create issues is <a href="">provy's github issues</a>. The more information you send about an issue, the greater the chance it will get fixed fast.</p>
             <p>If you are not sure about something, have a doubt or feedback, or just want to ask for a feature, feel free to join our mailing list using the form below.</p>
@@ -341,6 +387,7 @@
               <a href="http://groups.google.com/group/provy">Visit provy's group</a>
             </p>
 
+            <a name="license"></a>
             <h2 class="title">License</h2>
             <p><em>provy</em> is licensed under the <a
                 href="http://www.opensource.org/licenses/MIT">MIT License</a></p>
@@ -369,8 +416,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 provy is free open source software - 2011
             </div>
         </div>
-
-        <script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
 
         <script type="text/javascript" src="js/sh_main.min.js"></script>
         <script type="text/javascript" src="js/sh_python.min.js"></script>

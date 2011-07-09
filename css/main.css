@@ -77,6 +77,19 @@ p {
     color: #333;
 }
 
+.right-click-menu {
+}
+
+h2.title:after {
+    float: right;
+    font-family: arial;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    text-shadow: none !important;
+    content: 'right-click anywhere to open a navigation menu';
+    margin: 9px 16px;
+}
 h2.title {
     font-family: 'Lobster', Arial, cursive; font-weight: 400; 
     margin-top: 30px;
@@ -208,4 +221,19 @@ input.email {
 
 pre p {
     margin: 0 0 !important;
+}
+
+.contextMenu {
+    border: solid 1px #666 !important;
+    background: #333 !important;
+    width: 274px !important;
+}
+.contextMenu a {
+    color: #fff !important;
+    padding: 3px 5px !important;
+}
+
+.contextMenu li.hover a {
+    background: #D65400 !important;
+    color: #333 !important
 }
