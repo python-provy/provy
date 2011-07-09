@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Supervisor monitoring utility methods for Debian distributions.
+Roles in this namespace are meant to provide MySQL database management utilities for Debian distributions.
 '''
 
 import re
@@ -15,6 +15,9 @@ class MySQLRole(Role):
     This role provides MySQL database management utilities for Debian distributions.
     <em>Sample usage</em>
     <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import MySQLRole
+
         class MySampleRole(Role):
             def provision(self):
                 with self.using(MySQLRole) as role:
@@ -90,16 +93,31 @@ class MySQLRole(Role):
 
         return items
 
-    def get_user_host(self, username):
-        users = self.__execute_query("select Host from mysql.user where LOWER(User)='%s'" % username.lower())
-        if users:
-            return users[0]['Host']
-
-        return None
-
-    def user_exists(self, username):
+    def get_user_hosts(self, username):
         '''
-        Returns True if the given user exists in mysql server.
+        Returns all the available hosts that this user can login from.
+        <em>Parameters</em>
+        username - name of the user to be verified.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(MySQLRole) as role:
+                        if not '%' in role.get_user_hosts('someuser'):
+                            # do something
+        </pre>
+        '''
+        users = self.__execute_query("select Host from mysql.user where LOWER(User)='%s'" % username.lower())
+        hosts = []
+        if users:
+            for user in users:
+                hosts.apend(user['Host'])
+
+        return hosts
+
+    def user_exists(self, username, login_from='%'):
+        '''
+        Returns True if the given user exists for the given location in mysql server.
         <em>Parameters</em>
         username - name of the user to be verified.
         <em>Sample usage</em>
@@ -111,7 +129,7 @@ class MySQLRole(Role):
                             # do something
         </pre>
         '''
-        return self.get_user_host(username) is not None
+        return login_from in self.get_user_hosts(username)
 
     def ensure_user(self, username, identified_by, login_from='%'):
         '''
@@ -128,15 +146,9 @@ class MySQLRole(Role):
                         role.ensure_user('someuser', 'somepass', 'localhost')
         </pre>
         '''
-        user_host = self.get_user_host(username)
-
-        if user_host is None:
+        if not self.user_exists(username, login_from):
             self.__execute_non_query("CREATE USER '%s'@'%s' IDENTIFIED BY '%s';" % (username, login_from, identified_by))
             return True
-        else:
-            if user_host.lower() != login_from.lower():
-                self.__execute_non_query("UPDATE mysql.user SET Host='%s' WHERE User='%s'" % (login_from, username))
-                return True
 
         return False
 
@@ -180,12 +192,48 @@ class MySQLRole(Role):
             self.__execute_non_query('CREATE DATABASE %s' % database_name)
             return True
         return False
-    
+
     def get_user_grants(self, username, login_from='%'):
+        '''
+        Returns all grants for the given user at the given location.
+        <em>Parameters</em>
+        username - User to verify.
+        login_from - Location to verify.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(MySQLRole) as role:
+                        if role.get_user_grants('user', login_from='%'):
+                            # do something
+        </pre>
+        '''
+        return_grants = []
         grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % ( username, login_from))
+        for grant in grants:
+            return_grants.append(grant.values()[1])
+
         return grants
 
     def has_grant(self, privileges, on, username, login_from, with_grant_option):
+        '''
+        Returns True if the user has the specified privileges on the specified object in the given location.
+        <em>Parameters</em>
+        privileges - Privileges that are being verified.
+        on - Database object that the user holds privileges on.
+        username - User to verify.
+        login_from - Location to verify.
+        with_grant_option - Indicates if we are verifying against grant option.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(MySQLRole) as role:
+                        if role.has_grant('ALL PRIVILEGES', 'database', 'user', login_from='%', with_grant_option=True):
+                            # do something
+        </pre>
+        '''
+
         grants = self.get_user_grants(username, login_from)
         has_grant = False
         grant_option_string = ""
@@ -193,9 +241,8 @@ class MySQLRole(Role):
             grant_option_string = " WITH GRANT OPTION"
 
         grant_string = "GRANT %s ON %s TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)
-        for grant in grants:
-            if grant in grant.values():
-                return True
+        if grant in grants:
+            return True
 
         return False
 
@@ -215,8 +262,8 @@ class MySQLRole(Role):
                     with self.using(MySQLRole) as role:
                         role.ensure_grant('ALL PRIVILEGES',
                                           on='database',
-                                          username='backend', 
-                                          login_from'%', 
+                                          username='backend',
+                                          login_from'%',
                                           with_grant_option=True)
         </pre>
         '''
