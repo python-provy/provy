@@ -8,12 +8,13 @@ from provy.more.debian import SupervisorRole, DjangoRole
 
 class FrontEnd(Role):
     def provision(self):
+        user = self.context['front-end-user']
         with self.using(UserRole) as role:
-            role.ensure_user('frontend', identified_by='pass', is_admin=True)
+            role.ensure_user(user, identified_by='pass', is_admin=True)
 
         with self.using(NginxRole) as role:
             role.ensure_conf(conf_template='test-conf.conf', options={
-                'user': 'frontend'
+                'user': user
             })
             role.ensure_site_disabled('default')
             role.create_site(site='frontend', template='test-site')
@@ -77,7 +78,10 @@ servers = {
             'user': 'vagrant',
             'roles': [
                 FrontEnd
-            ]
+            ],
+            'options': {
+                'front-end-user': AskFor('front-end-user', 'Please enter the name of the nginx user')
+            }
         },
         'backend': {
             'address': '33.33.33.34',

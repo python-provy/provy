@@ -10,6 +10,7 @@
 
 import sys
 import os
+import re
 from os.path import exists, abspath, splitext
 from optparse import OptionParser
 
@@ -24,6 +25,16 @@ class Messages(object):
     password = """Password to use for authentication with servers.
     If passwords differ from server to server this does not work."""
 
+def __get_extra_options():
+    extra_options = {}
+    if len(sys.argv) > 1:
+        for arg in sys.argv[1:]:
+            match = re.match('(?P<key>.+?)=(?P<value>.+)', arg)
+            if match:
+                extra_options[match.groupdict()['key']] = match.groupdict()['value']
+                sys.argv.remove(arg)
+
+    return extra_options
 
 def __get_arguments():
     parser = OptionParser()
@@ -44,6 +55,7 @@ def __get_provy_file_path(provyfile_name):
 
 
 def main():
+    extra_options = __get_extra_options()
     (options, args) = __get_arguments()
 
     sys.path.insert(0, os.curdir)
@@ -59,7 +71,7 @@ def main():
     if not provyfile_path:
         print "The file %s could not be found!" % provyfile_name
         sys.exit(1)
-    run(provyfile_path, options.server, options.password)
+    run(provyfile_path, options.server, options.password, extra_options)
     sys.exit(0)
 
 if __name__ == '__main__':

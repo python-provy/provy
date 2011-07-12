@@ -8,7 +8,7 @@ vms:
 	@cd vagrant && vagrant destroy && vagrant up
 
 front:
-	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.frontend -p vagrant
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.frontend -p vagrant front-end-user=frontend
 
 back:
 	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.backend -p vagrant
