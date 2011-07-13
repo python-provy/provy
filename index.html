@@ -31,7 +31,10 @@
             <li class="getting-started">
                 <a href="#getting-started">Getting Started</a>
             </li>
-           <li class="running">
+            <li class="runtime-arguments">
+                <a href="#runtime-arguments">provyfile and Runtime Arguments</a>
+            </li>
+            <li class="running">
                 <a href="#running">Running provy</a>
             </li>
             <li class="what-are-roles separator">
@@ -49,7 +52,16 @@
             <li class="roles-doc">
                 <a href="#roles-doc">Roles Documentation</a>
             </li>
-            <li class="contributing separator">
+            <li class="supported separator">
+                <a href="#supported-os">Supported Operating Systems</a>
+            </li>
+            <li class="recipes">
+                <a href="#recipes">provy Recipes</a>
+            </li>
+            <li class="using-provy separator">
+                <a href="#using-provy">Who's using provy?</a>
+            </li>
+            <li class="contributing">
                 <a href="#contributing">Contributing</a>
             </li>
             <li class="contacts">
@@ -277,6 +289,30 @@
             time depending on your connection speed), you should see <em>Hello
             World</em> as the result of the curl command.</p>
 
+            <a name="runtime-arguments"></a>
+            <h2 class="title">provyfile and Runtime Arguments</h2>
+            <p>
+                <em>provy</em> uses a python module called <em>provyfile.py</em> in order
+                to retrieve the definitions of your roles, servers and the relationships
+                between them.
+            </p>
+            <p><img src="images/provyfile.png" class="provyfile-image" alt="Sample provyfile.py with explanation." title="Sample provyfile.py with explanation." /></p>
+            <p>
+            This is the overall structure of a <em>provy</em> provisioning file. The first imports will be very similar among most your provyfile.py files. You'll always import <em>Role</em> and most of the time will use one of the other built-in roles.
+            </p>
+            <p>After the imports, come your <em>Role Definitions</em>. This is where you'll specify how you want your servers to be built. You can find more about how to build roles in the <a href="#what-are-roles">What are roles?</a> and <a href="#using-roles">Using Roles in my Roles</a> sections.</p>
+            <p>Last but not least, you describe your servers and how they relate to roles. This brings us to the <em>AskFor</em> parameter (<em>provy.core.AskFor</em>). This class allows you to specify that a given option for a given server should be filled at runtime, either by passing in the command line or by asking the user doing the provisioning.</p>
+            <p><em>AskFor</em> takes two arguments: <em>key</em> and <em>question</em>. The <em>key</em> argument is needed to allow passing the argument when running provy (more on that in the next section). The <em>question</em> is used when <em>provy</em> asks the user running it for the parameter.</p>
+            <p><em>AskFor</em> is really useful for sensitive data such as passwords. You don't want to expose this data in your provyfile in plain text. You just use an <em>AskFor</em> parameter for it and supply the information at runtime. Let's look at a sample of AskFor usage.</p>
+            <script src="https://gist.github.com/1061953.js?file=askfor.py"></script>
+            <p>This parameter can be supplied twofold: if you don't specify it in the console when calling <em>provy</em>, you will be asked for it. If you need to specify it in the console, just use it's key like this:</p>
+            <pre>
+                <code>
+        provy -s server -p password mysql-db-password=somepass
+                </code>
+            </pre>
+            <p>All arguments must take this form of key=value, with no spaces. The key must be exactly the same, case-sensitive.</p>
+
             <a name="running"></a>
             <h2 class="title">Running provy</h2>
             <p><em>provy</em> comes with a console runner. It's the same one we
@@ -287,6 +323,8 @@
             <script src="https://gist.github.com/1061953.js?file=provy-help"></script>
             <p>The option you are most likely to use is the <em>server</em>
             option. It tells <em>provy</em> what servers you want provisioned.</p>
+            <p>As we saw in the <a href="#runtime-arguments">provyfile and Runtime Arguments</a> section, we can also supply <em>AskFor</em> arguments when running <em>provy</em>.</p>
+            <p>All arguments must take the form of key=value, with no spaces. The key must be exactly the same as the one in the <em>AskFor</em> definition, case-sensitive.</p>
 
             <a name="what-are-roles"></a>
             <h2 class="title">What are Roles?</h2>
@@ -369,6 +407,25 @@
                 <p><em class="name"></em></p>
                 <p class="docs"></p>
             </div>
+
+            <a name="supported-os"></a>
+            <h2 class="title">Supported Operating Systems</h2>
+            <p>At this point, <em>provy</em> only supports Debian-based (debian, ubuntu) and CentOS distros. If you think your distribution should be here, please consider <a href="#contributing">contributing</a>.</p>
+            <p>This area details what features of <em>provy</em> are supported in each operating system.</p>
+            <h3>Debian Distributions and Ubuntu</h3>
+            <p>Currently all features are supported under debian distributions (including ubuntu).</p>
+            <p>The easiest way to verify what's available is checking the <a href="#roles-doc">Roles Documentation</a> section.</p>
+            <h3>CentOS Distributions</h3>
+            <p>Currently support to user management, git repository management and packaging (via pip and yum) are supported. More supported features to come soon. If you think you can help improve this, please consider <a href="#contributing">contributing</a>.</p>
+
+            <a name="recipes"></a>
+            <h2 class="title">provy Recipes</h2>
+            <p>Soon Django and Tornado recipes.</p>
+
+            <a name="whos-using"></a>
+            <h2 class="title">Who's using provy?</h2>
+            <p>If you are using <em>provy</em>, please let us know and we'll put your company or website name here. This is a good way for us to gauge whether we are moving in the right direction.</p>
+            <p>Just join the mailing list and send us an e-mail. A form for joining the mailing list is available <a href="#contacts">here</a>.</p>
 
             <a name="contributing"></a>
             <h2 class="title">Contributing</h2>
