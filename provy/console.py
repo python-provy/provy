@@ -25,6 +25,7 @@ class Messages(object):
     password = """Password to use for authentication with servers.
     If passwords differ from server to server this does not work."""
 
+
 def __get_extra_options():
     extra_options = {}
     if len(sys.argv) > 1:
@@ -35,6 +36,7 @@ def __get_extra_options():
                 sys.argv.remove(arg)
 
     return extra_options
+
 
 def __get_arguments():
     parser = OptionParser()
