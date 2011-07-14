@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from provy.core import Role
+from provy.core import Role, AskFor
 from provy.more.debian import NginxRole, UserRole
 from provy.more.debian import GitRole, MySQLRole
 from provy.more.debian import SupervisorRole, DjangoRole
+
 
 class FrontEnd(Role):
     def provision(self):
@@ -19,6 +20,7 @@ class FrontEnd(Role):
             role.ensure_site_disabled('default')
             role.create_site(site='frontend', template='test-site')
             role.ensure_site_enabled('frontend')
+
 
 class BackEnd(Role):
     def provision(self):
@@ -44,8 +46,8 @@ class BackEnd(Role):
             role.restart_supervisor_on_changes = True
             with role.create_site('website') as site:
                 site.settings_path = '/home/backend/provy/tests/functional/djangosite/settings.py'
-                site.auto_start = False # using with supervisor there's no need to auto-start.
-                site.daemon = False # supervisor fails if the site daemonizes itself.
+                site.auto_start = False  # using with supervisor there's no need to auto-start.
+                site.daemon = False  # supervisor fails if the site daemonizes itself.
                 site.threads = 2
                 site.processes = 2
                 site.user = 'backend'
