@@ -70,6 +70,12 @@ def main():
     if not provyfile_path:
         provyfile_path = __get_provy_file_path('provy_file.py')
 
+    if options.server is None and provyfile_path:
+        # TODO: Improve this code to 'find' the set of servers defined in the
+        # provyfile and run with the defined server set (if only one is defined)
+        print "\nInfo: Provy is running using the 'test' set of servers.\n"
+        options.server = 'test'
+
     if not provyfile_path:
         print "The file %s could not be found!" % provyfile_name
         sys.exit(1)
