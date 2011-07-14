@@ -6,6 +6,7 @@ from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole
 from provy.more.debian import PipRole, VarnishRole, AptitudeRole, GitRole
 from provy.more.debian import SupervisorRole
 
+
 class FrontEnd(Role):
     def provision(self):
         user = self.context['front-end-user']
@@ -21,6 +22,7 @@ class FrontEnd(Role):
             role.ensure_site_disabled('default')
             role.create_site(site='frontend', template='test-site')
             role.ensure_site_enabled('frontend')
+
 
 class BackEnd(Role):
     def provision(self):
@@ -86,4 +88,3 @@ servers = {
         }
     }
 }
-
