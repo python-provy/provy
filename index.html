@@ -388,10 +388,16 @@
 
             <a name="roles-doc"></a>
             <h2 class="title">Roles Documentation</h2>
-            <p>Click on the role/module you want help with.</p>
+            <div class="operating-systems">
+                <a href="#provy" class="provy" data-select="provy.core" alt="provy core roles" title="provy core roles"><img src="images/provy-logo.png" alt="provy core roles" /></a>
+                <a href="#debian" class="debian" data-select="provy.more.debian" alt="debian related roles" title="debian related roles"><img src="images/debian-logo.png" alt="debian distributions related roles" /></a>
+                <a href="#ubuntu" class="ubuntu" data-select="provy.more.debian" alt="ubuntu related roles" title="ubuntu related roles"><img src="images/ubuntu-logo.png" alt="ubuntu related roles" /></a>
+                <a href="#centos" class="centos" data-select="provy.more.centos" alt="centOS related roles" title="centOS related roles"><img src="images/centos-logo.png" alt="centOS related roles" /></a>
+            </div>
             <div id="docs-container">
                 <div id="docs"></div>
             </div>
+            <p class="help-text">* click on the role/module you want help with</p>
             <div id="current-doc"></div>
             <div id="module-template">
                 <h3 class="name"></h3>
@@ -413,10 +419,22 @@
             <p>At this point, <em>provy</em> only supports Debian-based (debian, ubuntu) and CentOS distros. If you think your distribution should be here, please consider <a href="#contributing">contributing</a>.</p>
             <p>This area details what features of <em>provy</em> are supported in each operating system.</p>
             <h3>Debian Distributions and Ubuntu</h3>
+
+            <div id="distro-logos">
+                <img src="images/debian-logo.png" alt="debian distributions" align="left" />
+                <img class="last-logo" src="images/ubuntu-logo.png" alt="ubuntu distributions" align="left" />
+            </div>
             <p>Currently all features are supported under debian distributions (including ubuntu).</p>
             <p>The easiest way to verify what's available is checking the <a href="#roles-doc">Roles Documentation</a> section.</p>
+            <div style="clear:both;"></div>
+
             <h3>CentOS Distributions</h3>
-            <p>Currently support to user management, git repository management and packaging (via pip and yum) are supported. More supported features to come soon. If you think you can help improve this, please consider <a href="#contributing">contributing</a>.</p>
+            <div id="distro-logos">
+                <img class="last-logo" src="images/centos-logo.png" alt="centOS distributions" align="left" />
+            </div>
+            <p>Currently support to user management, git repository management and packaging (via pip and yum) are supported.</p>
+            <p>More supported features to come soon. If you think you can help improve this, please consider <a href="#contributing">contributing</a>.</p>
+            <div style="clear:both;"></div>
 
             <a name="recipes"></a>
             <h2 class="title">provy Recipes</h2>

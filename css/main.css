@@ -165,7 +165,6 @@ body {
 #docs-container {
     overflow: auto;
     width: 900px;
-    height: 328px;
     margin: 0 auto;
     border: solid 1px #333;
 }
@@ -176,7 +175,7 @@ body {
 }
 
 #docs {
-    width: 1500px;
+    width: auto;
     padding: 10px;
     text-align: center;
 }
@@ -274,4 +273,27 @@ body {
     display: block;
     float: left;
     margin-right: 5px;
+}
+
+.operating-systems {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.operating-systems a {
+    margin: 0 5px;
+}
+
+.help-text {
+    font-size: 10px !important;
+    margin: 6px 30px 0 0 !important;
+    text-align: right;
+}
+
+#distro-logos {
+    margin-left: 18px;
+}
+
+#distro-logos .last-logo {
+    margin-right: 15px;
 }
