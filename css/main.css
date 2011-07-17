@@ -79,16 +79,7 @@ body {
 .right-click-menu {
 }
 
-.container h2.title:after {
-    float: right;
-    font-family: arial;
-    font-weight: bold;
-    color: white;
-    font-size: 14px;
-    text-shadow: none !important;
-    content: 'right-click anywhere to open a navigation menu';
-    margin: 9px 16px;
-}
+
 .container h2.title {
     font-family: 'Lobster', Arial, cursive; font-weight: 400; 
     margin-top: 30px;
@@ -296,4 +287,12 @@ body {
 
 #distro-logos .last-logo {
     margin-right: 15px;
+}
+
+.django-nginx-recipe {
+    float: right;
+    width: 400px;
+    height: 172px;
+    background: url('../images/django-nginx-recipe.png') 0 0 no-repeat;
+    margin-top: 34px;
 }

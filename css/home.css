@@ -1,0 +1,10 @@
+.container h2.title:after {
+    float: right;
+    font-family: arial;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    text-shadow: none !important;
+    content: 'right-click anywhere to open a navigation menu';
+    margin: 9px 16px;
+}

@@ -8,6 +8,7 @@
         <link href='http://fonts.googleapis.com/css?family=Maven+Pro|Lobster&v2' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="css/main.css" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="css/home.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="css/sh_ide-anjuta.min.css" type="text/css" media="screen" charset="utf-8" />
         <link rel="stylesheet" href="css/jquery.contextMenu.css" type="text/css" media="screen" charset="utf-8" />
 
@@ -441,7 +442,13 @@
 
             <a name="recipes"></a>
             <h2 class="title">provy Recipes</h2>
-            <p>Soon Django and Tornado recipes.</p>
+            <h3>Django + Nginx same server</h3>
+            <div class="django-nginx-recipe"></div>
+            <p>This recipe features a django website with 4 processes and 2 threads per process.</p>
+            <p>Nginx serves the requests via reverse proxy, while load balancing the 4 processes.</p>
+            <p>Each django process is a gunicorn process bound to a port ranging from 8000-8003.</p>
+            <p>Django's static files are served using nginx.</p>
+            <p>To read more about this recipe, <a href="recipes/django-1-server.html">click here</a></p>
 
             <a name="using-provy"></a>
             <h2 class="title">Who's using provy?</h2>
