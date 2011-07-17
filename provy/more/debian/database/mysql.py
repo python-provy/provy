@@ -13,6 +13,7 @@ from provy.more.debian.package.aptitude import AptitudeRole
 class MySQLRole(Role):
     '''
     This role provides MySQL database management utilities for Debian distributions.
+    This role uses two context keys: mysql_root_user and mysql_root_pass. If none are found, it uses 'root' and empty password.
     <em>Sample usage</em>
     <pre class="sh_python">
         from provy.core import Role
@@ -31,8 +32,8 @@ class MySQLRole(Role):
     '''
     def __init__(self, prov, context):
         super(MySQLRole, self).__init__(prov, context)
-        self.mysql_root_user = 'root'
-        self.mysql_root_pass = ''
+        self.mysql_root_user = 'mysql_root_user' in self.context and self.context['mysql_root_user'] or 'root'
+        self.mysql_root_pass = 'mysql_root_pass' in self.context and self.context['mysql_root_pass'] or ''
 
     def provision(self):
         '''
@@ -53,7 +54,8 @@ class MySQLRole(Role):
                          sudo=True)
             result = role.ensure_package_installed('mysql-server')
             if result:
-                self.execute('mysqladmin -u %s password "%s"' % (self.mysql_root_user, self.mysql_root_pass), stdout=False, sudo=True)
+                self.log("setting root user %s password..." % self.mysql_root_user)
+                self.execute("mysqladmin -u %s -p'temppass' password '%s'" % (self.mysql_root_user, self.mysql_root_pass), stdout=False, sudo=True)
 
     def __execute_non_query(self, query):
         pass_string = ""
@@ -111,7 +113,7 @@ class MySQLRole(Role):
         hosts = []
         if users:
             for user in users:
-                hosts.apend(user['Host'])
+                hosts.append(user['Host'])
 
         return hosts
 
@@ -148,6 +150,7 @@ class MySQLRole(Role):
         '''
         if not self.user_exists(username, login_from):
             self.__execute_non_query("CREATE USER '%s'@'%s' IDENTIFIED BY '%s';" % (username, login_from, identified_by))
+            self.log("User %s not found with login access for %s. User created!" % (username, login_from))
             return True
 
         return False
@@ -190,6 +193,7 @@ class MySQLRole(Role):
         '''
         if not self.is_database_present(database_name):
             self.__execute_non_query('CREATE DATABASE %s' % database_name)
+            self.log("Database %s not found. Database created!" % database_name)
             return True
         return False
 
@@ -209,7 +213,7 @@ class MySQLRole(Role):
         </pre>
         '''
         return_grants = []
-        grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % ( username, login_from))
+        grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % (username, login_from))
         for grant in grants:
             return_grants.append(grant.values()[1])
 
@@ -239,14 +243,17 @@ class MySQLRole(Role):
         '''
 
         grants = self.get_user_grants(username, login_from)
-        has_grant = False
         grant_option_string = ""
         if with_grant_option:
             grant_option_string = " WITH GRANT OPTION"
 
-        grant_string = "GRANT %s ON %s TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)
-        if grant in grants:
-            return True
+        grants = [grant.values()[-1] for grant in grants]
+        grant_strings = ["GRANT %s ON `%s`.`*` TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
+                         "GRANT %s ON %s.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)]
+
+        for grant_string in grant_strings:
+            if grant_string in grants:
+                return True
 
         return False
 
@@ -255,7 +262,7 @@ class MySQLRole(Role):
         Ensures that the given user has the given privileges on the specified location.
         <em>Parameters</em>
         privileges - Privileges to assign to user (i.e.: "ALL PRIVILEGES").
-        on - Database to assign privileges to. If you want all databases pass '*.*'.
+        on - Object to assign privileges to. If only the name is supplied, '.*' will be appended to the name. If you want all databases pass '*.*'.
         username - User to grant the privileges to.
         login_from - Location where the user gets the grants. Defaults to '%'.
         with_grant_option - If True, indicates that this user may grant other users the same privileges. Defaults to False.
@@ -279,6 +286,11 @@ class MySQLRole(Role):
         if with_grant_option:
             grant_option_string = " WITH GRANT OPTION"
 
+        if not '.' in on:
+            on = '%s.*' % on
+
         grant_string = "GRANT %s ON %s TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)
         self.__execute_non_query(grant_string)
+        self.log("User %s@%s did not have grant '%s' on %s. Privileges granted!" % (username, login_from, privileges, on))
 
+        return True

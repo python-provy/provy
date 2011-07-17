@@ -42,5 +42,7 @@ stderr_logfile={{ program.log_folder}}/{{ program.name }}.stderr.log
 stderr_logfile_maxbytes={{ program.log_file_max_mb }}MB
 stderr_logfile_backups={{ program.log_file_backups }}
 
+{% if program.environment %}
 environment={{ program.environment }}
+{% endif %}
 {% endfor %}

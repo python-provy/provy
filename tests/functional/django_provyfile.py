@@ -42,36 +42,24 @@ class BackEnd(Role):
             role.ensure_database(self.context['mysql_database'])
             role.ensure_grant('ALL PRIVILEGES', on=self.context['mysql_database'], username=self.context['mysql_user'], login_from='%')
 
-        with self.using(DjangoRole) as role:
-            role.restart_supervisor_on_changes = True
-            with role.create_site('website') as site:
-                site.settings_path = '/home/backend/provy/tests/functional/djangosite/settings.py'
-                site.auto_start = False  # using with supervisor there's no need to auto-start.
-                site.daemon = False  # supervisor fails if the site daemonizes itself.
-                site.threads = 2
-                site.processes = 2
-                site.user = 'backend'
-                site.pid_file_path = '/home/backend'
-                site.log_file_path = '/home/backend'
-                site.settings = {
-                    'CREATED_BY': 'provy'
-                }
-
         with self.using(SupervisorRole) as role:
             role.config(
                 config_file_directory='/home/backend',
-                log_file='/home/backend/logs/supervisord.log',
+                log_folder='/home/backend/logs',
                 user='backend'
             )
 
-            with role.with_program('website') as program:
-                program.directory = '/home/backend'
-                program.command = '/etc/init.d/website-80%(process_num)02d start'
-                program.name = 'website-80%(process_num)02d'
-                program.number_of_processes = 2
-                program.user = 'backend'
-
-                program.log_folder = '/home/backend/logs'
+            with self.using(DjangoRole) as role:
+                with role.create_site('website') as site:
+                    site.settings_path = '/home/backend/provy/tests/functional/djangosite/settings.py'
+                    site.threads = 2
+                    site.processes = 2
+                    site.user = 'backend'
+                    site.pid_file_path = '/home/backend'
+                    site.log_file_path = '/home/backend/logs'
+                    site.settings = {
+                        'CREATED_BY': 'provy'
+                    }
 
 servers = {
     'test': {
@@ -92,6 +80,7 @@ servers = {
                 BackEnd
             ],
             'options': {
+                'mysql_root_pass': 'pass',
                 'mysql_user': 'backend',
                 'mysql_password': 'pass',
                 'mysql_database': 'djangosite'

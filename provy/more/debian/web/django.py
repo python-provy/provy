@@ -9,6 +9,7 @@ from os.path import dirname, join, splitext, split
 
 from provy.core import Role
 from provy.more.debian.package.pip import PipRole
+from provy.more.debian.package.aptitude import AptitudeRole
 from provy.more.debian.monitoring.supervisor import SupervisorRole
 
 SITES_KEY = 'django-sites'
@@ -28,6 +29,13 @@ class WithSite(object):
         self.processes = 1
         self.starting_port = 8000
         self.user = None
+        if SupervisorRole in self.django.context['roles_in_context']:
+            self.use_supervisor = True
+            self.supervisor_log_folder = self.django.context['roles_in_context'][SupervisorRole].log_folder
+        else:
+            self.use_supervisor = False
+            self.supervisor_log_folder = '/var/log'
+
         self.settings = {}
 
     def __enter__(self):
@@ -40,6 +48,11 @@ class WithSite(object):
         if SITES_KEY not in self.django.context:
             self.django.context[SITES_KEY] = []
 
+        if self.use_supervisor:
+            self.daemon = False
+            self.auto_start = False
+            self.django.restart_supervisor_on_changes = True
+
         self.django.context[SITES_KEY].append(self)
 
 
@@ -47,6 +60,7 @@ class DjangoRole(Role):
     '''
     This role provides Django app server management utilities for Debian distributions.
     When running Django under supervisor, remember to set <em>restart_supervisor_on_changes</em> to True.
+    If you choose to automatically include supervisor support in your sites, don't forget to call <em>SupervisorRole</em> config method.
     When creating a new site using <em>with role.create_site('somesite') as site</em> these are the properties available in the site object:
     <em>auto_start</em> - Indicates whether the site should be automatically started by the operating system. Defaults to True. If using supervisor, explicitly set this to False.
     <em>daemon</em> - Indicates whether the init.d command for the website should daemonize itself. Defaults to True. If using supervisor, explicitly set this to False.
@@ -57,6 +71,8 @@ class DjangoRole(Role):
     <em>pid_file_path</em> - Path to create the pid file. Defaults to '/var/run'.
     <em>threads</em> - Number of worker threads that Green Unicorn will use when spawning Django. Defaults to 1.
     <em>user</em> - User that gunicorn will run under. Defaults to the last created user. When using supervisor it is VERY important that this user is the same user as supervisor's.
+    <em>use_supervisor</em> - States that supervisor configuration for these django website should be automatically included.
+    <em>supervisor_log_folder</em> - Log folder that supervisor will store the configurations for this site.
     <em>settings</em> - Dictionary with settings that will overwrite Django's defaults. These settings will be included in a local_settings.py module that imports the original settings as KEY=value pairs. All values included here will have their string representation used in the local_settings.
 
     <em>Sample usage</em>
@@ -66,11 +82,22 @@ class DjangoRole(Role):
 
     class MySampleRole(Role):
         def provision(self):
+            with self.using(SupervisorRole) as role:
+                role.config(
+                    config_file_directory='/home/someuser',
+                    log_file='/home/someuser/logs/supervisord.log',
+                    user='myuser'
+                )
+
             with self.using(DjangoRole) as role:
                 role.restart_supervisor_on_changes = True
                 with role.create_site('mysite') as site:
                     site.path = '/some/folder/with/settings.py'
+                    site.use_supervisor = True
+                    site.supervisor_log_path = '/some/folder/to/log'
                     site.threads = 4
+                    site.processes = 2
+                    site.user = 'myuser'
                     # settings that override the website defaults.
                     site.settings = {
 
@@ -103,6 +130,10 @@ class DjangoRole(Role):
         </pre>
         '''
         self.register_template_loader('provy.more.debian.web')
+
+        with self.using(AptitudeRole) as role:
+            role.ensure_package_installed('python-mysqldb')
+
         with self.using(PipRole) as role:
             if 'django-version' in self.context:
                 role.ensure_package_installed('django', version=self.context['django-version'])
@@ -145,6 +176,8 @@ class DjangoRole(Role):
             for website in self.context[SITES_KEY]:
                 updated = self.__update_init_script(website)
                 settings_updated = self.__update_settings(website)
+                if website.use_supervisor:
+                    self.__update_supervisor_program(website)
                 if updated or settings_updated:
                     self.__ensure_restart(website)
 
@@ -154,6 +187,19 @@ class DjangoRole(Role):
                     role.ensure_restart()
             for site in self.context[MUST_RESTART_KEY]:
                 self.__restart(site)
+
+    def __update_supervisor_program(self, website):
+        with self.using(SupervisorRole) as role:
+            for process_number in range(website.processes):
+                port = website.starting_port + process_number
+                script_name = "%s-%d" % (website.name, port)
+                with role.with_program(script_name) as program:
+                    program.directory = dirname(website.settings_path)
+                    program.command = '/etc/init.d/%s start' % script_name
+                    program.name = script_name
+                    program.number_of_processes = 1
+                    program.user = website.user
+                    program.log_folder = website.supervisor_log_folder
 
     def __ensure_restart(self, website):
         if not MUST_RESTART_KEY in self.context:

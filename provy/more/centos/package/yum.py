@@ -238,3 +238,5 @@ class YumRole(Role):
             self.log('%s is not installed (via yum)! Installing...' % package_name)
             self.execute('yum install -y %s' % package_name, stdout=False, sudo=True)
             self.log('%s is installed (via yum).' % package_name)
+            return True
+        return False

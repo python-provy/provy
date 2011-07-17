@@ -24,12 +24,19 @@ class UsingRole(object):
         self.context = context
 
     def __enter__(self):
-        role = self.role(self.prov, self.context)
-        role.provision()
-        return role
+        if self.role in self.context['used_roles']:
+            self.role_instance = self.context['used_roles'][self.role]
+        else:
+            self.role_instance = self.role(self.prov, self.context)
+            self.context['used_roles'][self.role] = self.role_instance
+        self.role_instance.provision()
+        self.context['roles_in_context'][self.role] = self.role_instance
+        return self.role_instance
 
     def __exit__(self, exc_type, exc_value, traceback):
         role = self.role(self.prov, self.context)
+        if self.role in self.context['roles_in_context']:
+            del self.context['roles_in_context'][self.role]
         role.schedule_cleanup()
 
 
@@ -48,6 +55,10 @@ class Role(object):
     </pre>
     '''
     def __init__(self, prov, context):
+        if 'used_roles' not in context:
+            context['used_roles'] = {}
+        if 'roles_in_context' not in context:
+            context['roles_in_context'] = {}
         self.prov = prov
         self.context = context
 

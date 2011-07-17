@@ -86,7 +86,7 @@ class SupervisorRole(Role):
             with self.using(SupervisorRole) as role:
                 role.config(
                     config_file_directory='/home/backend',
-                    log_file='/home/backend/logs/supervisord.log',
+                    log_folder='/home/backend/logs',
                     user=self.context['supervisor-user']
                 )
 
@@ -161,7 +161,7 @@ class SupervisorRole(Role):
 
     def config(self,
                config_file_directory=None,
-               log_file='/var/log/supervisord.log',
+               log_folder='/var/log',
                log_file_max_mb=50,
                log_file_backups=10,
                log_level='info',
@@ -171,7 +171,7 @@ class SupervisorRole(Role):
         Configures supervisor by creating a supervisord.conf file at the specified location.
         <em>Parameters</em>
         config_file_directory - directory to create the supervisord.conf file at the server.
-        log_file - path of the log file that supervisor will use. Defaults to /var/log/supervisord.log (if you use the default, make sure your user has access).
+        log_folder - path where log files will be created by supervisor. Defaults to /var/log (if you use the default, make sure your user has access).
         log_file_max_mb - Maximum size of log file in megabytes. Defaults to 50.
         log_file_backups - Number of log backups that supervisor keeps. Defaults to 10.
         log_level - Level of logging for supervisor. Defaults to 'info'.
@@ -188,12 +188,20 @@ class SupervisorRole(Role):
                 with self.using(SupervisorRole) as role:
                     role.config(
                         config_file_directory='/home/backend',
-                        log_file='/home/backend/logs/supervisord.log',
+                        log_folder='/home/backend/logs',
                         pidfile='/home/backend/supervisord.pid',
                         user='backend'
                     )
         </pre>
         '''
+        self.log_folder = log_folder
+        self.config_file_directory = config_file_directory,
+        self.log_folder = log_folder
+        self.log_file_max_mb = log_file_max_mb
+        self.log_file_backups = log_file_backups
+        self.log_level = log_level
+        self.pidfile = pidfile
+        self.user = user
 
         if config_file_directory is None:
             config_file_directory = '/home/%s' % self.context['owner']
@@ -202,7 +210,7 @@ class SupervisorRole(Role):
 
         self.context[CONFIG_KEY] = {
             'config_file_directory': config_file_directory,
-            'log_file': log_file,
+            'log_file': join(log_folder, 'supervisord.log'),
             'log_file_max_mb': log_file_max_mb,
             'log_file_backups': log_file_backups,
             'log_level': log_level,

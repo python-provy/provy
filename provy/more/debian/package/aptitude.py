@@ -249,3 +249,5 @@ class AptitudeRole(Role):
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
             self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=stdout, sudo=sudo)
             self.log('%s is installed (via aptitude).' % package_name)
+            return True
+        return False
