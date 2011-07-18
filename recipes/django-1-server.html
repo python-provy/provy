@@ -45,6 +45,13 @@
             <p>I've created a public repo at <a href="https://github.com/heynemann/django-tutorial">https://github.com/heynemann/django-tutorial</a>. This is the repository we'll use to deploy our application.</p>
             <p>It is a very simple application, but it serves us right in that it features django admin, static files and database access.</p>
 
+            <h2 class="title">Pre-requisites</h2>
+            <p>The obvious pre-requisites for our recipe is <em>provy</em>. For more instructions on how to install it, check the <a href="index.html#installing">Installing</a> section in <em>provy</em>'s main docs.</p>
+            <p>In this recipe we'll be using vagrant for our <em>local</em> server and amazon ec2 for our <em>production</em> server.</p>
+            <p>Using vagrant is completely optional, though. If you have a local server that you provision and deploy to, feel free to replace the address and user in <em>provyfile</em> with your own data.</p>
+            <p>You'll also need an account with <a href="http://aws.amazon.com/">Amazon AWS</a>. Learning how to use Amazon EC2 is out of the scope of this recipe. If you don't have a production server and you don't expect your website to have a very big hit, Amazon has a very generous <a href="http://aws.amazon.com/free/">free tier</a>.</p>
+            <p>For the purposes of this recipe, consider we have a production server running at Amazon AWS (even if at the time you are reading this the server is not online).</p>
+
             <h2 class="title">The deployment process</h2>
             <p>Our deployment script (fabric) will do the following steps:</p>
             <p>a. Update git's clone in the server;</p>
