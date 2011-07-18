@@ -79,11 +79,12 @@ class UserRole(Role):
         '''
         return group_name in self.execute('groups %s' % username, stdout=False)
 
-    def ensure_group(self, group_name):
+    def ensure_group(self, group_name, group_id=None):
         '''
         Ensures that a given user group is present in the remote server.
         <em>Parameters</em>
         group_name - Name of the group to create.
+        group_id - GID of the group. Defaults to None and is optional.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -97,15 +98,19 @@ class UserRole(Role):
         '''
         if not self.group_exists(group_name):
             self.log("Group %s not found! Creating..." % group_name)
-            self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
+            if not group_id:
+                self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
+            else:
+                self.execute('groupadd --gid %s %s' % (group_id, group_name), stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
-    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
+    def ensure_user(self, username, identified_by=None, user_id=None, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
         '''
         Ensures that a given user is present in the remote server.
         <em>Parameters</em>
         username - Name of the user.
         identified_by - Password that the user will use to login to the remote server. If set to None, the user will not have a password.
+        user_id - UID of the user. Defaults to None and is optional.
         home_folder - Defaults to /home/&lt;username&gt;. Specifies the user's home folder.
         default_script - Defaults to /bin/sh. Sets the user's default script, the one that will execute commands per default when logging in.
         group - Defaults to the name of the user. Group that this user belongs to. If the group does not exist it is created prior to user creation.
@@ -121,8 +126,9 @@ class UserRole(Role):
                     role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         </pre>
         '''
-        is_admin_command = "-G admin"
-        command = "useradd -g %(group)s %(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
+        is_admin_command = "-G admin "
+        uid_command = user_id and '--uid %d ' % user_id or ''
+        command = "useradd -g %(group)s %(is_admin_command)s%(uid_command)s-s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
 
         home_folder = home_folder or '/home/%s' % username
 
@@ -138,7 +144,8 @@ class UserRole(Role):
                 'password': identified_by or 'none',
                 'home_folder': home_folder,
                 'default_script': default_script,
-                'username': username
+                'username': username,
+                'uid_command': uid_command
             }, stdout=False, sudo=True)
             self.log("User %s created!" % username)
         elif is_admin and not self.user_in_group(username, 'admin'):
