@@ -16,13 +16,14 @@ def run(provfile_path, server_name, password, extra_options):
     servers = get_servers_for(prov, server_name)
 
     for server in servers:
-        for option_name, option in server['options'].iteritems():
-            if isinstance(option, AskFor):
-                if option.key in extra_options:
-                    value = extra_options[option.key]
-                else:
-                    value = option.get_value(server)
-                server['options'][option_name] = value
+        if 'options' in server:
+            for option_name, option in server['options'].iteritems():
+                if isinstance(option, AskFor):
+                    if option.key in extra_options:
+                        value = extra_options[option.key]
+                    else:
+                        value = option.get_value(server)
+                    server['options'][option_name] = value
 
     for server in servers:
         host_string = "%s@%s" % (server['user'], server['address'])
