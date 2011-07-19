@@ -197,7 +197,7 @@ class YumRole(Role):
         </pre>
         '''
         self.log('Updating yum sources...')
-        self.execute('yum update -y', stdout=False, sudo=True)
+        self.execute('yum clean all', stdout=False, sudo=True)
         self.store_update_date()
         self.log('Yum sources up-to-date')
         self.context[self.key] = True
