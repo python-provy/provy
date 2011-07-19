@@ -351,6 +351,78 @@ class Role(object):
         '''
         self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
 
+    def get_object_mode(self, path):
+        '''
+        Returns the mode of a given object.
+        <em>Parameters</em>
+        path - Path of the given object.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.get_object_mode('/home/user/logs') == 644:
+                    # do something
+        </pre>
+        '''
+        if not self.remote_exists(path) and not self.remote_exists_dir(path):
+            raise RuntimeError('The file at path %s does not exist' % path)
+        return int(self.execute('stat -c %%a %s' % path, stdout=False, sudo=True))
+
+    def change_dir_mode(self, path, mode, recursive=False):
+        '''
+        Changes the mode of a given directory.
+        <em>Parameters</em>
+        path - Path of the directory.
+        mode - Mode of the directory.
+        sudo - Indicates if the mode needs to be changed by the super-user.
+        recursive - Indicates if the mode of the objects in the path should be changed recursively.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_dir_mode(directory='/home/user/logs',
+                                     mode=644,
+                                     recursive=True,
+                                     sudo=True)
+        </pre>
+        '''
+        recursive_string = ""
+        if recursive:
+            recursive_string = "-R "
+
+        previous_mode = self.get_object_mode(path)
+        if previous_mode != mode:
+            self.execute('chmod %s%s %s' % (recursive_string, mode, path), stdout=False, sudo=True)
+            self.log("Directory %s had mode %d. Changed it %sto %d." % (path, previous_mode, recursive and "recursively " or "", mode))
+
+
+    def change_file_mode(self, path, mode):
+        '''
+        Changes the mode of a given file.
+        <em>Parameters</em>
+        path - Path of the file.
+        mode - Mode of the file.
+        sudo - Indicates if the mode needs to be changed by the super-user.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_file_mode(path='/etc/init.d/someapp',
+                                      mode=777,
+                                      sudo=True)
+        </pre>
+        '''
+        previous_mode = self.get_object_mode(path)
+        if previous_mode != mode:
+            self.execute('chmod %s %s' % (mode, path), stdout=False, sudo=True)
+            self.log("File %s had mode %d. Changed it to %d." % (path, previous_mode, mode))
+
     def md5_local(self, path):
         '''
         Calculates an md5 hash for a given file in the local system. Returns None if file does not exist.
@@ -642,6 +714,51 @@ class Role(object):
         if not results:
             return False
         return results[-1] == '0'
+
+    def has_line(self, line, file_path):
+        '''
+        Returns True if the given line of text is present in the given file. Returns False otherwise (even if the file does not exist).
+        <em>Parameters</em>
+        line - line of text to verify in the given file.
+        file_path - complete path of the remote file.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                if self.has_line('127.0.0.1 localhost', '/etc/hosts'):
+                    pass
+        '''
+        if not self.remote_exists(file_path):
+            return False
+
+        contents = self.read_remote_file(file_path).split('\n')
+
+        for current_line in contents:
+            if line.replace(' ', '') == current_line.replace(' ', ''):
+                return True
+        return False
+
+    def ensure_line(self, line, file_path, owner=None, sudo=False):
+        '''
+        Returns True if the given line of text is present in the given file. Returns False otherwise (even if the file does not exist).
+        <em>Parameters</em>
+        line - line of text to verify in the given file.
+        file_path - complete path of the remote file.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
+        '''
+        owner_user = owner or self.context['owner']
+        if not self.has_line(line, file_path):
+            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo)
+            self.change_file_owner(file_path, owner_user)
+            self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
     def using(self, role):
         '''

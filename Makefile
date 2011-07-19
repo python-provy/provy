@@ -13,6 +13,9 @@ front:
 back:
 	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.backend -p vagrant
 
+djangofront:
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.frontend -p vagrant  front-end-user=frontend django_provyfile.py
+
 djangoback:
 	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.backend -p vagrant django_provyfile.py
 

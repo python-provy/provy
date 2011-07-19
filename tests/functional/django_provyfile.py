@@ -21,6 +21,9 @@ class FrontEnd(Role):
             role.create_site(site='frontend', template='test-site')
             role.ensure_site_enabled('frontend')
 
+        self.ensure_line('version: 0.1.0', '/home/frontend/version.txt', sudo=True, owner='frontend')
+        self.change_dir_mode('/home/frontend', mode=644, recursive=False)
+
 
 class BackEnd(Role):
     def provision(self):
@@ -60,6 +63,8 @@ class BackEnd(Role):
                     site.settings = {
                         'CREATED_BY': 'provy'
                     }
+
+            self.change_dir_mode('/home/backend/provy/tests/functional/djangosite', mode=777, recursive=True)
 
 servers = {
     'test': {
