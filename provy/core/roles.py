@@ -5,6 +5,7 @@
 Module responsible for the base Role and its operations.
 '''
 
+import codecs
 import os
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
@@ -439,7 +440,8 @@ class Role(object):
         '''
         if not self.local_exists(path):
             return None
-        return md5(open(path).read()).hexdigest()
+        contents = codecs.open(path, 'r', 'utf-8').read()
+        return md5(unicode(contents)).hexdigest()
 
     def md5_remote(self, path):
         '''
@@ -458,7 +460,7 @@ class Role(object):
         if not self.remote_exists(path):
             return None
         contents = self.read_remote_file(path)
-        return md5(contents).hexdigest()
+        return md5(unicode(contents)).hexdigest()
 
     def remove_file(self, path, sudo=False):
         '''

@@ -23,5 +23,5 @@ class HostsRole(Role):
     '''
 
     def ensure_host(self, host_name, ip):
-        self.ensure_line('%s        %s' % (ip, host_name), '/etc/hosts')
+        self.ensure_line('%s        %s' % (ip, host_name), '/etc/hosts', sudo=True)
 
