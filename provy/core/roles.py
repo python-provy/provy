@@ -457,8 +457,8 @@ class Role(object):
         '''
         if not self.remote_exists(path):
             return None
-        command = "from hashlib import md5; print md5(open('%s').read()).hexdigest()" % path
-        return self.execute_python(command, stdout=False)
+        contents = self.read_remote_file(path)
+        return md5(contents).hexdigest()
 
     def remove_file(self, path, sudo=False):
         '''
@@ -665,7 +665,8 @@ class Role(object):
                 last_update = self.read_remote_file('/tmp/last-update')
         </pre>
         '''
-        return self.execute('cat %s' % path, stdout=False, sudo=sudo)
+        result = self.execute("cat %s" % path, stdout=False, sudo=sudo)
+        return result.decode('iso-8859-7').encode('utf-8')
 
     def render(self, template_file, options={}):
         '''
