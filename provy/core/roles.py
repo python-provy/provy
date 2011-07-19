@@ -441,7 +441,7 @@ class Role(object):
         if not self.local_exists(path):
             return None
         contents = codecs.open(path, 'r', 'utf-8').read()
-        return md5(unicode(contents)).hexdigest()
+        return md5(contents.strip()).hexdigest()
 
     def md5_remote(self, path):
         '''
@@ -460,7 +460,7 @@ class Role(object):
         if not self.remote_exists(path):
             return None
         contents = self.read_remote_file(path)
-        return md5(unicode(contents)).hexdigest()
+        return md5(contents.strip()).hexdigest()
 
     def remove_file(self, path, sudo=False):
         '''
@@ -667,8 +667,8 @@ class Role(object):
                 last_update = self.read_remote_file('/tmp/last-update')
         </pre>
         '''
-        result = self.execute("cat %s" % path, stdout=False, sudo=sudo)
-        return result.decode('iso-8859-7').encode('utf-8')
+        result = self.execute_python("import codecs; print codecs.open('%s', 'r', 'utf-8').read()" % path, stdout=False, sudo=sudo)
+        return result
 
     def render(self, template_file, options={}):
         '''
