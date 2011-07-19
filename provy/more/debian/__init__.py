@@ -12,3 +12,4 @@ from provy.more.debian.database import *
 from provy.more.debian.monitoring import *
 from provy.more.debian.vcs import *
 from provy.more.debian.web import *
+from provy.more.debian.networking import *
