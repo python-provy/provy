@@ -311,6 +311,9 @@ class Role(object):
                 self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
         </pre>
         '''
+        if owner:
+            sudo = True
+
         if not self.remote_exists_dir(directory):
             self.execute('mkdir -p %s' % directory, stdout=False, sudo=sudo)
 
