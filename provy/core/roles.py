@@ -415,8 +415,7 @@ class Role(object):
         class MySampleRole(Role):
             def provision(self):
                 self.change_file_mode(path='/etc/init.d/someapp',
-                                      mode=777,
-                                      sudo=True)
+                                      mode=777)
         </pre>
         '''
         previous_mode = self.get_object_mode(path)
