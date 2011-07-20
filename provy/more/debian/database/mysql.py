@@ -54,6 +54,7 @@ class MySQLRole(Role):
                          sudo=True)
             result = role.ensure_package_installed('mysql-server')
             if result:
+                role.ensure_package_installed('mysql-client')
                 self.log("setting root user %s password..." % self.mysql_root_user)
                 self.execute("mysqladmin -u %s -p'temppass' password '%s'" % (self.mysql_root_user, self.mysql_root_pass), stdout=False, sudo=True)
 
