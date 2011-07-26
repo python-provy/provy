@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from provy.core import Role
+from provy.core import Role, AskFor
 from provy.more.debian import NginxRole, TornadoRole, UserRole, SSHRole
 from provy.more.debian import PipRole, VarnishRole, AptitudeRole, GitRole
 from provy.more.debian import SupervisorRole
@@ -9,22 +9,18 @@ from provy.more.debian import SupervisorRole
 
 class FrontEnd(Role):
     def provision(self):
+        user = self.context['front-end-user']
         with self.using(UserRole) as role:
-            role.ensure_user('frontend', identified_by='pass', is_admin=True)
+            role.ensure_user(user, identified_by='pass', is_admin=True)
 
         with self.using(VarnishRole) as role:
-            role.ensure_vcl('default.vcl', owner='frontend')
-            role.ensure_conf('default_varnish', owner='frontend')
+            role.ensure_vcl('default.vcl', owner=user)
+            role.ensure_conf('default_varnish', owner=user)
 
         with self.using(NginxRole) as role:
-            role.ensure_conf(conf_template='test-conf.conf',
-                             options={'user': 'frontend'})
+            role.ensure_conf(conf_template='test-conf.conf')
             role.ensure_site_disabled('default')
-            role.create_site(site='frontend', template='test-site',
-                             options={
-                                'root_path': '/var/www/nginx-default',
-                                'media_path': '/var/www/nginx-default'
-                             })
+            role.create_site(site='frontend', template='test-site')
             role.ensure_site_enabled('frontend')
 
 
@@ -57,7 +53,7 @@ class BackEnd(Role):
             role.config(
                 config_file_directory='/home/backend',
                 log_file='/home/backend/logs/supervisord.log',
-                user='backend'
+                user=self.context['supervisor-user']
             )
 
             with role.with_program('website') as program:
@@ -74,15 +70,21 @@ servers = {
             'user': 'vagrant',
             'roles': [
                 FrontEnd
-            ]
+            ],
+            'options': {
+                'front-end-user': AskFor('front-end-user', 'Please enter the name of the nginx user')
+            }
         },
         'backend': {
             'address': '33.33.33.34',
             'user': 'vagrant',
             'roles': [
                 BackEnd
-            ]
+            ],
+            'options': {
+                'supervisor-user': 'backend'
+            }
+
         }
     }
 }
-

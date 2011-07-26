@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Roles in this namespace are meant to provide Supervisor monitoring utility methods for Debian distributions.
+'''
+
 from os.path import join
 
 from provy.core import Role
@@ -10,6 +14,7 @@ PROGRAMS_KEY = 'supervisor-programs'
 CONFIG_KEY = 'supervisor-config'
 MUST_UPDATE_CONFIG_KEY = 'must-update-supervisor-config'
 MUST_RESTART_KEY = 'must-restart-supervisor'
+
 
 class WithProgram(object):
     def __init__(self, supervisor, name):
@@ -67,15 +72,69 @@ class WithProgram(object):
             'environment': env
         })
 
+
 class SupervisorRole(Role):
+    '''
+    This role provides supervisor monitoring utilities for Debian distributions.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+    from provy.core import Role
+    from provy.more.debian import SupervisorRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(SupervisorRole) as role:
+                role.config(
+                    config_file_directory='/home/backend',
+                    log_folder='/home/backend/logs',
+                    user=self.context['supervisor-user']
+                )
+
+                with role.with_program('website') as program:
+                    program.directory = '/home/backend/provy/tests/functional'
+                    program.command = 'python website.py 800%(process_num)s'
+                    program.number_of_processes = 4
+
+                    program.log_folder = '/home/backend/logs'
+    </pre>
+    '''
+
     def provision(self):
+        '''
+        Installs Supervisor and its dependencies. This method should be called upon if overriden in base classes, or Supervisor won't work properly in the remote server.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(SupervisorRole) # no need to call this if using with block.
+        </pre>
+        '''
         self.register_template_loader('provy.more.debian.monitoring')
 
         with self.using(PipRole) as role:
             role.ensure_package_installed('supervisor')
 
     def update_init_script(self, config_file_path):
-        options = { 'config_file': join(config_file_path, 'supervisord.conf') }
+        '''
+        Creates a supervisord /etc/init.d script that points to the specified config file path.
+        <em>Parameters</em>
+        config_file_path - path to the supervisord.conf at the server.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.update_init_script('/etc/supervisord.conf')
+        </pre>
+        '''
+
+        options = {'config_file': join(config_file_path, 'supervisord.conf')}
         result = self.update_file('supervisord.init.template', '/etc/init.d/supervisord', owner=self.context['owner'], options=options, sudo=True)
 
         if result:
@@ -84,16 +143,66 @@ class SupervisorRole(Role):
             self.ensure_restart()
 
     def ensure_config_update(self):
+        '''
+        Makes sure that the config file is updated upon cleanup.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.ensure_config_update()
+        </pre>
+        '''
+
         self.context[MUST_UPDATE_CONFIG_KEY] = True
 
     def config(self,
                config_file_directory=None,
-               log_file='/var/log/supervisord.log',
+               log_folder='/var/log',
                log_file_max_mb=50,
                log_file_backups=10,
                log_level='info',
                pidfile='/var/run/supervisord.pid',
                user=None):
+        '''
+        Configures supervisor by creating a supervisord.conf file at the specified location.
+        <em>Parameters</em>
+        config_file_directory - directory to create the supervisord.conf file at the server.
+        log_folder - path where log files will be created by supervisor. Defaults to /var/log (if you use the default, make sure your user has access).
+        log_file_max_mb - Maximum size of log file in megabytes. Defaults to 50.
+        log_file_backups - Number of log backups that supervisor keeps. Defaults to 10.
+        log_level - Level of logging for supervisor. Defaults to 'info'.
+        pidfile - Path for the pidfile that supervisor creates for itself. Defaults to /var/run/supervisor.pid (if you use the default, make sure your user has access).
+        user - User that runs supervisor. Defaults to the last created user.
+
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.config(
+                        config_file_directory='/home/backend',
+                        log_folder='/home/backend/logs',
+                        pidfile='/home/backend/supervisord.pid',
+                        user='backend'
+                    )
+        </pre>
+        '''
+        self.log_folder = log_folder
+        self.config_file_directory = config_file_directory,
+        self.log_folder = log_folder
+        self.log_file_max_mb = log_file_max_mb
+        self.log_file_backups = log_file_backups
+        self.log_level = log_level
+        self.pidfile = pidfile
+        self.user = user
+
         if config_file_directory is None:
             config_file_directory = '/home/%s' % self.context['owner']
         if user is None:
@@ -101,7 +210,7 @@ class SupervisorRole(Role):
 
         self.context[CONFIG_KEY] = {
             'config_file_directory': config_file_directory,
-            'log_file': log_file,
+            'log_file': join(log_folder, 'supervisord.log'),
             'log_file_max_mb': log_file_max_mb,
             'log_file_backups': log_file_backups,
             'log_level': log_level,
@@ -112,9 +221,42 @@ class SupervisorRole(Role):
         self.ensure_config_update()
 
     def with_program(self, name):
+        '''
+        Enters a with block with a Program variable that allows you to configure a program entry in supervisord.conf.
+        <em>Parameters</em>
+        name - name of the program being supervised.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    with role.with_program('website') as program:
+                        program.directory = '/home/backend/provy/tests/functional'
+                        program.command = 'python website.py 800%(process_num)s'
+                        program.number_of_processes = 4
+                        program.log_folder = '/home/backend/logs'
+        </pre>
+        '''
         return WithProgram(self, name)
 
     def update_config_file(self):
+        '''
+        Updates the config file to match the configurations done under the <em>config</em> method.
+        There's no need to call this method after config, since SupervisorRole cleanup will call it for you.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.update_config_file()
+        </pre>
+        '''
         if CONFIG_KEY in self.context or PROGRAMS_KEY in self.context:
             if CONFIG_KEY not in self.context:
                 self.config()
@@ -133,6 +275,11 @@ class SupervisorRole(Role):
                 self.ensure_restart()
 
     def cleanup(self):
+        '''
+        Updates the config file and/or init files and restarts supervisor if needed.
+        There's no need to call this method since provy's lifecycle will make sure it is called.
+        '''
+
         if MUST_UPDATE_CONFIG_KEY in self.context and self.context[MUST_UPDATE_CONFIG_KEY]:
             self.update_init_script(self.context[CONFIG_KEY]['config_file_directory'])
             self.update_config_file()
@@ -141,12 +288,29 @@ class SupervisorRole(Role):
             self.restart()
 
     def ensure_restart(self):
+        '''
+        Makes sure supervisor is restarted on cleanup.
+        There's no need to call this method since it will be called when changes occur by the other methods.
+        '''
+
         self.context[MUST_RESTART_KEY] = True
 
     def restart(self):
+        '''
+        Forcefully restarts supervisor.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SupervisorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SupervisorRole) as role:
+                    role.restart()
+        </pre>
+        '''
         if not self.is_process_running('supervisord'):
             command = '/etc/init.d/supervisord start'
         else:
             command = '/etc/init.d/supervisord restart'
         self.execute(command, sudo=True)
-

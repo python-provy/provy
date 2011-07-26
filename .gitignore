@@ -5,3 +5,5 @@ dist
 pyVows.egg-info
 vagrant/.vagrant
 provy.egg-info
+*.swn
+*.swo

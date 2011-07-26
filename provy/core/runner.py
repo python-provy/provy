@@ -5,15 +5,25 @@ from os.path import sep, abspath, dirname, join
 
 from fabric.context_managers import settings as _settings
 
-from provy.core.utils import import_module
+from provy.core.utils import import_module, AskFor
 from provy.core.errors import ConfigurationError
 from jinja2 import FileSystemLoader, ChoiceLoader
 
 
-def run(provfile_path, server_name, password):
+def run(provfile_path, server_name, password, extra_options):
     module_path = provfile_path.replace(sep, '.')
     prov = import_module(module_path)
     servers = get_servers_for(prov, server_name)
+
+    for server in servers:
+        if 'options' in server:
+            for option_name, option in server['options'].iteritems():
+                if isinstance(option, AskFor):
+                    if option.key in extra_options:
+                        value = extra_options[option.key]
+                    else:
+                        value = option.get_value(server)
+                    server['options'][option_name] = value
 
     for server in servers:
         host_string = "%s@%s" % (server['user'], server['address'])
@@ -25,6 +35,10 @@ def run(provfile_path, server_name, password):
             'cleanup': [],
             'registered_loaders': []
         }
+
+        if 'options' in server and server['options']:
+            for key, value in server['options'].iteritems():
+                context[key] = value
 
         loader = ChoiceLoader([
             FileSystemLoader(join(context['abspath'], 'files'))

@@ -1,14 +1,51 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Roles in this namespace are meant to provide SSH keygen utilities for Debian distributions.
+'''
+
 from os.path import join
 import base64
 import M2Crypto.RSA
 
 from provy.core import Role
 
+
 class SSHRole(Role):
+    '''
+    This role provides SSH keygen utilities for Debian distributions.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+    from provy.core import Role
+    from provy.more.debian import SSHRole
+
+    class MySampleRole(Role):
+        def provision(self):
+            with self.using(SSHRole) as role:
+                role.ensure_ssh_key(user='someuser', private_key_file="private-key")
+    </pre>
+    '''
+
     def ensure_ssh_key(self, user, private_key_file):
+        '''
+        Ensures that the specified private ssh key is present in the remote server. Also creates the public key for this private key.
+        The private key file must be a template and be accessible to the Role.render method.
+        <em>Parameters</em>
+        user - Owner of the keys
+        private_key_file - Template file for the private key.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import SSHRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SSHRole) as role:
+                    role.ensure_ssh_key(user='someuser', private_key_file="private-key")
+        </pre>
+
+        '''
         path = '/home/%s' % user
         ssh_path = join(path, '.ssh')
         self.ensure_dir(ssh_path, sudo=True, owner=user)
@@ -17,18 +54,9 @@ class SSHRole(Role):
         key = M2Crypto.RSA.load_key_string(str(private_key))
         public_key = 'ssh-rsa %s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s' % key.pub()))
 
-        self.write_keys(user, private_key, public_key)
+        self.__write_keys(user, private_key, public_key)
 
-    def generate_ssh_key(self, user):
-        path = '/home/%s' % user
-        ssh_path = join(path, '.ssh')
-        self.ensure_dir(ssh_path, sudo=True, owner=user)
-
-        keypair = self.generate_key_pair()
-        pub, priv = keypair['public'], keypair['private']
-        self.write_keys(user, priv, pub)
-
-    def write_keys(self, user, private_key, public_key):
+    def __write_keys(self, user, private_key, public_key):
         path = '/home/%s' % user
         ssh_path = join(path, '.ssh')
         pub_path = join(ssh_path, 'id_rsa.pub')
@@ -49,13 +77,3 @@ class SSHRole(Role):
             self.log("SSH keys generated at server!")
             self.log("Public key:")
             self.log(pub_text)
-
-    def generate_key_pair(self, bits=4096, exponent=65537):
-        key = M2Crypto.RSA.gen_key(int(bits), int(exponent))
-        priv_key = M2Crypto.RSA.BIO.MemoryBuffer()
-        key.save_key_bio(priv_key, cipher=None)
-
-        # The four bytes before 'ssh-rsa' define the Type (0) and Length (7) of the
-        # 'ssh-rsa' string. This is part of TLV encoding used in BER.
-        pub_key = 'ssh-rsa %s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s' % key.pub()))
-        return {'bits': bits, 'public': pub_key, 'private': priv_key.read_all()}
