@@ -57,14 +57,14 @@ def not_to_be_called(function):
 @Vows.batch
 class TestPipRole(Vows.Context):
 
-    class TestEnsurePackageInstaled(Vows.Context):
+    class TestEnsurePackageInstalled(Vows.Context):
         def topic(self):
             pip_role = PipMockedRole(prov=None, context={})
             pip_role.mock_method("log", None)
             pip_role.mock_method("execute", None)
             return pip_role
 
-        class WhenPackageIsInstaled(Vows.Context):
+        class WhenPackageIsInstalled(Vows.Context):
             def topic(self, pip_role):
                 pip_role.mock_method("is_package_installed", True)
                 pip_role.ensure_package_installed("django")
@@ -123,6 +123,4 @@ class TestPipRole(Vows.Context):
 
                             def should_execute_the_package_install(self, topic):
                                 expect(topic.execute).to_be_called_like("pip install django>=1.2.3")
-
-
 
