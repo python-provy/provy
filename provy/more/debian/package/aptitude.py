@@ -52,6 +52,7 @@ class AptitudeRole(Role):
             self.force_update()
 
     def force_update(self):
+        self.execute('apt-get install aptitude', stdout=False, sudo=True)
         self.log('Updating aptitude sources...')
         self.execute('aptitude update', stdout=False, sudo=True)
         self.store_update_date()
