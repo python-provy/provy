@@ -144,5 +144,5 @@ class VarnishRole(Role):
                         role.restart()
         </pre>
         '''
-        command = '/etc/init.d/varnish restart'
+        command = 'START=yes /etc/init.d/varnish restart'
         self.execute(command, sudo=True)
