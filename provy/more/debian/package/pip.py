@@ -10,6 +10,7 @@ from fabric.api import settings
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
+import re
 import xmlrpclib
 
 
@@ -155,7 +156,7 @@ class PipRole(Role):
         Makes sure the package is installed with the specified version (Latest if None specified). This method does not verify and upgrade the package on subsequent provisions, though. Use <em>ensure_package_up_to_date</em> for this purpose instead.
         <em>Parameters</em>
         package_name - Name of the package to install.
-        version - If specified, installs this version of the package. Installs latest version otherwise.
+        version - If specified, installs this version of the package. Installs latest version otherwise. You can use >= or <= before version number to ensure package version.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -167,11 +168,17 @@ class PipRole(Role):
                     role.ensure_package_installed('django', version='1.1.1')
         </pre>
         '''
-        if version and not self.is_package_installed(package_name, version):
-            self.log('%s version %s should be installed (via pip)! Rectifying that...' % (package_name, version))
-            self.execute('pip install %s==%s' % (package_name, version), stdout=False, sudo=self.use_sudo)
-            self.log('%s version %s installed!' % (package_name, version))
-            return True
+        if version:
+            package_constraint = '=='
+            constraint_match = re.match(r'^(>=)(.+)', version.strip())
+            if constraint_match:
+                package_constraint = constraint_match.group(1)
+                version = constraint_match.group(2)
+            if not self.is_package_installed(package_name, version):
+                self.log('%s version %s should be installed (via pip)! Rectifying that...' % (package_name, version))
+                self.execute('pip install %s%s%s' % (package_name, package_constraint, version), stdout=False, sudo=self.use_sudo)
+                self.log('%s version %s installed!' % (package_name, version))
+                return True
         elif not self.is_package_installed(package_name):
             self.log('%s is not installed (via pip)! Installing...' % package_name)
             self.execute('pip install %s' % package_name, stdout=False, sudo=self.use_sudo)
@@ -179,6 +186,9 @@ class PipRole(Role):
             return True
 
         return False
+
+    def ensure_requeriments_installed(self, requeriments_file):
+        pass
 
     def ensure_package_up_to_date(self, package_name):
         '''
