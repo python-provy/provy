@@ -7,6 +7,7 @@ Module responsible for the base Role and its operations.
 
 import codecs
 import os
+import re
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
@@ -670,6 +671,8 @@ class Role(object):
         </pre>
         '''
         result = self.execute_python("import codecs; print codecs.open('%s', 'r', 'utf-8').read()" % path, stdout=False, sudo=sudo)
+        result = re.sub (r'\r','',result)
+
         return result
 
     def render(self, template_file, options={}):
