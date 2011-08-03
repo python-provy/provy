@@ -31,11 +31,11 @@ class PipMockedRole(PipRole):
         self.should_be_mocked[method_name] = Mock()
 
 @Vows.assertion
-def to_be_called(function):
+def to_have_been_called(function):
     assert len(function.calls) > 0
 
 @Vows.assertion
-def to_be_called_with(function, *args, **kwargs):
+def to_have_been_called_with(function, *args, **kwargs):
     be_called = False
     for call in function.calls:
         if call['args'] == args and call['kwargs'] == kwargs:
@@ -43,7 +43,7 @@ def to_be_called_with(function, *args, **kwargs):
     assert be_called, "The function should be called with %s, %s, but not was" % (str(args), str(kwargs))
 
 @Vows.assertion
-def to_be_called_like(function, *args):
+def to_have_been_called_like(function, *args):
     be_called = False
     for call in function.calls:
         if call['args'] == args:
@@ -51,7 +51,7 @@ def to_be_called_like(function, *args):
     assert be_called
 
 @Vows.assertion
-def not_to_be_called(function):
+def not_to_have_been_called(function):
     assert len(function.calls) == 0
 
 @Vows.batch
@@ -71,10 +71,10 @@ class TestPipRole(Vows.Context):
                 return pip_role
 
             def should_ask_if_package_are_installed(self, topic):
-                expect(topic.is_package_installed).to_be_called_with("django")
+                expect(topic.is_package_installed).to_have_been_called_with("django")
 
             def should_be_executed_none_commands(self, topic):
-                expect(topic.execute).not_to_be_called()
+                expect(topic.execute).not_to_have_been_called()
 
             class WhenASpecifcVersionOfPackageIsInstalled(Vows.Context):
                 def topic(self, pip_role):
@@ -83,10 +83,10 @@ class TestPipRole(Vows.Context):
                     return pip_role
 
                 def should_ask_if_package_are_installed(self, topic):
-                    expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                    expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                 def should_be_executed_none_commands(self, topic):
-                    expect(topic.execute).not_to_be_called()
+                    expect(topic.execute).not_to_have_been_called()
 
                 class WhenPackageIsNotInstalled(Vows.Context):
                     def topic(self, pip_role):
@@ -95,10 +95,10 @@ class TestPipRole(Vows.Context):
                         return pip_role
 
                     def should_ask_if_package_are_installed(self, topic):
-                        expect(topic.is_package_installed).to_be_called_with("django")
+                        expect(topic.is_package_installed).to_have_been_called_with("django")
 
                     def should_execute_the_package_install(self, topic):
-                        expect(topic.execute).to_be_called_like("pip install django")
+                        expect(topic.execute).to_have_been_called_like("pip install django")
 
                     class WhenIWantToInstallASpecificVersionOfThePackage(Vows.Context):
                         def topic(self, pip_role):
@@ -107,10 +107,10 @@ class TestPipRole(Vows.Context):
                             return pip_role
 
                         def should_ask_if_package_are_installed(self, topic):
-                            expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                            expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                         def should_execute_the_package_install(self, topic):
-                            expect(topic.execute).to_be_called_like("pip install django==1.2.3")
+                            expect(topic.execute).to_have_been_called_like("pip install django==1.2.3")
 
                         class WhenIWantToGetALowerVersionOfThePackage(Vows.Context):
                             def topic(self, pip_role):
@@ -119,8 +119,8 @@ class TestPipRole(Vows.Context):
                                 return pip_role
 
                             def should_ask_if_package_are_installed(self, topic):
-                                expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                                expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                             def should_execute_the_package_install(self, topic):
-                                expect(topic.execute).to_be_called_like("pip install django>=1.2.3")
+                                expect(topic.execute).to_have_been_called_like("pip install django>=1.2.3")
 
