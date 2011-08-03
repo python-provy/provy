@@ -1,5 +1,5 @@
 vows:
-	@env PYTHONPATH=. pyvows --cover --cover_package=provy --cover_threshold=80.0 tests/
+	@env PYTHONPATH=. pyvows --cover --cover_package=provy --cover_package=unit.tools.role_context --cover_threshold=80.0 tests/
 
 setup:
 	@pip install --requirement=REQUIREMENTS
