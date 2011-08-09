@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from os.path import join, abspath, dirname
 from pyvows import Vows, expect
 
 from provy.core.roles import Role
@@ -13,6 +14,79 @@ class TestPipRole(RoleContext):
 
     def _role_class(self):
         return PipRole
+
+    class WhenIWantToSplitPackageInput(RoleContext):
+        def topic(self):
+            role = self._get_role()
+            return role
+
+        class WhenIUseASimpleName(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django")
+
+            def should_return_the_package_name(self, topic):
+                expect(topic).to_be_like({"name": "django"})
+
+        class WhenISpecifyThePackageVersion(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django==1.2.3")
+
+            def should_return_the_package_name_and_version(self, topic):
+                expect(topic).to_be_like({"name": "django", "version": "1.2.3", "version_constraint": "=="})
+
+        class WhenISpecifyThePackageVersionGreatherThan(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django>=1.2.3")
+
+            def should_return_the_package_name_and_version(self, topic):
+                expect(topic).to_be_like({"name": "django", "version": "1.2.3", "version_constraint": ">="})
+
+        class WhenISpecifyTheRepositoryPath(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("-e hg+http://bitbucket.org/bkroeze/django-keyedcache/#egg=django-keyedcache")
+
+            def should_return_the_package_name(self, topic):
+                expect(topic).to_be_like({"name": "django-keyedcache"})
+
+        class WhenISpecifyThePackageFileUrl(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz")
+
+            def should_return_the_package_url_as_packeage_name(self, topic):
+                expect(topic).to_be_like({"name": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"})
+
+    class TestIsPackageInstalled(RoleContext):
+        def topic(self):
+            role = self._get_role()
+            role.mock_method("execute", "django")
+            return role
+
+        class WhenUsedOnlyPackageName(RoleContext):
+            def topic(self, role):
+                role.is_package_installed("django")
+                return role
+
+            def should_execute_the_correct_command(self, role):
+                expect(role.execute).to_have_been_called_like("pip freeze | tr '[A-Z]' '[a-z]' | grep django")
+
+    class WhenIWantToInstallFromARequerimentsFile(RoleContext):
+        def topic(self):
+            role = self._get_role()
+            role.mock_method("ensure_package_installed", None)
+            role.ensure_requeriments_installed(abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt")))
+            return role
+
+        def should_ensure_django_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("Django", version=None)
+
+        def should_ensure_yolk_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("yolk", version="==0.4.1")
+
+        def should_ensure_specific_file_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz", version=None)
+
+        def should_ensure_from_repository_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("django-threaded-multihost", version=None)
 
     class TestEnsurePackageInstalled(RoleContext):
         def topic(self):
@@ -69,7 +143,7 @@ class TestPipRole(RoleContext):
                         def should_execute_the_package_install(self, topic):
                             expect(topic.execute).to_have_been_called_like("pip install django==1.2.3")
 
-                        class WhenIWantToGetALowerVersionOfThePackage(RoleContext):
+                        class WhenIWantToGetAGreatherVersionOfThePackage(RoleContext):
                             def topic(self, pip_role):
                                 pip_role.mock_method("is_package_installed", False)
                                 pip_role.ensure_package_installed("django", version=">=1.2.3")
