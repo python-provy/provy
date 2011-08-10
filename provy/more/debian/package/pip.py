@@ -56,6 +56,7 @@ class PipRole(Role):
         package_info = {
             "name" : input_line
         }
+
         if input_line.startswith("-e") and "#egg=" in input_line:
             data = input_line.split("#egg=")
             if len(data) > 0:
@@ -71,6 +72,7 @@ class PipRole(Role):
             if len(data) > 1:
                 package_info["name"] = data[0]
                 package_info["version"] = data[1]
+
         return package_info
 
     def is_package_installed(self, package_name, version=None):
@@ -91,8 +93,20 @@ class PipRole(Role):
         </pre>
         '''
         with settings(warn_only=True):
-            package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
-            return package_name in self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_string, stdout=False, sudo=self.use_sudo)
+            package_info = self.extract_package_data_from_input(package_name)
+            if not version:
+                package_name = package_info['name']
+            #package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
+            package_string = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name, stdout=False, sudo=self.use_sudo)
+            if package_name in package_string:
+                installed_version = package_string.split('==')[-1]
+                if 'version' in package_info:
+                    if '>=' == package_info['version_constraint']:
+                        if installed_version < package_info['version']:
+                            return False
+                elif version and installed_version != version:
+                    return False
+                return True
 
     def get_package_remote_version(self, package_name):
         '''
@@ -211,13 +225,7 @@ class PipRole(Role):
     def ensure_requeriments_installed(self, requeriments_file_name):
         with open(requeriments_file_name, 'r') as requeriments_file:
             for requeriment in requeriments_file.readlines():
-                package_info = self.extract_package_data_from_input(requeriment)
-                version = None
-                if 'version_constraint' in package_info:
-                    version = package_info['version_constraint'] + package_info['version']
-                elif 'version' in package_info:
-                    version = package_info['version']
-                self.ensure_package_installed(package_info['name'], version=version)
+                self.ensure_package_installed(requeriment.strip())
 
     def ensure_package_up_to_date(self, package_name):
         '''

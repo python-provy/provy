@@ -58,7 +58,7 @@ class TestPipRole(RoleContext):
     class TestIsPackageInstalled(RoleContext):
         def topic(self):
             role = self._get_role()
-            role.mock_method("execute", "django")
+            role.mock_method("execute", "django==1.2.3")
             return role
 
         class WhenUsedOnlyPackageName(RoleContext):
@@ -69,6 +69,40 @@ class TestPipRole(RoleContext):
             def should_execute_the_correct_command(self, role):
                 expect(role.execute).to_have_been_called_like("pip freeze | tr '[A-Z]' '[a-z]' | grep django")
 
+            class WhenUsedPackageNameAndVersion(RoleContext):
+                def topic(self, role):
+                    self.role = role
+                    return role.is_package_installed("django==1.2.3")
+
+                def should_execute_the_correct_command(self, topic):
+                    expect(self.role.execute).to_have_been_called_like("pip freeze | tr '[A-Z]' '[a-z]' | grep django")
+
+                def the_packeage_should_be_installed(self, topic):
+                    expect(topic).to_be_true()
+
+            class WhenIHaveInstalledTheLowerVersion(RoleContext):
+                def topic(self, role):
+                    return role.is_package_installed("django>=1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
+            class WhenIHaveInstalledTheLowerVersionAndPassVersionViaParam(RoleContext):
+                def topic(self, role):
+                    return role.is_package_installed("django", "1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
+            class WhenIDontHavePackageInstalled(RoleContext):
+                def topic(self):
+                    role = self._get_role()
+                    role.mock_method("execute", "")
+                    return role.is_package_installed("django", "1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
     class WhenIWantToInstallFromARequerimentsFile(RoleContext):
         def topic(self):
             role = self._get_role()
@@ -77,16 +111,16 @@ class TestPipRole(RoleContext):
             return role
 
         def should_ensure_django_installed(self, role):
-            expect(role.ensure_package_installed).to_have_been_called_with("Django", version=None)
+            expect(role.ensure_package_installed).to_have_been_called_with("Django")
 
         def should_ensure_yolk_installed(self, role):
-            expect(role.ensure_package_installed).to_have_been_called_with("yolk", version="==0.4.1")
+            expect(role.ensure_package_installed).to_have_been_called_with("yolk==0.4.1")
 
         def should_ensure_specific_file_installed(self, role):
-            expect(role.ensure_package_installed).to_have_been_called_with("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz", version=None)
+            expect(role.ensure_package_installed).to_have_been_called_with("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz")
 
         def should_ensure_from_repository_installed(self, role):
-            expect(role.ensure_package_installed).to_have_been_called_with("django-threaded-multihost", version=None)
+            expect(role.ensure_package_installed).to_have_been_called_with("-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost")
 
     class TestEnsurePackageInstalled(RoleContext):
         def topic(self):
