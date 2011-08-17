@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from cStringIO import StringIO
+from getpass import getpass
+
 def import_module(module_name):
     module = __import__(module_name)
     if '.' in module_name:
@@ -13,5 +16,6 @@ class AskFor(object):
         self.question = question
 
     def get_value(self, server):
-        value = raw_input("[Server at %s] - %s: " % (server['address'], self.question))
-        return value
+        f = StringIO()
+        getpass("[Server at %s] - %s: " % (server['address'], self.question), f)
+        return f.read()
