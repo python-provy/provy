@@ -224,7 +224,7 @@ class AptitudeRole(Role):
         '''
 
         with settings(warn_only=True):
-            return package_name in self.execute("dpkg -l | egrep 'ii.+%s\\b'" % package_name, stdout=False, sudo=True)
+            return package_name in self.execute("dpkg -l | egrep 'ii[ ]*%s\\b'" % package_name, stdout=False, sudo=True)
 
     def ensure_package_installed(self, package_name, stdout=False, sudo=True):
         '''
