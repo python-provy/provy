@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from cStringIO import StringIO
 from getpass import getpass
 
 def import_module(module_name):
@@ -16,6 +15,5 @@ class AskFor(object):
         self.question = question
 
     def get_value(self, server):
-        f = StringIO()
-        getpass("[Server at %s] - %s: " % (server['address'], self.question), f)
-        return f.read()
+        value = getpass("[Server at %s] - %s: " % (server['address'], self.question))
+        return value
