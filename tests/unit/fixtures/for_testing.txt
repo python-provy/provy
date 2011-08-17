@@ -1,0 +1,4 @@
+Django
+yolk==0.4.1
+http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz
+-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost

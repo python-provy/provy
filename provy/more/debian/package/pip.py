@@ -50,6 +50,31 @@ class PipRole(Role):
             role.ensure_package_installed('python-dev')
         self.execute("easy_install pip", sudo=True, stdout=False)
 
+    def extract_package_data_from_input(self, input_line):
+        package_constraint = None
+        input_line = input_line.strip()
+        package_info = {
+            "name" : input_line
+        }
+
+        if input_line.startswith("-e") and "#egg=" in input_line:
+            data = input_line.split("#egg=")
+            if len(data) > 0:
+                package_info["name"] = data[1]
+        elif "==" in input_line:
+            package_constraint = "=="
+        elif '>=' in input_line:
+            package_constraint = ">="
+
+        if package_constraint:
+            package_info['version_constraint'] = package_constraint
+            data = input_line.split(package_constraint)
+            if len(data) > 1:
+                package_info["name"] = data[0]
+                package_info["version"] = data[1]
+
+        return package_info
+
     def is_package_installed(self, package_name, version=None):
         '''
         Returns True if the given package is installed via pip in the remote server, False otherwise.
@@ -68,8 +93,20 @@ class PipRole(Role):
         </pre>
         '''
         with settings(warn_only=True):
-            package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
-            return package_name in self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_string, stdout=False, sudo=self.use_sudo)
+            package_info = self.extract_package_data_from_input(package_name)
+            if not version:
+                package_name = package_info['name']
+            #package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
+            package_string = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name, stdout=False, sudo=self.use_sudo)
+            if package_name in package_string:
+                installed_version = package_string.split('==')[-1]
+                if 'version' in package_info:
+                    if '>=' == package_info['version_constraint']:
+                        if installed_version < package_info['version']:
+                            return False
+                elif version and installed_version != version:
+                    return False
+                return True
 
     def get_package_remote_version(self, package_name):
         '''
@@ -169,14 +206,12 @@ class PipRole(Role):
         </pre>
         '''
         if version:
-            package_constraint = '=='
-            constraint_match = re.match(r'^(>=)(.+)', version.strip())
-            if constraint_match:
-                package_constraint = constraint_match.group(1)
-                version = constraint_match.group(2)
+            package_info = self.extract_package_data_from_input(version)
+            version_constraint = 'version_constraint' in package_info and package_info['version_constraint'] or '=='
+            version = 'version' in package_info and package_info['version'] or version
             if not self.is_package_installed(package_name, version):
                 self.log('%s version %s should be installed (via pip)! Rectifying that...' % (package_name, version))
-                self.execute('pip install %s%s%s' % (package_name, package_constraint, version), stdout=False, sudo=self.use_sudo)
+                self.execute('pip install %s%s%s' % (package_name, version_constraint, version), stdout=False, sudo=self.use_sudo)
                 self.log('%s version %s installed!' % (package_name, version))
                 return True
         elif not self.is_package_installed(package_name):
@@ -187,8 +222,10 @@ class PipRole(Role):
 
         return False
 
-    def ensure_requeriments_installed(self, requeriments_file):
-        pass
+    def ensure_requeriments_installed(self, requeriments_file_name):
+        with open(requeriments_file_name, 'r') as requeriments_file:
+            for requeriment in requeriments_file.readlines():
+                self.ensure_package_installed(requeriment.strip())
 
     def ensure_package_up_to_date(self, package_name):
         '''

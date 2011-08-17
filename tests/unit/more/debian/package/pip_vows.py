@@ -1,126 +1,191 @@
 #!/usr/bin/env python
 
+from os.path import join, abspath, dirname
 from pyvows import Vows, expect
 
+from provy.core.roles import Role
 from provy.more.debian import PipRole
 
-class PipMockedRole(PipRole):
-
-    def __init__(self, *args, **kwargs):
-        super(PipMockedRole, self).__init__(*args, **kwargs)
-        self.should_be_mocked = {}
-
-    def __getattribute__(self, attr_name):
-        attribute = PipRole.__getattribute__(self, attr_name)
-        if "mock_method" != attr_name and \
-            hasattr(attribute, '__call__') and \
-                attr_name in self.should_be_mocked:
-            return self.should_be_mocked[attr_name]
-        else:
-            return attribute
-
-    def mock_method(self, method_name, return_value):
-        class Mock(object):
-            def __init__(self):
-                self.calls = []
-
-            def __call__(self, *args, **kwargs):
-                self.calls.append({"args": args, "kwargs": kwargs })
-                return return_value
-
-        self.should_be_mocked[method_name] = Mock()
-
-@Vows.assertion
-def to_be_called(function):
-    assert len(function.calls) > 0
-
-@Vows.assertion
-def to_be_called_with(function, *args, **kwargs):
-    be_called = False
-    for call in function.calls:
-        if call['args'] == args and call['kwargs'] == kwargs:
-            be_called = True
-    assert be_called, "The function should be called with %s, %s, but not was" % (str(args), str(kwargs))
-
-@Vows.assertion
-def to_be_called_like(function, *args):
-    be_called = False
-    for call in function.calls:
-        if call['args'] == args:
-            be_called = True
-    assert be_called
-
-@Vows.assertion
-def not_to_be_called(function):
-    assert len(function.calls) == 0
+from unit.tools.role_context import RoleContext
+from unit.tools.extra_assertions import *
 
 @Vows.batch
-class TestPipRole(Vows.Context):
+class TestPipRole(RoleContext):
 
-    class TestEnsurePackageInstalled(Vows.Context):
+    def _role_class(self):
+        return PipRole
+
+    class WhenIWantToSplitPackageInput(RoleContext):
         def topic(self):
-            pip_role = PipMockedRole(prov=None, context={})
+            role = self._get_role()
+            return role
+
+        class WhenIUseASimpleName(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django")
+
+            def should_return_the_package_name(self, topic):
+                expect(topic).to_be_like({"name": "django"})
+
+        class WhenISpecifyThePackageVersion(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django==1.2.3")
+
+            def should_return_the_package_name_and_version(self, topic):
+                expect(topic).to_be_like({"name": "django", "version": "1.2.3", "version_constraint": "=="})
+
+        class WhenISpecifyThePackageVersionGreatherThan(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("django>=1.2.3")
+
+            def should_return_the_package_name_and_version(self, topic):
+                expect(topic).to_be_like({"name": "django", "version": "1.2.3", "version_constraint": ">="})
+
+        class WhenISpecifyTheRepositoryPath(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("-e hg+http://bitbucket.org/bkroeze/django-keyedcache/#egg=django-keyedcache")
+
+            def should_return_the_package_name(self, topic):
+                expect(topic).to_be_like({"name": "django-keyedcache"})
+
+        class WhenISpecifyThePackageFileUrl(RoleContext):
+            def topic(self, role):
+                return role.extract_package_data_from_input("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz")
+
+            def should_return_the_package_url_as_packeage_name(self, topic):
+                expect(topic).to_be_like({"name": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"})
+
+    class TestIsPackageInstalled(RoleContext):
+        def topic(self):
+            role = self._get_role()
+            role.mock_method("execute", "django==1.2.3")
+            return role
+
+        class WhenUsedOnlyPackageName(RoleContext):
+            def topic(self, role):
+                role.is_package_installed("django")
+                return role
+
+            def should_execute_the_correct_command(self, role):
+                expect(role.execute).to_have_been_called_like("pip freeze | tr '[A-Z]' '[a-z]' | grep django")
+
+            class WhenUsedPackageNameAndVersion(RoleContext):
+                def topic(self, role):
+                    self.role = role
+                    return role.is_package_installed("django==1.2.3")
+
+                def should_execute_the_correct_command(self, topic):
+                    expect(self.role.execute).to_have_been_called_like("pip freeze | tr '[A-Z]' '[a-z]' | grep django")
+
+                def the_packeage_should_be_installed(self, topic):
+                    expect(topic).to_be_true()
+
+            class WhenIHaveInstalledTheLowerVersion(RoleContext):
+                def topic(self, role):
+                    return role.is_package_installed("django>=1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
+            class WhenIHaveInstalledTheLowerVersionAndPassVersionViaParam(RoleContext):
+                def topic(self, role):
+                    return role.is_package_installed("django", "1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
+            class WhenIDontHavePackageInstalled(RoleContext):
+                def topic(self):
+                    role = self._get_role()
+                    role.mock_method("execute", "")
+                    return role.is_package_installed("django", "1.3.0")
+
+                def the_package_should_not_be_installed(self, topic):
+                    expect(topic).to_be_false()
+
+    class WhenIWantToInstallFromARequerimentsFile(RoleContext):
+        def topic(self):
+            role = self._get_role()
+            role.mock_method("ensure_package_installed", None)
+            role.ensure_requeriments_installed(abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt")))
+            return role
+
+        def should_ensure_django_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("Django")
+
+        def should_ensure_yolk_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("yolk==0.4.1")
+
+        def should_ensure_specific_file_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz")
+
+        def should_ensure_from_repository_installed(self, role):
+            expect(role.ensure_package_installed).to_have_been_called_with("-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost")
+
+    class TestEnsurePackageInstalled(RoleContext):
+        def topic(self):
+            pip_role = self._get_role()
             pip_role.mock_method("log", None)
             pip_role.mock_method("execute", None)
             return pip_role
 
-        class WhenPackageIsInstalled(Vows.Context):
+        class WhenPackageIsInstalled(RoleContext):
             def topic(self, pip_role):
                 pip_role.mock_method("is_package_installed", True)
                 pip_role.ensure_package_installed("django")
                 return pip_role
 
             def should_ask_if_package_are_installed(self, topic):
-                expect(topic.is_package_installed).to_be_called_with("django")
+                expect(topic.is_package_installed).to_have_been_called_with("django")
 
             def should_be_executed_none_commands(self, topic):
-                expect(topic.execute).not_to_be_called()
+                expect(topic.execute).not_to_have_been_called()
 
-            class WhenASpecifcVersionOfPackageIsInstalled(Vows.Context):
+            class WhenASpecifcVersionOfPackageIsInstalled(RoleContext):
                 def topic(self, pip_role):
                     pip_role.mock_method("is_package_installed", True)
                     pip_role.ensure_package_installed("django", version="1.2.3")
                     return pip_role
 
                 def should_ask_if_package_are_installed(self, topic):
-                    expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                    expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                 def should_be_executed_none_commands(self, topic):
-                    expect(topic.execute).not_to_be_called()
+                    expect(topic.execute).not_to_have_been_called()
 
-                class WhenPackageIsNotInstalled(Vows.Context):
+                class WhenPackageIsNotInstalled(RoleContext):
                     def topic(self, pip_role):
                         pip_role.mock_method("is_package_installed", False)
                         pip_role.ensure_package_installed("django")
                         return pip_role
 
                     def should_ask_if_package_are_installed(self, topic):
-                        expect(topic.is_package_installed).to_be_called_with("django")
+                        expect(topic.is_package_installed).to_have_been_called_with("django")
 
                     def should_execute_the_package_install(self, topic):
-                        expect(topic.execute).to_be_called_like("pip install django")
+                        expect(topic.execute).to_have_been_called_like("pip install django")
 
-                    class WhenIWantToInstallASpecificVersionOfThePackage(Vows.Context):
+                    class WhenIWantToInstallASpecificVersionOfThePackage(RoleContext):
                         def topic(self, pip_role):
                             pip_role.mock_method("is_package_installed", False)
                             pip_role.ensure_package_installed("django", version="1.2.3")
                             return pip_role
 
                         def should_ask_if_package_are_installed(self, topic):
-                            expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                            expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                         def should_execute_the_package_install(self, topic):
-                            expect(topic.execute).to_be_called_like("pip install django==1.2.3")
+                            expect(topic.execute).to_have_been_called_like("pip install django==1.2.3")
 
-                        class WhenIWantToGetALowerVersionOfThePackage(Vows.Context):
+                        class WhenIWantToGetAGreatherVersionOfThePackage(RoleContext):
                             def topic(self, pip_role):
                                 pip_role.mock_method("is_package_installed", False)
                                 pip_role.ensure_package_installed("django", version=">=1.2.3")
                                 return pip_role
 
                             def should_ask_if_package_are_installed(self, topic):
-                                expect(topic.is_package_installed).to_be_called_with("django", "1.2.3")
+                                expect(topic.is_package_installed).to_have_been_called_with("django", "1.2.3")
 
                             def should_execute_the_package_install(self, topic):
-                                expect(topic.execute).to_be_called_like("pip install django>=1.2.3")
+                                expect(topic.execute).to_have_been_called_like("pip install django>=1.2.3")
 

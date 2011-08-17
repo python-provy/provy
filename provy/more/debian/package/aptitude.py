@@ -7,9 +7,8 @@ Roles in this namespace are meant to provision packages installed via the Aptitu
 
 from os.path import join
 from datetime import datetime, timedelta
-
+import re
 from fabric.api import settings
-
 from provy.core import Role
 
 
@@ -87,8 +86,9 @@ class AptitudeRole(Role):
                         # do something
         </pre>
         '''
-
-        return source_string in self.execute('cat /etc/apt/sources.list', stdout=False, sudo=True)
+        
+        result = self.execute('grep -ilR \'^%s\' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l' % source_string, stdout=False, sudo=True)
+        return int(result) != 0
 
     def ensure_aptitude_source(self, source_string):
         '''
