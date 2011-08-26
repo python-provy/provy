@@ -29,6 +29,26 @@ class NodeJsRole(Role):
     version = '0.4.11'
 
     def provision(self):
+        '''
+        Installs Node.JS and its dependencies. This method should be called upon if overriden in base classes, or Node won't work properly in the remote server.
+        If you set a class property called version, that version of Node.JS will be installed instead of 0.4.11.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import NodeJsRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(NodeJsRole) # no need to call this if using with block.
+
+        # or
+        class MySampleRole(Role):
+            def provision(self):
+                NodeJsRole.version = '0.4.11'
+                self.provision_role(NodeJsRole) # no need to call this if using with block.
+                # now node js 0.4.11 is installed.
+        </pre>
+        '''
         with self.using(AptitudeRole) as role:
             role.ensure_package_installed('g++')
             role.ensure_package_installed('make')
