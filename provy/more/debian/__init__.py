@@ -13,3 +13,4 @@ from provy.more.debian.monitoring import *
 from provy.more.debian.vcs import *
 from provy.more.debian.web import *
 from provy.more.debian.networking import *
+from provy.more.debian.programming import *
