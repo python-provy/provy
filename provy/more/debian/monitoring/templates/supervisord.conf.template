@@ -35,10 +35,10 @@ stopsignal={{ program.stop_signal }}
 user={{ program.user }}
 {% endif %}
 redirect_stderr=false
-stdout_logfile={{ program.log_folder}}/{{ program.name }}.stdout.log
+stdout_logfile={{ program.log_folder}}/{{ program.name }}.stdout.%(process_num)s.log
 stdout_logfile_maxbytes={{ program.log_file_max_mb }}MB
 stdout_logfile_backups={{ program.log_file_backups }}
-stderr_logfile={{ program.log_folder}}/{{ program.name }}.stderr.log
+stderr_logfile={{ program.log_folder}}/{{ program.name }}.stderr.%(process_num)s.log
 stderr_logfile_maxbytes={{ program.log_file_max_mb }}MB
 stderr_logfile_backups={{ program.log_file_backups }}
 

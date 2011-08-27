@@ -7,3 +7,4 @@ vagrant/.vagrant
 provy.egg-info
 *.swn
 *.swo
+.vagrant
