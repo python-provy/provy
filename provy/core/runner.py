@@ -50,10 +50,12 @@ def run(provfile_path, server_name, password, extra_options):
         print "*" * len(msg)
         print msg
         print "*" * len(msg)
-        with _settings(
-            host_string=host_string,
-            password=password
-        ):
+
+        settings_dict = dict(host_string=host_string, password=password)
+        if 'ssh_key' in server and server['ssh_key']:
+            settings_dict['key_filename'] = server['ssh_key']
+
+        with _settings(**settings_dict):
             context['host'] = server['address']
             context['user'] = server['user']
             role_instances = []
