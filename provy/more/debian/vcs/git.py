@@ -44,7 +44,7 @@ class GitRole(Role):
             role.ensure_up_to_date()
             role.ensure_package_installed('git-core')
 
-    def ensure_repository(self, repo, path, owner=None, branch=None):
+    def ensure_repository(self, repo, path, owner=None, branch=None, sudo=True):
         '''
         Makes sure the repository is create in the remote server. This method does not update the repository or perform any operations in it. It is merely used to ensure that the repository exists in the specified path.
         <em>Parameters</em>
@@ -69,7 +69,7 @@ class GitRole(Role):
         if not self.remote_exists_dir(path):
             self.log("Repository for %s does not exist! Cloning..." % repo)
             self.execute("git clone %s %s" % (repo, path),
-                         sudo=True,
+                         sudo=sudo,
                          stdout=False)
             self.log("Repository %s cloned!" % repo)
 
