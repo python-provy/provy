@@ -67,9 +67,7 @@ class SSHRole(Role):
 
         pub_text = "%s %s" % (public_key, host_str)
         pub_file = self.write_to_temp_file(pub_text)
-        priv_file = self.write_to_temp_file("""-----BEGIN RSA PRIVATE KEY-----
-%s
------END RSA PRIVATE KEY-----""" % private_key)
+        priv_file = self.write_to_temp_file(private_key)
         result_pub = self.update_file(pub_file, pub_path, sudo=True, owner=user)
         result_priv = self.update_file(priv_file, priv_path, sudo=True, owner=user)
 
