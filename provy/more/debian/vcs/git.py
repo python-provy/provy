@@ -68,9 +68,20 @@ class GitRole(Role):
         '''
         if not self.remote_exists_dir(path):
             self.log("Repository for %s does not exist! Cloning..." % repo)
-            self.execute("git clone %s %s" % (repo, path),
-                         sudo=sudo,
-                         stdout=False)
+            if sudo:
+                self.execute("git clone %s %s" % (repo, path),
+                             sudo=sudo,
+                             stdout=False)
+            elif owner:
+                self.execute("su -l seeries -c 'git clone %s %s'" % (repo, path),
+                             sudo=True,
+                             stdout=False)
+            else:
+                self.execute("git clone %s %s" % (repo, path),
+                             sudo=sudo,
+                             stdout=False)
+ 
+
             self.log("Repository %s cloned!" % repo)
 
         branch_name = "# On branch %s" % branch
