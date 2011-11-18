@@ -137,6 +137,7 @@ class NginxRole(Role):
         <em>Parameters</em>
         site - Name of the site to enable.
         template - Site configuration template.
+        options - Options to pass to the template.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -145,7 +146,9 @@ class NginxRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(NginxRole) as role:
-                    role.create_site(site='my-site', template='my-site')
+                    role.create_site(site='my-site', template='my-site', options={
+                        "user": "me"
+                    })
         </pre>
         '''
 
