@@ -654,7 +654,7 @@ class Role(object):
 
         return local_temp_path
 
-    def read_remote_file(self, path, sudo=False):
+    def read_remote_file(self, path, sudo=True):
         '''
         Returns the contents of a remote file.
         <em>Parameters</em>
