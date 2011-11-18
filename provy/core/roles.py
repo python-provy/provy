@@ -250,7 +250,7 @@ class Role(object):
                     # do something
         </pre>
         '''
-        return self.execute('test -f %s; echo $?' % file_path, stdout=False) == '0'
+        return self.execute('test -f %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
 
     def remote_exists_dir(self, file_path):
         '''
@@ -265,7 +265,7 @@ class Role(object):
                     # do something
         </pre>
         '''
-        return self.execute('test -d %s; echo $?' % file_path, stdout=False) == '0'
+        return self.execute('test -d %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
 
     def local_temp_dir(self):
         '''
