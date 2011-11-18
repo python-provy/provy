@@ -461,8 +461,10 @@ class Role(object):
         '''
         if not self.remote_exists(path):
             return None
-        contents = self.read_remote_file(path)
-        return md5(contents.strip()).hexdigest()
+
+        result = self.execute_python("from hashlib import md5;import codecs; print md5(codecs.open('%s', 'r', 'utf-8').read()).hexdigest()" % path, stdout=False, sudo=True)
+
+        return result
 
     def remove_file(self, path, sudo=False):
         '''
