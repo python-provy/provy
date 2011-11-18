@@ -6,11 +6,11 @@ Module responsible for the base Role and its operations.
 '''
 
 import codecs
+import zlib
 import os
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
-from hashlib import md5
 
 from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
@@ -442,8 +442,10 @@ class Role(object):
         '''
         if not self.local_exists(path):
             return None
-        contents = codecs.open(path, 'r', 'utf-8').read()
-        return md5(contents.strip()).hexdigest()
+
+        lines = codecs.open(path, 'rb', 'utf-8').readlines()
+        prev = reduce(lambda prev, each_line: zlib.crc32(each_line, prev), lines, 0)
+        return "%X"%(prev & 0xFFFFFFFF)
 
     def md5_remote(self, path):
         '''
@@ -462,7 +464,10 @@ class Role(object):
         if not self.remote_exists(path):
             return None
 
-        result = self.execute_python("from hashlib import md5;import codecs; print md5(codecs.open('%s', 'r', 'utf-8').read()).hexdigest()" % path, stdout=False, sudo=True)
+        command = """import zlib; import codecs; lines = codecs.open('%s', 'rb', 'utf-8').readlines(); prev = reduce(lambda prev, each_line: zlib.crc32(each_line, prev), lines, 0); print '%%X' %% (prev & 0xFFFFFFFF)"""
+
+        #result = self.execute_python("from hashlib import md5;import codecs; print md5(codecs.open('%s', 'r', 'utf-8').read()).hexdigest()" % path, stdout=False, sudo=True)
+        result = self.execute_python(command % path, stdout=False, sudo=True)
 
         return result
 
