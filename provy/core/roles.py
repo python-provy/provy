@@ -471,6 +471,25 @@ class Role(object):
 
         return result
 
+
+    def remove_dir(self, path, sudo=False):
+        '''
+        Removes a directory in the remote server. Returns True in the event of the directory actually been removed. False otherwise.
+        <em>Parameters</em>
+        path - Path of the remote directory.
+        sudo - Indicates whether the directory should be removed by the super-user.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.remove_dir('/tmp/my-dir', sudo=True)
+        </pre>
+        '''
+        return self.remove_file(path, sudo)
+
+
     def remove_file(self, path, sudo=False):
         '''
         Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
