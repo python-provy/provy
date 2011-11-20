@@ -55,10 +55,10 @@ class RubyRole(Role):
                 role.ensure_package_installed(package)
 
             with settings(warn_only=True):
-                result = self.execute('gem --version | egrep 1.9.2', stdout=False)
+                result = self.execute('ruby --version | egrep %sp%d' % (self.version, self.patch), stdout=False)
 
             if not result or 'command not found' in result.lower():
-                self.log('ruby 1.9.2 not found! Installing...')
+                self.log('ruby %sp%d not found! Installing...' % (self.version, self.patch))
                 ruby_url = self.url % (self.version, self.patch)
                 ruby_file = 'ruby-%s-p%d' % (self.version, self.patch)
 
@@ -70,5 +70,5 @@ class RubyRole(Role):
 
                 self.__symlink_from_local()
 
-                self.log('ruby 1.9.2 installed!')
+                self.log('ruby %sp%d installed!' % (self.version, self.patch))
 
