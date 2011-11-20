@@ -78,7 +78,7 @@ class UserRole(Role):
         </pre>
         '''
 
-        return group_name in self.execute('groups %s' % username, stdout=False)
+        return group_name in self.execute('groups %s' % username, sudo=True, stdout=False)
 
     def ensure_group(self, group_name):
         '''
@@ -101,7 +101,14 @@ class UserRole(Role):
             self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
-    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", group=None, is_admin=False):
+    def ensure_user_groups(self, username, groups=[]):
+        for user_group in groups:
+            if not self.user_in_group(username, user_group):
+                self.log("User %s should be in group %s! Rectifying that..." % (username, user_group))
+                self.execute('usermod -G %s %s' % (user_group, username), stdout=False, sudo=True)
+                self.log("User %s is in group %s now!" % (username, user_group))
+
+    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False):
         '''
         Ensures that a given user is present in the remote server.
         <em>Parameters</em>
@@ -109,7 +116,7 @@ class UserRole(Role):
         identified_by - Password that the user will use to login to the remote server. If set to None, the user will not have a password.
         home_folder - Defaults to /home/&lt;username&gt;. Specifies the user's home folder.
         default_script - Defaults to /bin/sh. Sets the user's default script, the one that will execute commands per default when logging in.
-        group - Defaults to the name of the user. Group that this user belongs to. If the group does not exist it is created prior to user creation.
+        groups - Defaults to the name of the user. Groups that this user belongs to. If the groups do not exist they are created prior to user creation.
         is_admin - If set to True the user is added to the 'admin' user group as well.
         <em>Sample usage</em>
         <pre class="sh_python">
@@ -128,8 +135,10 @@ class UserRole(Role):
 
         home_folder = home_folder or '/home/%s' % username
 
-        group = group or username
+        group = groups and groups[0] or username
 
+        for user_group in groups:
+            self.ensure_group(user_group)
         self.ensure_group(group)
 
         if not self.user_exists(username):
@@ -147,6 +156,8 @@ class UserRole(Role):
             self.log("User %s should be admin! Rectifying that..." % username)
             self.execute('usermod -G admin %s' % username, stdout=False, sudo=True)
             self.log("User %s is admin now!" % username)
+
+        self.ensure_user_groups(username, groups)
 
         if identified_by:
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)

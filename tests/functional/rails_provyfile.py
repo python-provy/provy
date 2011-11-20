@@ -10,9 +10,7 @@ from provy.more.debian import RailsRole
 class RailsSite(Role):
     def provision(self):
         with self.using(UserRole) as role:
-            role.ensure_user('rails', identified_by='pass', is_admin=True)
-
-        self.change_dir_mode('/home/rails', mode=644, recursive=False)
+            role.ensure_user('rails', identified_by='pass')
 
         with self.using(GitRole) as role:
             role.ensure_repository(repo='git://github.com/heynemann/hello-rails.git',
@@ -20,13 +18,10 @@ class RailsSite(Role):
                                    branch="master",
                                    owner='rails')
 
-        self.ensure_dir('/home/rails/logs', sudo=True, owner='rails')
-
         with self.using(RailsRole) as role:
-            pass
-            #role.ensure_site_disabled('default')
-            #role.create_site('hello-rails', '/home/rails/hello-rails')
-            #role.ensure_site_enabled('hello-rails')
+            role.ensure_site_disabled('default')
+            role.create_site(site='hello-rails', host='localhost', path='/home/rails/hello-rails')
+            role.ensure_site_enabled('hello-rails')
 
 
 servers = {
