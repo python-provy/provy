@@ -61,11 +61,14 @@ class RubyRole(Role):
                 self.log('ruby 1.9.2 not found! Installing...')
                 ruby_url = self.url % (self.version, self.patch)
                 ruby_file = 'ruby-%s-p%d' % (self.version, self.patch)
-                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' % 
-                        (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
+
                 self.remove_file('/tmp/%s.tar.gz' % ruby_file, sudo=True)
                 self.remove_dir('/tmp/%s' % ruby_file, sudo=True)
 
+                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' % 
+                        (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
+
                 self.__symlink_from_local()
+
                 self.log('ruby 1.9.2 installed!')
 
