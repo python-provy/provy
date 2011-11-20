@@ -60,8 +60,11 @@ class RubyRole(Role):
             if not result or 'command not found' in result.lower():
                 self.log('ruby 1.9.2 not found! Installing...')
                 ruby_url = self.url % (self.version, self.patch)
-                self.execute('cd /tmp && wget %s && tar xzf ruby-1.9.2-p0.tar.gz && cd ruby-1.9.2-p0 && ./configure && make && make install' % ruby_url, sudo=True, stdout=False)
-                self.remove_file('/tmp/ruby-1.9.2-p0.tar.gz', sudo=True)
+                ruby_file = 'ruby-%s-p%d' % (self.version, self.patch)
+                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' % 
+                        (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
+                self.remove_file('/tmp/%s.tar.gz' % ruby_file, sudo=True)
+                self.remove_dir('/tmp/%s' % ruby_file, sudo=True)
 
                 self.__symlink_from_local()
                 self.log('ruby 1.9.2 installed!')
