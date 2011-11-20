@@ -48,7 +48,9 @@ class RailsRole(Role):
         self.register_template_loader('provy.more.debian.web')
 
         with self.using(AptitudeRole) as role:
-            role.ensure_package_installed('libcurl4-openssl-dev')
+            for package in 'build-essential zlib1g-dev libssl-dev libpq-dev subversion libcurl4-openssl-dev libmysqlclient-dev libpcre3-dev libxslt1-dev libperl-dev libgcrypt11-dev libcrypto++-dev'.split():
+                role.ensure_package_installed(package)
+
             role.ensure_package_installed('sqlite3')
             role.ensure_package_installed('libsqlite3-dev')
 
@@ -60,16 +62,15 @@ class RailsRole(Role):
             self.ensure_dir('/var/log/nginx', sudo=True)
             self.log("passenger-nginx not found! Installing...")
             self.execute('passenger-install-nginx-module --auto --auto-download --prefix=/etc/nginx', sudo=True, stdout=False)
-
-            self.update_file('rails.nginx.conf.template', '/etc/nginx/conf/nginx.conf', sudo=True)
-            self.update_file('rails.nginx.init.template', '/etc/init.d/nginx', sudo=True)
-            self.change_file_mode('/etc/init.d/nginx', 755)
-
-            self.ensure_dir('/etc/nginx/sites-available', sudo=True)
-            self.ensure_dir('/etc/nginx/sites-enabled', sudo=True)
-            self.ensure_dir('/etc/nginx/conf.d', sudo=True)
-
             self.log("passenger-nginx installed.")
+
+        self.update_file('rails.nginx.conf.template', '/etc/nginx/conf/nginx.conf', sudo=True)
+        self.update_file('rails.nginx.init.template', '/etc/init.d/nginx', sudo=True)
+        self.change_file_mode('/etc/init.d/nginx', 755)
+
+        self.ensure_dir('/etc/nginx/sites-available', sudo=True)
+        self.ensure_dir('/etc/nginx/sites-enabled', sudo=True)
+        self.ensure_dir('/etc/nginx/conf.d', sudo=True)
 
     def cleanup(self):
         '''
