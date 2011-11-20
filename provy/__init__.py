@@ -5,6 +5,6 @@
 This is provy's main namespace. All built-in roles start from this namespace.
 '''
 
-__version__ = '0.4.0a'
+__version__ = '0.4.1a'
 version = __version__
 Version = __version__
