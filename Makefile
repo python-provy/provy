@@ -19,6 +19,9 @@ djangofront:
 djangoback:
 	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test.backend -p vagrant django_provyfile.py
 
+rails:
+	@cd tests/functional && env PYTHONPATH=../../ python ../../provy/console.py -s test -p vagrant front-end-user=frontend rails_provyfile.py
+
 ssh:
 	@cd vagrant && vagrant ssh frontend
 
