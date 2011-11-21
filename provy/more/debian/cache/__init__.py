@@ -6,3 +6,4 @@ Roles in this namespace are meant to provision caching engines, such as Varnish 
 '''
 
 from provy.more.debian.cache.varnish import VarnishRole
+from provy.more.debian.cache.memcached import MemcachedRole

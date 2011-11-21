@@ -1,0 +1,57 @@
+# 2003 - Jay Bonci <jaybonci@debian.org>
+# This configuration file is read by the start-memcached script provided as
+# part of the Debian GNU/Linux distribution. 
+
+# Run memcached as a daemon. This command is implied, and is not needed for the
+# daemon to run. See the README.Debian that comes with this package for more
+# information.
+-d
+
+# Log memcached's output to /var/log/memcached
+logfile {{ log_folder }}/memcached.log
+
+{% if verbose_level == 1 %}
+# Be verbose
+-v
+{% endif %}
+
+{% if verbose_level == 2 %}
+# Be even more verbose (print client commands as well)
+-vv
+{% endif %}
+
+# Start with a cap of 64 megs of memory. It's reasonable, and the daemon default
+# Note that the daemon will grow to this size, but does not start out holding this much
+# memory
+-m {{ memory_in_mb }}
+
+# Default connection port is 11211
+-p {{ port }}
+
+# Run the daemon as root. The start-memcached will default to running as root if no
+# -u command is present in this config file
+-u {{ user }}
+
+# Specify which IP address to listen on. The default is to listen on all IP addresses
+# This parameter is one of the only security measures that memcached has, so make sure
+# it's listening on a firewalled interface.
+-l {{ host }}
+
+# Limit the number of simultaneous incoming connections. The daemon default is 1024
+-c {{ simultaneous_connections }}
+
+{% if lock_down %}
+# Lock down all paged memory. Consult with the README and homepage before you do this
+-k
+{% endif %}
+
+{% if error_when_memory_exhausted %}
+# Return error when memory is exhausted (rather than removing items)
+-M
+{% endif %}
+
+{% if maximize_core_file_limit %}
+# Maximize core file limit
+-r
+{% endif %}
+
