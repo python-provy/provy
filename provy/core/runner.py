@@ -26,7 +26,7 @@ def run(provfile_path, server_name, password, extra_options):
                     server['options'][option_name] = value
 
     for server in servers:
-        host_string = "%s@%s" % (server['user'], server['address'])
+        host_string = "%s@%s" % (server['user'], server['address'].strip())
 
         context = {
             'abspath': dirname(abspath(provfile_path)),
