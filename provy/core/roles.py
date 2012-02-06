@@ -401,7 +401,7 @@ class Role(object):
         previous_mode = self.get_object_mode(path)
         if previous_mode != mode:
             self.execute('chmod %s%s %s' % (recursive_string, mode, path), stdout=False, sudo=True)
-            self.log("Directory %s had mode %d. Changed it %sto %d." % (path, previous_mode, recursive and "recursively " or "", mode))
+            self.log("Directory %s had mode %s. Changed it %sto %s." % (path, previous_mode, recursive and "recursively " or "", mode))
 
 
     def change_file_mode(self, path, mode):
@@ -424,7 +424,7 @@ class Role(object):
         previous_mode = self.get_object_mode(path)
         if previous_mode != mode:
             self.execute('chmod %s %s' % (mode, path), stdout=False, sudo=True)
-            self.log("File %s had mode %d. Changed it to %d." % (path, previous_mode, mode))
+            self.log("File %s had mode %s. Changed it to %s." % (path, previous_mode, mode))
 
     def md5_local(self, path):
         '''
