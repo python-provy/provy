@@ -11,7 +11,7 @@ PIDFILE={{ pid_file_path }}/{{ name }}_{{ port }}.pid
 case $1 in
 start)
         echo -n "Starting {{ name }}-{{ port }}: "
-        $GUNICORN_DJANGO --name="{{ name }}_{{ port }}" --pid="$PIDFILE" --bind="{{ host }}:{{ port }}" --workers={{ threads }} {% if daemon %}--daemon {% endif %}{% if user %}--user="{{ user }}" {% endif %}{{ settings_directory }}/local_settings.py
+        $GUNICORN_DJANGO --name="{{ name }}_{{ port }}" --pid="$PIDFILE" --bind="{{ host }}:{{ port }}" --workers={{ threads }} {% if daemon %}--daemon {% endif %}{% if user %}--user="{{ user }}" {% endif %} --pythonpath {{ settings_directory }}/local_settings.py
         echo
         ;;
 stop)
