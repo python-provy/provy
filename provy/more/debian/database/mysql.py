@@ -32,8 +32,8 @@ class MySQLRole(Role):
     '''
     def __init__(self, prov, context):
         super(MySQLRole, self).__init__(prov, context)
-        self.mysql_root_user = 'mysql_root_user' in self.context and self.context['mysql_root_user'] or 'root'
-        self.mysql_root_pass = 'mysql_root_pass' in self.context and self.context['mysql_root_pass'] or ''
+        self.mysql_root_user = self.context.get('mysql_root_user', 'root')
+        self.mysql_root_pass = self.context.get('mysql_root_pass', '')
 
     def provision(self):
         '''
@@ -55,7 +55,7 @@ class MySQLRole(Role):
             result = role.ensure_package_installed('mysql-server')
             role.ensure_package_installed('mysql-client')
             role.ensure_package_installed('libmysqlclient-dev')
- 
+
             if result:
                 self.log("setting root user %s password..." % self.mysql_root_user)
                 self.execute("mysqladmin -u %s -p'temppass' password '%s'" % (self.mysql_root_user, self.mysql_root_pass), stdout=False, sudo=True)
