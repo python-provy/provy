@@ -9,6 +9,6 @@ from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
 
-class PostgresqlRole(Role):
+class PostgreSQLRole(Role):
     def create_user(self, username):
         return self.execute("createuser -P %s" % username, stdout=False)

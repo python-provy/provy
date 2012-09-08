@@ -3,7 +3,7 @@
 from pyvows import Vows, expect
 
 #from provy.more.debian import PipRole
-from provy.more.debian.database.postgresql import PostgresqlRole
+from provy.more.debian.database.postgresql import PostgreSQLRole
 
 from unit.tools.role_context import RoleContext
 from unit.tools.extra_assertions import *
@@ -13,7 +13,7 @@ from unit.tools.extra_assertions import *
 class TestPostgresRole(RoleContext):
 
     def _role_class(self):
-        return PostgresqlRole
+        return PostgreSQLRole
 
     class TestIsUserCreated(RoleContext):
         def topic(self):
