@@ -37,7 +37,7 @@ class MockedRole(object):
 class RoleContext(Vows.Context):
 
     def _get_role(self):
-        if hasattr(self, 'parent') and self.parent:
+        if getattr(self, 'parent'):
             return self.parent._get_role()
         else:
             return MockedRole(self._role_class())
