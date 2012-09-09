@@ -88,3 +88,8 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def creates_a_database(self):
         with self.successful_execution("createdb foo"):
             self.assertTrue(self.role.create_database("foo"))
+
+    @istest
+    def drops_the_database(self):
+        with self.successful_execution("dropdb foo"):
+            self.assertTrue(self.role.drop_database("foo"))

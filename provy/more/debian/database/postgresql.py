@@ -27,3 +27,6 @@ class PostgreSQLRole(Role):
 
     def create_database(self, database):
         return self.execute("createdb %s" % database)
+
+    def drop_database(self, database):
+        return self.execute("dropdb %s" % database)
