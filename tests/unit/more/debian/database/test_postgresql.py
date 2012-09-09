@@ -9,21 +9,19 @@ from provy.more.debian.database.postgresql import PostgreSQLRole
 
 class PostgreSQLRoleTestCase(TestCase):
     def setUp(self):
-        self.successful_execute = MagicMock(return_value=True)
-        self.failed_execute = MagicMock(return_value=False)
         self.role = PostgreSQLRole(prov=None, context={})
         self.current_execute = None
 
-    @contextmanager
     def successful_execution(self, *args, **kwargs):
-        self.current_execute = self.successful_execute
-        with patch('provy.core.roles.Role.execute', self.current_execute):
-            yield
-            self.assert_executed(*args, **kwargs)
+        self.current_execute = MagicMock(return_value=True)
+        return self.execution(*args, **kwargs)
+
+    def failed_execution(self, *args, **kwargs):
+        self.current_execute = MagicMock(return_value=False)
+        return self.execution(*args, **kwargs)
 
     @contextmanager
-    def failed_execution(self, *args, **kwargs):
-        self.current_execute = self.failed_execute
+    def execution(self, *args, **kwargs):
         with patch('provy.core.roles.Role.execute', self.current_execute):
             yield
             self.assert_executed(*args, **kwargs)
