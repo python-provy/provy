@@ -16,3 +16,6 @@ class PostgreSQLRole(Role):
 
     def drop_user(self, username):
         return self.execute("dropuser %s" % username, stdout=False)
+
+    def user_exists(self, username):
+        return self.execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False)
