@@ -9,11 +9,14 @@ from unit.tools.role_context import RoleContext
 from unit.tools.extra_assertions import *
 
 
-@Vows.batch
-class TestPostgresqlRoleUserCreation(RoleContext):
+class PostgreSQLRoleContext(RoleContext):
 
     def _role_class(self):
         return PostgreSQLRole
+
+
+@Vows.batch
+class TestPostgresqlRoleUserCreation(PostgreSQLRoleContext):
 
     class WhenUsernameIsProvidedAndPasswordIsAsked(RoleContext):
         def topic(self):
@@ -41,10 +44,7 @@ class TestPostgresqlRoleUserCreation(RoleContext):
 
 
 @Vows.batch
-class TestPostgresqlRoleUserRemoval(RoleContext):
-
-    def _role_class(self):
-        return PostgreSQLRole
+class TestPostgresqlRoleUserRemoval(PostgreSQLRoleContext):
 
     class WhenUserIsDropped(RoleContext):
         def topic(self):
