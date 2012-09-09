@@ -10,27 +10,37 @@ from provy.more.debian.database.postgresql import PostgreSQLRole
 class PostgreSQLRoleTestCase(TestCase):
     def setUp(self):
         self.role = PostgreSQLRole(prov=None, context={})
-        self.current_execute = None
+        self.execute = MagicMock(side_effect=self.return_execution_result)
+        self.execution_results = []
 
     def successful_execution(self, *args, **kwargs):
-        self.current_execute = MagicMock(return_value=True)
-        return self.execution(*args, **kwargs)
+        return self.execution(True, *args, **kwargs)
 
     def failed_execution(self, *args, **kwargs):
-        self.current_execute = MagicMock(return_value=False)
-        return self.execution(*args, **kwargs)
+        return self.execution(False, *args, **kwargs)
+
+    def return_execution_result(self, *args, **kwargs):
+        return self.execution_results.pop(0)
 
     @contextmanager
-    def execution(self, *args, **kwargs):
-        with patch('provy.core.roles.Role.execute', self.current_execute):
+    def execution(self, return_value, *args, **kwargs):
+        self.execution_results.append(return_value)
+        with patch('provy.core.roles.Role.execute', self.execute) as mock_execute:
             yield
             self.assert_executed(*args, **kwargs)
 
     def assert_executed(self, *args, **kwargs):
-        self.current_execute.assert_called_with(*args, **kwargs)
+        self.execute.assert_called_with(*args, **kwargs)
 
 
 class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
+    @istest
+    def nested_test(self):
+        """This test is to guarantee that the execution results go from the outer to the inner context managers."""
+        with self.successful_execution(""), self.failed_execution(""):
+            self.assertTrue(self.execute(""))
+            self.assertFalse(self.execute(""))
+
     @istest
     def creates_a_user_prompting_for_password(self):
         with self.successful_execution("createuser -P foo", stdout=False):
