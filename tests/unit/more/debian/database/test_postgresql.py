@@ -83,3 +83,8 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def doesnt_create_user_if_it_already_exists(self):
         with self.successful_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='baz'\"", stdout=False):
             self.assertTrue(self.role.ensure_user("baz"))
+
+    @istest
+    def creates_a_database(self):
+        with self.successful_execution("createdb foo"):
+            self.assertTrue(self.role.create_database("foo"))

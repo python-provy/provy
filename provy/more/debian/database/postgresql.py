@@ -24,3 +24,6 @@ class PostgreSQLRole(Role):
         if not self.user_exists(username):
             return self.create_user(username)
         return True
+
+    def create_database(self, database):
+        return self.execute("createdb %s" % database)
