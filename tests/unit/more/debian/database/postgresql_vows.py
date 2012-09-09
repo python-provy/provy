@@ -10,7 +10,7 @@ from unit.tools.extra_assertions import *
 
 
 @Vows.batch
-class TestPostgresRole(RoleContext):
+class TestPostgresqlRoleUserCreation(RoleContext):
 
     def _role_class(self):
         return PostgreSQLRole
