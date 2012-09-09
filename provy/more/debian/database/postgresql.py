@@ -25,8 +25,9 @@ class PostgreSQLRole(Role):
             return self.create_user(username)
         return True
 
-    def create_database(self, database):
-        return self.execute("createdb %s" % database)
+    def create_database(self, database, owner=None):
+        owner_arg = " -O %s" % owner if owner is not None else ""
+        return self.execute("createdb %s%s" % (database, owner_arg))
 
     def drop_database(self, database):
         return self.execute("dropdb %s" % database)
