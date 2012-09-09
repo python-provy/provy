@@ -13,3 +13,6 @@ class PostgreSQLRole(Role):
     def create_user(self, username, ask_password=True):
         pass_prompt_arg = "-P " if ask_password else ""
         return self.execute("createuser %s%s" % (pass_prompt_arg, username), stdout=False)
+
+    def drop_user(self, username):
+        return self.execute("dropuser %s" % username, stdout=False)
