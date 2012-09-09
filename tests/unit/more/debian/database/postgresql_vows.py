@@ -15,19 +15,23 @@ class TestPostgresRole(RoleContext):
     def _role_class(self):
         return PostgreSQLRole
 
-    class TestIsUserCreated(RoleContext):
+    class WhenUsernameIsProvidedAndPasswordIsAsked(RoleContext):
         def topic(self):
-            role = self._get_role()
-            return role
+            self.role = self._get_role()
+            self.role.mock_method("execute", True)
+            return self.role.create_user("foo", ask_password=True)
 
-        class WhenUsernameIsProvidedAndPasswordIsAsked(RoleContext):
-            def topic(self, role):
-                self.role = role
-                role.mock_method("execute", True)
-                return self.role.create_user("foo")
+        def should_create_a_user_with_password_prompt_via_createuser_command(self, topic):
+            expect(self.role.execute).to_have_been_called_with("createuser -P foo", stdout=False)
 
-            def should_create_a_user_with_password_prompt_via_createuser_command(self, topic):
-                expect(self.role.execute).to_have_been_called_with("createuser -P foo", stdout=False)
+        def should_have_created_the_user(self, topic):
+            expect(topic).to_be_true()
 
-            def should_have_created_the_user(self, topic):
-                expect(topic).to_be_true()
+    class WhenUsernameIsProvidedButPasswordPromptIsBypassed(RoleContext):
+        def topic(self):
+            self.role = self._get_role()
+            self.role.mock_method("execute", True)
+            return self.role.create_user("foo", ask_password=False)
+
+        def should_create_a_user_without_password(self, topic):
+            expect(self.role.execute).to_have_been_called_with("createuser foo", stdout=False)

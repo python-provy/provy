@@ -10,5 +10,6 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class PostgreSQLRole(Role):
-    def create_user(self, username):
-        return self.execute("createuser -P %s" % username, stdout=False)
+    def create_user(self, username, ask_password=True):
+        pass_prompt_arg = "-P " if ask_password else ""
+        return self.execute("createuser %s%s" % (pass_prompt_arg, username), stdout=False)
