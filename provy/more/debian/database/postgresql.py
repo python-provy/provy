@@ -42,7 +42,7 @@ class PostgreSQLRole(Role):
     def __execute(self, command, stdout=False):
         if not stdout:
             self.log(command)
-        return self.execute(command, stdout=stdout, sudo=True, user='postgres')
+        return self.execute(command, stdout=True, sudo=True, user='postgres')
 
     def create_user(self, username, ask_password=True):
         '''
