@@ -10,6 +10,21 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class PostgreSQLRole(Role):
+    '''
+    This role provides PostgreSQL database management utilities for Debian distributions.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import PostgreSQLRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PostgreSQLRole) as role:
+                    role.ensure_user("foo")
+                    role.ensure_database("bar")
+
+    </pre>
+    '''
     def provision(self):
         with self.using(AptitudeRole) as role:
             role.ensure_package_installed('postgresql')
