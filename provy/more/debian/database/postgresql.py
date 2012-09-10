@@ -20,42 +20,151 @@ class PostgreSQLRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(PostgreSQLRole) as role:
-                    role.ensure_user("foo")
-                    role.ensure_database("bar")
+                    role.ensure_user("john")
+                    role.ensure_database("foo", owner="john")
 
     </pre>
     '''
     def provision(self):
+        '''
+        Installs PostgreSQL and its dependencies. This method should be called upon if overriden in base classes, or PostgreSQL won't work properly in the remote server.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(PostgreSQLRole) # no need to call this if using with block.
+        </pre>
+        '''
         with self.using(AptitudeRole) as role:
             role.ensure_package_installed('postgresql')
             role.ensure_package_installed('postgresql-server-dev-9.1')
 
     def create_user(self, username, ask_password=True):
+        '''
+        Creates a user for the database.
+        <em>Parameters</em>
+        username - name of the user to be created.
+        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.create_user("john", ask_password=False)
+        </pre>
+        '''
         pass_prompt_arg = "-P " if ask_password else ""
         return self.execute("createuser %s%s" % (pass_prompt_arg, username), stdout=False)
 
     def drop_user(self, username):
+        '''
+        Drops a user from the database.
+        <em>Parameters</em>
+        username - name of the user to be dropped.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.drop_user("john")
+        </pre>
+        '''
         return self.execute("dropuser %s" % username, stdout=False)
 
     def user_exists(self, username):
-        return self.execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False)
+        '''
+        Checks if a user exists in the database.
+        <em>Parameters</em>
+        username - name of the user to be checked.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.user_exists("john") # True or False
+        </pre>
+        '''
+        return bool(self.execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False))
 
     def ensure_user(self, username, ask_password=True):
+        '''
+        Ensures that a user exists in the database. If it doesn't, create it.
+        <em>Parameters</em>
+        username - name of the user to be checked/created.
+        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.ensure_user("john", ask_password=False)
+        </pre>
+        '''
         if not self.user_exists(username):
             return self.create_user(username, ask_password)
         return True
 
     def create_database(self, database, owner=None):
+        '''
+        Creates a database.
+        <em>Parameters</em>
+        database - name of the database to be created.
+        owner - the database owner. If not provided, will be the Postgres default.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.create_database("foo", owner="john")
+        </pre>
+        '''
         owner_arg = " -O %s" % owner if owner is not None else ""
         return self.execute("createdb %s%s" % (database, owner_arg), stdout=False)
 
     def drop_database(self, database):
+        '''
+        Drops a database.
+        <em>Parameters</em>
+        database - name of the database to be dropped.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.drop_database("foo")
+        </pre>
+        '''
         return self.execute("dropdb %s" % database, stdout=False)
 
     def database_exists(self, database):
-        return self.execute('psql -tAc "\l" | grep "%s"' % database, stdout=False)
+        '''
+        Checks if a database exists.
+        <em>Parameters</em>
+        database - name of the database to be checked.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.database_exists("foo") # True or False
+        </pre>
+        '''
+        return bool(self.execute('psql -tAc "\l" | grep "%s"' % database, stdout=False))
 
     def ensure_database(self, database, owner=None):
+        '''
+        Ensures that a database exists. If it doesn't, create it.
+        <em>Parameters</em>
+        database - name of the database to be checked/created.
+        owner - the database owner. If not provided, will be the Postgres default.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PostgreSQLRole) as role:
+                        role.ensure_database("foo", owner="john")
+        </pre>
+        '''
         if not self.database_exists(database):
             return self.create_database(database, owner)
         return True
