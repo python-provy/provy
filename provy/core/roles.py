@@ -167,13 +167,14 @@ class Role(object):
         '''
         pass
 
-    def execute(self, command, stdout=True, sudo=False):
+    def execute(self, command, stdout=True, sudo=False, user=None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
         <em>Parameters</em>
         stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
-        sudo - Defaults to False. Specifies whether this command needs to be run as the super-user.
+        sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
+        user - Defaults to None. If specified, will be the user with which the command will be executed.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -181,16 +182,21 @@ class Role(object):
         class MySampleRole(Role):
             def provision(self):
                 self.execute('ls /', stdout=False, sudo=True)
+                self.execute('ls /', stdout=False, user='vip')
         </pre>
         '''
-        func = sudo and fab_sudo or run
         if stdout:
-            return func(command)
+            return self.__execute_command(command, sudo=sudo, user=user)
 
         with settings(
             hide('warnings', 'running', 'stdout', 'stderr')
         ):
-            return func(command)
+            return self.__execute_command(command, sudo=sudo, user=user)
+
+    def __execute_command(self, command, sudo=False, user=None):
+        if sudo or (user is not None):
+            return fab_sudo(command, user=user)
+        return run(command)
 
     def execute_python(self, command, stdout=True, sudo=False):
         '''

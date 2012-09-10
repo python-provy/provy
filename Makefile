@@ -30,3 +30,6 @@ ssh-back:
 
 docs:
 	@python docs.py
+
+test:
+	@env PYTHONPATH=. nosetests --with-coverage --cover-package=provy tests/
