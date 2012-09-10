@@ -39,6 +39,7 @@ class PostgreSQLRoleTestCase(TestCase):
         self.assertion_count -= 1
         self.assertEqual(e_args[0], query)
         self.assertEqual(e_kwargs['stdout'], False)
+        self.assertEqual(e_kwargs['user'], 'postgres')
 
 
 class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
@@ -46,8 +47,8 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def nested_test(self):
         """This test is to guarantee that the execution results go from the outer to the inner context managers."""
         with self.successful_execution("1"), self.failed_execution("2"):
-            self.assertTrue(self.execute("1", stdout=False))
-            self.assertFalse(self.execute("2", stdout=False))
+            self.assertTrue(self.execute("1", stdout=False, user='postgres'))
+            self.assertFalse(self.execute("2", stdout=False, user='postgres'))
 
     @istest
     def creates_a_user_prompting_for_password(self):
