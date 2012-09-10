@@ -123,6 +123,12 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
                 self.assertTrue(self.role.ensure_database("bar"))
 
     @istest
+    def creates_database_with_particular_owner_if_it_doesnt_exist_yet(self):
+        with self.failed_execution('psql -tAc "\l" | grep "bar"', stdout=False):
+            with self.successful_execution("createdb bar -O baz", stdout=False):
+                self.assertTrue(self.role.ensure_database("bar", owner="baz"))
+
+    @istest
     def doesnt_create_database_if_it_already_exists(self):
         with self.successful_execution('psql -tAc "\l" | grep "bar"', stdout=False):
             self.assertTrue(self.role.ensure_database("bar"))

@@ -55,7 +55,7 @@ class PostgreSQLRole(Role):
     def database_exists(self, database):
         return self.execute('psql -tAc "\l" | grep "%s"' % database, stdout=False)
 
-    def ensure_database(self, database):
+    def ensure_database(self, database, owner=None):
         if not self.database_exists(database):
-            return self.create_database(database)
+            return self.create_database(database, owner)
         return True
