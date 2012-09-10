@@ -40,9 +40,9 @@ class PostgreSQLRole(Role):
     def user_exists(self, username):
         return self.execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False)
 
-    def ensure_user(self, username):
+    def ensure_user(self, username, ask_password=True):
         if not self.user_exists(username):
-            return self.create_user(username)
+            return self.create_user(username, ask_password)
         return True
 
     def create_database(self, database, owner=None):

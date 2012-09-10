@@ -55,7 +55,7 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             self.assertTrue(self.role.create_user("foo"))
 
     @istest
-    def creates_a_user_without_prompting_for_password(self):
+    def creates_a_user_without_password(self):
         with self.successful_execution("createuser foo", stdout=False):
             self.assertTrue(self.role.create_user("foo", ask_password=False))
 
@@ -79,6 +79,12 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
         with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\"", stdout=False):
             with self.successful_execution("createuser -P bar", stdout=False):
                 self.assertTrue(self.role.ensure_user("bar"))
+
+    @istest
+    def creates_user_without_password_if_it_doesnt_exist_yet(self):
+        with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\"", stdout=False):
+            with self.successful_execution("createuser bar", stdout=False):
+                self.assertTrue(self.role.ensure_user("bar", ask_password=False))
 
     @istest
     def doesnt_create_user_if_it_already_exists(self):
