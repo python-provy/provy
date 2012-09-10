@@ -39,10 +39,10 @@ class PostgreSQLRole(Role):
             role.ensure_package_installed('postgresql')
             role.ensure_package_installed('postgresql-server-dev-9.1')
 
-    def __execute(self, command, stdout=False):
+    def __execute(self, command, stdout=True):
         if not stdout:
             self.log(command)
-        return self.execute(command, stdout=True, sudo=True, user='postgres')
+        return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
     def create_user(self, username, ask_password=True):
         '''
@@ -59,7 +59,7 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         pass_prompt_arg = "-P " if ask_password else ""
-        return self.__execute("createuser %s%s" % (pass_prompt_arg, username), stdout=True)
+        return self.__execute("createuser %s%s" % (pass_prompt_arg, username))
 
     def drop_user(self, username):
         '''
@@ -74,7 +74,7 @@ class PostgreSQLRole(Role):
                         role.drop_user("john")
         </pre>
         '''
-        return self.__execute("dropuser %s" % username, stdout=True)
+        return self.__execute("dropuser %s" % username)
 
     def user_exists(self, username):
         '''
@@ -89,7 +89,7 @@ class PostgreSQLRole(Role):
                         role.user_exists("john") # True or False
         </pre>
         '''
-        return bool(self.__execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username))
+        return bool(self.__execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False))
 
     def ensure_user(self, username, ask_password=True):
         '''
@@ -124,7 +124,7 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         owner_arg = " -O %s" % owner if owner is not None else ""
-        return self.__execute("createdb %s%s" % (database, owner_arg), stdout=True)
+        return self.__execute("createdb %s%s" % (database, owner_arg))
 
     def drop_database(self, database):
         '''
@@ -139,7 +139,7 @@ class PostgreSQLRole(Role):
                         role.drop_database("foo")
         </pre>
         '''
-        return self.__execute("dropdb %s" % database, stdout=True)
+        return self.__execute("dropdb %s" % database)
 
     def database_exists(self, database):
         '''
@@ -154,7 +154,7 @@ class PostgreSQLRole(Role):
                         role.database_exists("foo") # True or False
         </pre>
         '''
-        return bool(self.__execute('psql -tAc "\l" | grep "%s"' % database))
+        return bool(self.__execute('psql -tAc "\l" | grep "%s"' % database, stdout=False))
 
     def ensure_database(self, database, owner=None):
         '''
