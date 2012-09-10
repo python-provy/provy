@@ -27,7 +27,15 @@ class PostgreSQLRole(Role):
 
     def create_database(self, database, owner=None):
         owner_arg = " -O %s" % owner if owner is not None else ""
-        return self.execute("createdb %s%s" % (database, owner_arg))
+        return self.execute("createdb %s%s" % (database, owner_arg), stdout=False)
 
     def drop_database(self, database):
-        return self.execute("dropdb %s" % database)
+        return self.execute("dropdb %s" % database, stdout=False)
+
+    def database_exists(self, database):
+        return self.execute('psql -tAc "\l" | grep "%s"' % database, stdout=False)
+
+    def ensure_database(self, database):
+        if not self.database_exists(database):
+            return self.create_database(database)
+        return True
