@@ -8,3 +8,4 @@ provy.egg-info
 *.swn
 *.swo
 .vagrant
+.coverage

@@ -3,11 +3,11 @@
 from os.path import join, abspath, dirname
 from pyvows import Vows, expect
 
-from provy.core.roles import Role
 from provy.more.debian import PipRole
 
 from unit.tools.role_context import RoleContext
 from unit.tools.extra_assertions import *
+
 
 @Vows.batch
 class TestPipRole(RoleContext):
