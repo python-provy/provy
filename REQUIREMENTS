@@ -1,3 +1,6 @@
 fabric
 jinja2
 M2Crypto
+nose
+mock
+coverage

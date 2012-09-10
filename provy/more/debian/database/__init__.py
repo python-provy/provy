@@ -6,3 +6,4 @@ Roles in this namespace are meant to enable database management for database ser
 '''
 
 from provy.more.debian.database.mysql import MySQLRole
+from provy.more.debian.database.postgresql import PostgreSQLRole
