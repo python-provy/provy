@@ -120,29 +120,29 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
 
     @istest
     def verifies_that_the_database_exists(self):
-        with self.successful_execution('psql -tAc "\l" | grep "foo"'):
+        with self.successful_execution('psql -tAc "SELECT 1 from pg_database WHERE datname=\'foo\'"'):
             self.assertTrue(self.role.database_exists("foo"))
 
     @istest
     def verifies_that_the_database_doesnt_exist(self):
-        with self.failed_execution('psql -tAc "\l" | grep "foo"'):
+        with self.failed_execution('psql -tAc "SELECT 1 from pg_database WHERE datname=\'foo\'"'):
             self.assertFalse(self.role.database_exists("foo"))
 
     @istest
     def creates_database_if_it_doesnt_exist_yet(self):
-        with self.failed_execution('psql -tAc "\l" | grep "bar"'):
+        with self.failed_execution('psql -tAc "SELECT 1 from pg_database WHERE datname=\'bar\'"'):
             with self.successful_execution("createdb bar"):
                 self.assertTrue(self.role.ensure_database("bar"))
 
     @istest
     def creates_database_with_particular_owner_if_it_doesnt_exist_yet(self):
-        with self.failed_execution('psql -tAc "\l" | grep "bar"'):
+        with self.failed_execution('psql -tAc "SELECT 1 from pg_database WHERE datname=\'bar\'"'):
             with self.successful_execution("createdb bar -O baz"):
                 self.assertTrue(self.role.ensure_database("bar", owner="baz"))
 
     @istest
     def doesnt_create_database_if_it_already_exists(self):
-        with self.successful_execution('psql -tAc "\l" | grep "bar"'):
+        with self.successful_execution('psql -tAc "SELECT 1 from pg_database WHERE datname=\'bar\'"'):
             self.assertTrue(self.role.ensure_database("bar"))
 
     @istest

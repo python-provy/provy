@@ -154,7 +154,7 @@ class PostgreSQLRole(Role):
                         role.database_exists("foo") # True or False
         </pre>
         '''
-        return bool(self.__execute('psql -tAc "\l" | grep "%s"' % database, stdout=False))
+        return bool(self.__execute('psql -tAc "SELECT 1 from pg_database WHERE datname=\'%s\'"' % database, stdout=False))
 
     def ensure_database(self, database, owner=None):
         '''
