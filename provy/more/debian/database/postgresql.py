@@ -40,8 +40,6 @@ class PostgreSQLRole(Role):
             role.ensure_package_installed('postgresql-server-dev-9.1')
 
     def __execute(self, command, stdout=True):
-        if not stdout:
-            self.log(command)
         return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
     def create_user(self, username, ask_password=True):
@@ -106,6 +104,7 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         if not self.user_exists(username):
+            self.log('User "%s" does not exist yet. Creating...' % username)
             return self.create_user(username, ask_password)
         return True
 
@@ -171,5 +170,6 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         if not self.database_exists(database):
+            self.log('Database "%s" does not exist yet. Creating...' % database)
             return self.create_database(database, owner)
         return True
