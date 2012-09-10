@@ -39,8 +39,10 @@ class PostgreSQLRole(Role):
             role.ensure_package_installed('postgresql')
             role.ensure_package_installed('postgresql-server-dev-9.1')
 
-    def __execute(self, command):
-        return self.execute(command, stdout=False, sudo=True, user='postgres')
+    def __execute(self, command, stdout=False):
+        if not stdout:
+            self.log(command)
+        return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
     def create_user(self, username, ask_password=True):
         '''
@@ -57,7 +59,7 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         pass_prompt_arg = "-P " if ask_password else ""
-        return self.__execute("createuser %s%s" % (pass_prompt_arg, username))
+        return self.__execute("createuser %s%s" % (pass_prompt_arg, username), stdout=True)
 
     def drop_user(self, username):
         '''
@@ -72,7 +74,7 @@ class PostgreSQLRole(Role):
                         role.drop_user("john")
         </pre>
         '''
-        return self.__execute("dropuser %s" % username)
+        return self.__execute("dropuser %s" % username, stdout=True)
 
     def user_exists(self, username):
         '''
@@ -122,7 +124,7 @@ class PostgreSQLRole(Role):
         </pre>
         '''
         owner_arg = " -O %s" % owner if owner is not None else ""
-        return self.__execute("createdb %s%s" % (database, owner_arg))
+        return self.__execute("createdb %s%s" % (database, owner_arg), stdout=True)
 
     def drop_database(self, database):
         '''
@@ -137,7 +139,7 @@ class PostgreSQLRole(Role):
                         role.drop_database("foo")
         </pre>
         '''
-        return self.__execute("dropdb %s" % database)
+        return self.__execute("dropdb %s" % database, stdout=True)
 
     def database_exists(self, database):
         '''

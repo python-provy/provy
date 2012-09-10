@@ -38,7 +38,6 @@ class PostgreSQLRoleTestCase(TestCase):
         name, e_args, e_kwargs = self.execute.mock_calls[self.assertion_count]
         self.assertion_count -= 1
         self.assertEqual(e_args[0], query)
-        self.assertEqual(e_kwargs['stdout'], False)
         self.assertEqual(e_kwargs['user'], 'postgres')
 
 
@@ -54,16 +53,22 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def creates_a_user_prompting_for_password(self):
         with self.successful_execution("createuser -P foo"):
             self.assertTrue(self.role.create_user("foo"))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def creates_a_user_without_password(self):
         with self.successful_execution("createuser foo"):
             self.assertTrue(self.role.create_user("foo", ask_password=False))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def drops_the_user(self):
         with self.successful_execution("dropuser foo"):
             self.assertTrue(self.role.drop_user("foo"))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def verifies_that_the_user_exists(self):
@@ -96,16 +101,22 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def creates_a_database(self):
         with self.successful_execution("createdb foo"):
             self.assertTrue(self.role.create_database("foo"))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def creates_a_database_with_a_particular_owner(self):
         with self.successful_execution("createdb foo -O bar"):
             self.assertTrue(self.role.create_database("foo", owner="bar"))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def drops_the_database(self):
         with self.successful_execution("dropdb foo"):
             self.assertTrue(self.role.drop_database("foo"))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def verifies_that_the_database_exists(self):
