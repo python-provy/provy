@@ -10,6 +10,11 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class PostgreSQLRole(Role):
+    def provision(self):
+        with self.using(AptitudeRole) as role:
+            role.ensure_package_installed('postgresql')
+            role.ensure_package_installed('postgresql-server-dev-9.1')
+
     def create_user(self, username, ask_password=True):
         pass_prompt_arg = "-P " if ask_password else ""
         return self.execute("createuser %s%s" % (pass_prompt_arg, username), stdout=False)

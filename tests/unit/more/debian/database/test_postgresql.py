@@ -1,10 +1,11 @@
 from contextlib import contextmanager
 from unittest import TestCase
 
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 from nose.tools import istest
 
 from provy.more.debian.database.postgresql import PostgreSQLRole
+from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class PostgreSQLRoleTestCase(TestCase):
@@ -119,3 +120,16 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
     def doesnt_create_database_if_it_already_exists(self):
         with self.successful_execution('psql -tAc "\l" | grep "bar"', stdout=False):
             self.assertTrue(self.role.ensure_database("bar"))
+
+    @istest
+    def installs_necessary_packages_to_provision(self):
+        mock_role = MagicMock(spec=AptitudeRole)
+
+        @contextmanager
+        def fake_using(self, klass):
+            yield mock_role
+
+        with patch('provy.core.roles.Role.using', fake_using):
+            self.role.provision()
+            install_calls = mock_role.ensure_package_installed.mock_calls
+            self.assertEqual(install_calls, [call('postgresql'), call('postgresql-server-dev-9.1')])
