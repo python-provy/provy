@@ -86,7 +86,7 @@ class AptitudeRole(Role):
                         # do something
         </pre>
         '''
-        
+
         result = self.execute('grep -ilR \'^%s\' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l' % source_string, stdout=False, sudo=True)
         return int(result) != 0
 
@@ -251,3 +251,6 @@ class AptitudeRole(Role):
             self.log('%s is installed (via aptitude).' % package_name)
             return True
         return False
+
+    def package_exists(self, package):
+        return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
