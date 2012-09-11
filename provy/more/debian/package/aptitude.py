@@ -275,7 +275,10 @@ class AptitudeRole(Role):
                     role.package_exists('nginx') # True
         </pre>
         '''
-        return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
+        try:
+            return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
+        except SystemExit:
+            return False
 
 
 class PackageNotFound(Exception):

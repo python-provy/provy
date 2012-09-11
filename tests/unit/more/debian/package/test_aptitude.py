@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+import sys
 from unittest import TestCase
 
 from mock import MagicMock, patch, call
@@ -24,6 +25,18 @@ class AptitudeRoleTest(TestCase):
             execute.return_value = False
             self.assertFalse(role.package_exists('phyton'))
             execute.assert_called_with('aptitude show phyton', stdout=False)
+
+    @istest
+    def traps_sys_exit_when_checking_if_a_package_exists(self):
+        role = AptitudeRole(prov=None, context={})
+
+        def exit(*args, **kwargs):
+            sys.exit(1)
+
+        execute = MagicMock(side_effect=exit)
+
+        with patch('provy.core.roles.Role.execute', execute):
+            self.assertFalse(role.package_exists('phyton'))
 
     @istest
     def checks_if_a_package_exists_before_installing(self):
