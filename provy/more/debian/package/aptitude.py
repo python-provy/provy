@@ -86,7 +86,7 @@ class AptitudeRole(Role):
                         # do something
         </pre>
         '''
-        
+
         result = self.execute('grep -ilR \'^%s\' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l' % source_string, stdout=False, sudo=True)
         return int(result) != 0
 
@@ -233,6 +233,8 @@ class AptitudeRole(Role):
         package_name - Name of the package to install
         stdout - Indicates whether install progress should be shown to stdout. Defaults to False.
         sudo - Indicates whether the package should be installed with the super user. Defaults to True.
+        <em>Exceptions</em>
+        Raises provy.more.debian.PackageNotFound if the package is not found in the repositories.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -246,8 +248,38 @@ class AptitudeRole(Role):
         '''
 
         if not self.is_package_installed(package_name):
+            self.__check_before_install(package_name)
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
             self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=stdout, sudo=sudo)
             self.log('%s is installed (via aptitude).' % package_name)
             return True
         return False
+
+    def __check_before_install(self, package_name):
+        if not self.package_exists(package_name):
+            raise PackageNotFound('Package "%s" not found in repositories' % package_name)
+
+    def package_exists(self, package):
+        '''
+        Checks if the given package exists.
+        <em>Parameters</em>
+        package - Name of the package to check
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.package_exists('nginx') # True
+        </pre>
+        '''
+        try:
+            return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
+        except SystemExit:
+            return False
+
+
+class PackageNotFound(Exception):
+    '''Should be raised when a package doesn't exist.'''
