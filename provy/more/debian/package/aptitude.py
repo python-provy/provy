@@ -246,11 +246,20 @@ class AptitudeRole(Role):
         '''
 
         if not self.is_package_installed(package_name):
+            self.__check_before_install(package_name)
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
             self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=stdout, sudo=sudo)
             self.log('%s is installed (via aptitude).' % package_name)
             return True
         return False
 
+    def __check_before_install(self, package_name):
+        if not self.package_exists(package_name):
+            raise PackageNotFound('Package "%s" not found in repositories' % package_name)
+
     def package_exists(self, package):
         return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
+
+
+class PackageNotFound(Exception):
+    '''Should be raised when a package doesn't exist.'''
