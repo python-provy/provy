@@ -233,6 +233,8 @@ class AptitudeRole(Role):
         package_name - Name of the package to install
         stdout - Indicates whether install progress should be shown to stdout. Defaults to False.
         sudo - Indicates whether the package should be installed with the super user. Defaults to True.
+        <em>Exceptions</em>
+        Raises provy.more.debian.PackageNotFound if the package is not found in the repositories.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -258,6 +260,21 @@ class AptitudeRole(Role):
             raise PackageNotFound('Package "%s" not found in repositories' % package_name)
 
     def package_exists(self, package):
+        '''
+        Checks if the given package exists.
+        <em>Parameters</em>
+        package - Name of the package to check
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.package_exists('nginx') # True
+        </pre>
+        '''
         return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
 
 
