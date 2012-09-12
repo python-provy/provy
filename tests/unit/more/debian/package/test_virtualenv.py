@@ -37,3 +37,9 @@ class VirtualenvRoleTest(TestCase):
             self.role.provision()
             install_calls = mock_role.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('virtualenv'), call('virtualenvwrapper')])
+
+    @istest
+    def creates_a_virtual_environment(self):
+        with patch('provy.core.roles.Role.execute') as execute:
+            self.role.create_env('foo_env')
+            execute.assert_called_with('virtualenv /home/johndoe/Envs/foo_env')

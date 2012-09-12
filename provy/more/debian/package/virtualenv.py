@@ -21,3 +21,7 @@ class VirtualenvRole(Role):
         with self.using(PipRole) as pip:
             pip.ensure_package_installed('virtualenv')
             pip.ensure_package_installed('virtualenvwrapper')
+
+    def create_env(self, env_name):
+        env_dir = os.path.join(self.base_directory, env_name)
+        self.execute('virtualenv %s' % env_dir)
