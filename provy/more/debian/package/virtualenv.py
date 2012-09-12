@@ -14,3 +14,10 @@ class VirtualenvRole(Role):
             return '/root'
         else:
             return '/home/%s' % self.user
+
+    def provision(self):
+        from provy.more.debian import PipRole
+
+        with self.using(PipRole) as pip:
+            pip.ensure_package_installed('virtualenv')
+            pip.ensure_package_installed('virtualenvwrapper')

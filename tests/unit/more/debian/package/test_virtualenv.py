@@ -6,10 +6,13 @@ from unittest import TestCase
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
-from provy.more.debian.package.virtualenv import VirtualenvRole
+from provy.more.debian import PipRole, VirtualenvRole
 
 
 class VirtualenvRoleTest(TestCase):
+    def setUp(self):
+        self.role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+
     @istest
     def refers_to_specific_subdir_at_user_home(self):
         role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
@@ -21,3 +24,16 @@ class VirtualenvRoleTest(TestCase):
         role = VirtualenvRole(prov=None, context={'user': 'root',})
 
         self.assertEqual(role.base_directory, '/root/Envs')
+
+    @istest
+    def installs_virtualenv_harness_when_provisioned(self):
+        mock_role = MagicMock(spec=PipRole)
+
+        @contextmanager
+        def fake_using(self, klass):
+            yield mock_role
+
+        with patch('provy.core.roles.Role.using', fake_using):
+            self.role.provision()
+            install_calls = mock_role.ensure_package_installed.mock_calls
+            self.assertEqual(install_calls, [call('virtualenv'), call('virtualenvwrapper')])

@@ -7,3 +7,4 @@ Roles in this namespace are meant to enable users to install packages using pack
 
 from provy.more.debian.package.aptitude import AptitudeRole, PackageNotFound
 from provy.more.debian.package.pip import PipRole
+from provy.more.debian.package.virtualenv import VirtualenvRole
