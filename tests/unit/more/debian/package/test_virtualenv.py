@@ -11,9 +11,13 @@ from provy.more.debian.package.virtualenv import VirtualenvRole
 
 class VirtualenvRoleTest(TestCase):
     @istest
-    def refers_to_specific_subdir_at_home_by_default(self):
-        role = VirtualenvRole(prov=None, context={})
+    def refers_to_specific_subdir_at_user_home(self):
+        role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
 
-        base_dir = os.path.join(os.path.expanduser('~'), 'Envs')
+        self.assertEqual(role.base_directory, '/home/johndoe/Envs')
 
-        self.assertEqual(role.base_directory, base_dir)
+    @istest
+    def refers_to_specific_subdir_at_root_home(self):
+        role = VirtualenvRole(prov=None, context={'user': 'root',})
+
+        self.assertEqual(role.base_directory, '/root/Envs')
