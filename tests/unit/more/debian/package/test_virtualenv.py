@@ -17,13 +17,13 @@ class VirtualenvRoleTest(TestCase):
     def refers_to_specific_subdir_at_user_home(self):
         role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
 
-        self.assertEqual(role.base_directory, '/home/johndoe/Envs')
+        self.assertEqual(role.base_directory, '/home/johndoe/.virtualenvs')
 
     @istest
     def refers_to_specific_subdir_at_root_home(self):
         role = VirtualenvRole(prov=None, context={'user': 'root',})
 
-        self.assertEqual(role.base_directory, '/root/Envs')
+        self.assertEqual(role.base_directory, '/root/.virtualenvs')
 
     @istest
     def installs_virtualenv_harness_when_provisioned(self):
@@ -42,4 +42,4 @@ class VirtualenvRoleTest(TestCase):
     def creates_a_virtual_environment(self):
         with patch('provy.core.roles.Role.execute') as execute:
             self.role.create_env('foo_env')
-            execute.assert_called_with('virtualenv /home/johndoe/Envs/foo_env')
+            execute.assert_called_with('virtualenv /home/johndoe/.virtualenvs/foo_env')
