@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import os
 
 from provy.core import Role
@@ -15,6 +16,15 @@ class VirtualenvRole(Role):
         else:
             return '/home/%s' % self.user
 
+    @contextmanager
+    def __call__(self, env_name):
+        from fabric.api import prefix
+
+        env_dir = self.create_env(env_name)
+
+        with prefix('source %s/bin/activate' % env_dir):
+            yield
+
     def provision(self):
         from provy.more.debian import PipRole
 
@@ -25,3 +35,4 @@ class VirtualenvRole(Role):
     def create_env(self, env_name):
         env_dir = os.path.join(self.base_directory, env_name)
         self.execute('virtualenv %s' % env_dir)
+        return env_dir
