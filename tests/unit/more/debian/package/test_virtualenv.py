@@ -46,6 +46,12 @@ class VirtualenvRoleTest(TestCase):
             execute.assert_called_with('virtualenv /home/johndoe/.virtualenvs/foo_env')
 
     @istest
+    def creates_a_virtual_environment_with_system_site_packages(self):
+        with patch('provy.core.roles.Role.execute') as execute:
+            env_dir = self.role.create_env('foo_env', system_site_packages=True)
+            execute.assert_called_with('virtualenv --system-site-packages /home/johndoe/.virtualenvs/foo_env')
+
+    @istest
     def wraps_the_env_usage_with_creation_activation_and_deactivation(self):
         execute = MagicMock()
 
@@ -72,3 +78,10 @@ class VirtualenvRoleTest(TestCase):
                 call('called after prefix'),
             ]
             execute.assert_has_calls(expected_executes)
+
+    @istest
+    def wraps_the_env_usage_creating_system_site_packages(self):
+        with patch('provy.core.roles.Role.execute') as execute:
+            with self.role('fancylib', system_site_packages=True):
+                pass
+            execute.assert_any_call('virtualenv --system-site-packages %s/fancylib' % self.role.base_directory)

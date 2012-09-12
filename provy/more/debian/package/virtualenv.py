@@ -17,6 +17,7 @@ class VirtualenvRole(Role):
     When using the object as a context manager (that is, using a "with" block) it will make sure that the virtual environment is created and that the commands that run inside it run within this same virtual environment (which affects, for example, the python and pip commands).
     <em>Context manager parameters</em>
     env_name - name of the virtual environment to be created and to keep activated when running commands inside the context manager.
+    system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
     <em>Properties</em>
     base_directory - directory where the virtual environment subdirectory will be put at. For example, if you set it as "/home/johndoe/my_envs", and use venv("some_env"), it will create a virtual environment at "/home/johndoe/my_envs/some_env". Defaults to $HOME/.virtualenvs .
     <em>Sample usage</em>
@@ -31,10 +32,10 @@ class VirtualenvRole(Role):
             with self.using(PipRole) as pip, self.using(VirtualenvRole) as venv, venv('fancylib'):
                 pip.ensure_package_installed('django')
 
-            # this is when you want to set a different base virtualenv directory
+            # this is when you want to set a different base virtualenv directory, and include the system-wide site-packages.
             with self.using(PipRole) as pip, self.using(VirtualenvRole) as venv:
                 venv.base_directory = '/home/johndoe/Envs'
-                with venv('fancylib2'):
+                with venv('fancylib2', system_site_packages=True):
                     pip.ensure_package_installed('tornado')
     </pre>
     '''
@@ -51,10 +52,10 @@ class VirtualenvRole(Role):
             return '/home/%s' % self.user
 
     @contextmanager
-    def __call__(self, env_name):
+    def __call__(self, env_name, system_site_packages=False):
         from fabric.api import prefix
 
-        env_dir = self.create_env(env_name)
+        env_dir = self.create_env(env_name, system_site_packages=system_site_packages)
 
         with prefix('source %s/bin/activate' % env_dir):
             yield
@@ -79,11 +80,12 @@ class VirtualenvRole(Role):
             pip.ensure_package_installed('virtualenv')
             pip.ensure_package_installed('virtualenvwrapper')
 
-    def create_env(self, env_name):
+    def create_env(self, env_name, system_site_packages=False):
         '''
         Creates a virtual environment.
         <em>Parameters</em>
         env_name - name of the virtual environment to be created.
+        system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -96,5 +98,6 @@ class VirtualenvRole(Role):
         </pre>
         '''
         env_dir = os.path.join(self.base_directory, env_name)
-        self.execute('virtualenv %s' % env_dir)
+        site_packages_arg = '--system-site-packages ' if system_site_packages else ''
+        self.execute('virtualenv %s%s' % (site_packages_arg, env_dir))
         return env_dir
