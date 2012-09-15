@@ -255,6 +255,7 @@ class MySQLRole(Role):
         return False
 
     def _get_privileges(self, privileges):
+        privileges = privileges.upper()
         if privileges == 'ALL':
             privileges = 'ALL PRIVILEGES'
         return privileges

@@ -34,3 +34,15 @@ class MySQLRoleTest(TestCase):
         with patch('provy.core.roles.Role.execute') as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('ALL', 'foo', 'john', '%', False))
+
+    @istest
+    def has_grant_if_granted_even_if_provided_full(self):
+        with patch('provy.core.roles.Role.execute') as execute:
+            execute.return_value = FOO_DB_WITH_JOHN_GRANTS
+            self.assertTrue(self.role.has_grant('ALL PRIVILEGES', 'foo', 'john', '%', False))
+
+    @istest
+    def has_grant_if_granted_even_if_provided_as_lowercase_string(self):
+        with patch('provy.core.roles.Role.execute') as execute:
+            execute.return_value = FOO_DB_WITH_JOHN_GRANTS
+            self.assertTrue(self.role.has_grant('all', 'foo', 'john', '%', False))
