@@ -26,3 +26,8 @@ class PipRoleTest(TestCase):
     def extracts_package_name_from_specific_repository_path(self):
         self.assertEqual(self.role.extract_package_data_from_input('-e hg+http://bitbucket.org/bkroeze/django-keyedcache/#egg=django-keyedcache'),
                          {"name": "django-keyedcache"})
+
+    @istest
+    def extracts_package_name_from_specific_repository_url(self):
+        self.assertEqual(self.role.extract_package_data_from_input('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
+                         {"name": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"})
