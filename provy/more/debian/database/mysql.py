@@ -215,10 +215,8 @@ class MySQLRole(Role):
                             # do something
         </pre>
         '''
-        return_grants = []
         grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % (username, login_from))
-        for grant in grants:
-            return_grants.append(grant.values()[1])
+        grants = [grant.values()[-1] for grant in grants]
 
         return grants
 
@@ -246,24 +244,37 @@ class MySQLRole(Role):
         '''
 
         grants = self.get_user_grants(username, login_from)
-        grant_option_string = ""
-        if with_grant_option:
-            grant_option_string = " WITH GRANT OPTION"
-        if privileges == 'ALL':
-            privileges = 'ALL PRIVILEGES'
-
-        grants = [grant.values()[-1] for grant in grants]
-        grant_strings = [
-            "GRANT %s ON `%s`.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
-            "GRANT %s ON `%s`.`*` TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
-            "GRANT %s ON %s.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
-        ]
+        grant_option_string = self._get_grant_option_string(with_grant_option)
+        privileges = self._get_privileges(privileges)
+        grant_strings = self._get_possible_grant_strings(on, username, privileges, login_from, grant_option_string)
 
         for grant_string in grant_strings:
             if grant_string in grants:
                 return True
 
         return False
+
+    def _get_privileges(self, privileges):
+        if privileges == 'ALL':
+            privileges = 'ALL PRIVILEGES'
+        return privileges
+
+    def _get_grant_option_string(self, with_grant_option):
+        grant_option_string = ""
+        if with_grant_option:
+            grant_option_string = " WITH GRANT OPTION"
+        return grant_option_string
+
+    def _get_possible_grant_strings(self, on, username, privileges, login_from, grant_option_string):
+        # These possible "ON" tokens are used because MySQL can behave differently depending on the version and system
+        possible_on_tokens = [
+            '`%s`.*' % on,
+            '`%s`.`*`' % on,
+            '%s.*' % on,
+        ]
+        grant_strings = ["GRANT %s ON %s TO '%s'@'%s'%s" % (privileges, on_token, username, login_from, grant_option_string)
+                         for on_token in possible_on_tokens]
+        return grant_strings
 
     def ensure_grant(self, privileges, on, username, login_from="%", with_grant_option=False):
         '''
