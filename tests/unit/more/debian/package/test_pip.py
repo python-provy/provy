@@ -64,3 +64,16 @@ class PipRoleTest(TestCase):
     def fails_check_if_a_package_is_installed_when_package_doesnt_exist(self):
         with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning=""):
             self.assertFalse(self.role.is_package_installed("django"))
+
+    @istest
+    def ensures_requirements_are_installed(self):
+        from os.path import abspath, join, dirname
+        with patch('provy.more.debian.PipRole.ensure_package_installed') as ensure_package_installed:
+            requeriments_file_name = abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt"))
+            self.role.ensure_requeriments_installed(requeriments_file_name)
+            ensure_package_installed.assert_has_calls([
+                call('Django'),
+                call('yolk==0.4.1'),
+                call('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
+                call('-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost'),
+            ])
