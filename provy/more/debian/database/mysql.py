@@ -249,10 +249,15 @@ class MySQLRole(Role):
         grant_option_string = ""
         if with_grant_option:
             grant_option_string = " WITH GRANT OPTION"
+        if privileges == 'ALL':
+            privileges = 'ALL PRIVILEGES'
 
         grants = [grant.values()[-1] for grant in grants]
-        grant_strings = ["GRANT %s ON `%s`.`*` TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
-                         "GRANT %s ON %s.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)]
+        grant_strings = [
+            "GRANT %s ON `%s`.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
+            "GRANT %s ON `%s`.`*` TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
+            "GRANT %s ON %s.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
+        ]
 
         for grant_string in grant_strings:
             if grant_string in grants:
