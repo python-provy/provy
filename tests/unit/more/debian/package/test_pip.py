@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from unittest import TestCase
 
 from mock import MagicMock, patch, call
@@ -9,6 +10,13 @@ from provy.more.debian import PipRole
 class PipRoleTest(TestCase):
     def setUp(self):
         self.role = PipRole(prov=None, context={})
+
+    @contextmanager
+    def executing(self, command, returning=None):
+        with patch('provy.core.roles.Role.execute') as execute:
+            execute.return_value = returning
+            yield
+            execute.assert_called_with(command, sudo=True, stdout=False)
 
     @istest
     def extracts_package_name_as_data_from_input(self):
@@ -31,3 +39,28 @@ class PipRoleTest(TestCase):
     def extracts_package_name_from_specific_repository_url(self):
         self.assertEqual(self.role.extract_package_data_from_input('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
                          {"name": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"})
+
+    @istest
+    def checks_if_a_package_is_installed_by_name(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
+            self.assertTrue(self.role.is_package_installed("django"))
+
+    @istest
+    def checks_if_a_package_is_installed_by_name_and_version(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
+            self.assertTrue(self.role.is_package_installed("django==1.2.3"))
+
+    @istest
+    def fails_check_if_a_package_is_installed_by_greater_version(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
+            self.assertFalse(self.role.is_package_installed("django>=1.3.0"))
+
+    @istest
+    def fails_check_if_a_package_is_installed_by_greater_version_through_parameter(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
+            self.assertFalse(self.role.is_package_installed("django", version="1.3.0"))
+
+    @istest
+    def fails_check_if_a_package_is_installed_when_package_doesnt_exist(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning=""):
+            self.assertFalse(self.role.is_package_installed("django"))
