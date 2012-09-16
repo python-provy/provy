@@ -7,6 +7,9 @@ from nose.tools import istest
 from provy.more.debian import PipRole
 
 
+NOTHING = None
+
+
 class PipRoleTest(TestCase):
     def setUp(self):
         self.role = PipRole(prov=None, context={})
@@ -15,8 +18,18 @@ class PipRoleTest(TestCase):
     def executing(self, command, returning=None):
         with patch('provy.core.roles.Role.execute') as execute:
             execute.return_value = returning
+            yield execute
+            if command is not None:
+                execute.assert_called_with(command, sudo=True, stdout=False)
+            else:
+                self.assertFalse(execute.called)
+
+    @contextmanager
+    def checking_that_package(self, is_installed=True):
+        with patch('provy.more.debian.PipRole.is_package_installed') as is_package_installed:
+            is_package_installed.return_value = is_installed
             yield
-            execute.assert_called_with(command, sudo=True, stdout=False)
+            self.assertTrue(is_package_installed.called)
 
     @istest
     def extracts_package_name_as_data_from_input(self):
@@ -77,3 +90,29 @@ class PipRoleTest(TestCase):
                 call('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
                 call('-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost'),
             ])
+
+    @istest
+    def doesnt_install_a_package_if_its_already_installed_by_name(self):
+        with self.checking_that_package(is_installed=True), self.executing(NOTHING):
+            self.role.ensure_package_installed('django')
+
+    @istest
+    def doesnt_install_a_package_if_its_already_installed_by_name_and_version(self):
+        with self.checking_that_package(is_installed=True), self.executing(NOTHING):
+            self.role.ensure_package_installed('django', version='1.2.3')
+
+    @istest
+    def installs_a_package_by_name_if_its_not_installed(self):
+        with self.checking_that_package(is_installed=False), self.executing('pip install django'):
+            self.role.ensure_package_installed('django')
+
+    @istest
+    def installs_a_package_by_name_and_equal_version_if_its_not_installed(self):
+        with self.checking_that_package(is_installed=False), self.executing('pip install django==1.2.3'):
+            self.role.ensure_package_installed('django', version='1.2.3')
+
+    @istest
+    def installs_a_package_by_name_and_greater_equal_version_if_its_not_installed(self):
+        with self.checking_that_package(is_installed=False), self.executing('pip install django>=1.2.3'):
+            self.role.ensure_package_installed('django', version='>=1.2.3')
+
