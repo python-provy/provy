@@ -186,10 +186,11 @@ class PipRoleTest(PipRoleTestCase):
     def gets_package_latest_version_by_capitalized_provided_name_when_plain_name_is_not_found(self):
         with patch('xmlrpclib.ServerProxy') as MockServerProxy:
             mock_server_proxy = MockServerProxy.return_value
-            mock_server_proxy.package_releases.side_effect = [
+            returned_values = [
                 None,
                 ['1.3.0', '1.2.3']
             ]
+            mock_server_proxy.package_releases.side_effect = returned_values
 
             self.assertEqual(self.role.get_package_latest_version('django'), '1.3.0')
             mock_server_proxy.package_releases.assert_called_with('Django')
