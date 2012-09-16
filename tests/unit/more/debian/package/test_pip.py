@@ -22,10 +22,15 @@ class PipRoleTestCase(TestCase):
                 self.assertFalse(execute.called)
 
     @contextmanager
-    def checking_that_package(self, is_installed=True):
+    def checking_that_package(self, is_installed=True, can_be_updated=None):
         with patch('provy.more.debian.PipRole.is_package_installed') as is_package_installed:
             is_package_installed.return_value = is_installed
-            yield
+            if can_be_updated is not None:
+                with patch('provy.more.debian.PipRole.package_can_be_updated') as package_can_be_updated:
+                    package_can_be_updated.return_value = can_be_updated
+                    yield
+            else:
+                yield
             self.assertTrue(is_package_installed.called)
 
     @contextmanager
@@ -39,6 +44,15 @@ class PipRoleTestCase(TestCase):
         with patch('provy.more.debian.PipRole.get_package_latest_version') as get_package_latest_version:
             get_package_latest_version.return_value = version
             yield
+
+    @contextmanager
+    def installing(self, package):
+        with patch('provy.more.debian.PipRole.ensure_package_installed') as ensure_package_installed:
+            yield
+            if package is not None:
+                ensure_package_installed.assert_called_with(package)
+            else:
+                self.assertFalse(ensure_package_installed.called)
 
 
 class PipRoleTest(PipRoleTestCase):
@@ -204,4 +218,19 @@ class PipRoleTest(PipRoleTestCase):
     def says_that_package_cant_be_updated_when_its_equal_latest(self):
         with self.remote_version_as('1.3.0'), self.latest_version_as('1.3.0'):
             self.assertFalse(self.role.package_can_be_updated('django'))
+
+    @istest
+    def updates_package_if_its_out_of_date(self):
+        with self.checking_that_package(is_installed=True, can_be_updated=True), self.executing('pip install -U --no-dependencies django'):
+            self.role.ensure_package_up_to_date('django')
+
+    @istest
+    def installs_package_if_not_even_installed(self):
+        with self.checking_that_package(is_installed=False), self.installing('django'):
+            self.role.ensure_package_up_to_date('django')
+
+    @istest
+    def doesn_install_anything_if_package_is_already_up_to_date(self):
+        with self.checking_that_package(is_installed=True, can_be_updated=False), self.executing(NOTHING), self.installing(NOTHING):
+            self.role.ensure_package_up_to_date('django')
 

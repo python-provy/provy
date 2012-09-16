@@ -244,12 +244,14 @@ class PipRole(Role):
         </pre>
         '''
 
-        if self.is_package_installed(package_name) and self.package_can_be_updated(package_name):
+        is_installed = self.is_package_installed(package_name)
+
+        if is_installed and self.package_can_be_updated(package_name):
             self.log('%s is installed (via pip)! Updating...' % package_name)
             self.execute('pip install -U --no-dependencies %s' % package_name, stdout=False, sudo=self.use_sudo)
             self.log('%s updated!' % package_name)
             return True
-        else:
+        elif not is_installed:
             self.ensure_package_installed(package_name)
             return True
 
