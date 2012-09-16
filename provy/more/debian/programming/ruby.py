@@ -17,7 +17,7 @@ class RubyRole(Role):
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
-    from provy.more.debian import NodeJsRole
+    from provy.more.debian import RubyRole
 
     class MySampleRole(Role):
         def provision(self):
@@ -65,7 +65,7 @@ class RubyRole(Role):
                 self.remove_file('/tmp/%s.tar.gz' % ruby_file, sudo=True)
                 self.remove_dir('/tmp/%s' % ruby_file, sudo=True)
 
-                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' % 
+                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' %
                         (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
 
                 self.__symlink_from_local()
