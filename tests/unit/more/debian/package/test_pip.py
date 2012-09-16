@@ -10,10 +10,7 @@ from provy.more.debian import AptitudeRole, PipRole
 NOTHING = None
 
 
-class PipRoleTest(TestCase):
-    def setUp(self):
-        self.role = PipRole(prov=None, context={})
-
+class PipRoleTestCase(TestCase):
     @contextmanager
     def executing(self, command, returning=None):
         with patch('provy.core.roles.Role.execute') as execute:
@@ -42,6 +39,11 @@ class PipRoleTest(TestCase):
         with patch('provy.more.debian.PipRole.get_package_latest_version') as get_package_latest_version:
             get_package_latest_version.return_value = version
             yield
+
+
+class PipRoleTest(PipRoleTestCase):
+    def setUp(self):
+        self.role = PipRole(prov=None, context={})
 
     @istest
     def extracts_package_name_as_data_from_input(self):
