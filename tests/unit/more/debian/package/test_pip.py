@@ -31,6 +31,18 @@ class PipRoleTest(TestCase):
             yield
             self.assertTrue(is_package_installed.called)
 
+    @contextmanager
+    def remote_version_as(self, version):
+        with patch('provy.more.debian.PipRole.get_package_remote_version') as get_package_remote_version:
+            get_package_remote_version.return_value = version
+            yield
+
+    @contextmanager
+    def latest_version_as(self, version):
+        with patch('provy.more.debian.PipRole.get_package_latest_version') as get_package_latest_version:
+            get_package_latest_version.return_value = version
+            yield
+
     @istest
     def extracts_package_name_as_data_from_input(self):
         self.assertEqual(self.role.extract_package_data_from_input('django'), {'name': 'django',})
@@ -179,4 +191,14 @@ class PipRoleTest(TestCase):
 
             self.assertEqual(self.role.get_package_latest_version('django'), '1.3.0')
             mock_server_proxy.package_releases.assert_called_with('Django')
+
+    @istest
+    def says_that_package_can_be_updated_when_its_older_than_latest(self):
+        with self.remote_version_as('1.2.3'), self.latest_version_as('1.3.0'):
+            self.assertTrue(self.role.package_can_be_updated('django'))
+
+    @istest
+    def says_that_package_cant_be_updated_when_its_equal_latest(self):
+        with self.remote_version_as('1.3.0'), self.latest_version_as('1.3.0'):
+            self.assertFalse(self.role.package_can_be_updated('django'))
 
