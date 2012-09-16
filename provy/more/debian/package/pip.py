@@ -223,6 +223,22 @@ class PipRole(Role):
         return False
 
     def ensure_requeriments_installed(self, requeriments_file_name):
+        '''
+        Makes sure the requirements file provided is installed.
+        <em>Parameters</em>
+        requeriments_file_name - path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_requeriments_installed('/path/to/requirements.txt')
+        </pre>
+        '''
+
         with open(requeriments_file_name, 'r') as requeriments_file:
             for requeriment in requeriments_file.readlines():
                 self.ensure_package_installed(requeriment.strip())
