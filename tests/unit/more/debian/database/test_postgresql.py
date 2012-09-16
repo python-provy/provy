@@ -4,8 +4,7 @@ from unittest import TestCase
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
-from provy.more.debian.database.postgresql import PostgreSQLRole
-from provy.more.debian.package.aptitude import AptitudeRole
+from provy.more.debian import AptitudeRole, PostgreSQLRole
 
 
 class PostgreSQLRoleTestCase(TestCase):
@@ -147,13 +146,13 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        mock_role = MagicMock(spec=AptitudeRole)
+        mock_aptitude = MagicMock(spec=AptitudeRole)
 
         @contextmanager
         def fake_using(self, klass):
-            yield mock_role
+            yield mock_aptitude
 
         with patch('provy.core.roles.Role.using', fake_using):
             self.role.provision()
-            install_calls = mock_role.ensure_package_installed.mock_calls
+            install_calls = mock_aptitude.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('postgresql'), call('postgresql-server-dev-9.1')])
