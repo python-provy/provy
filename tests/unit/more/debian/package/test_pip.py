@@ -151,3 +151,32 @@ class PipRoleTest(TestCase):
         with patch('fabric.api.settings', fake_settings), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning='django==1.2.3'):
             self.assertEqual(self.role.get_package_remote_version('django'), '1.2.3')
 
+    @istest
+    def gets_none_as_package_latest_version_if_no_such_package_exists(self):
+        with patch('xmlrpclib.ServerProxy') as MockServerProxy:
+            mock_server_proxy = MockServerProxy.return_value
+            mock_server_proxy.package_releases.return_value = None
+
+            self.assertIsNone(self.role.get_package_latest_version('django'))
+
+    @istest
+    def gets_package_latest_version_by_same_provided_name(self):
+        with patch('xmlrpclib.ServerProxy') as MockServerProxy:
+            mock_server_proxy = MockServerProxy.return_value
+            mock_server_proxy.package_releases.return_value = ['1.3.0', '1.2.3']
+
+            self.assertEqual(self.role.get_package_latest_version('django'), '1.3.0')
+            mock_server_proxy.package_releases.assert_called_with('django')
+
+    @istest
+    def gets_package_latest_version_by_capitalized_provided_name_when_plain_name_is_not_found(self):
+        with patch('xmlrpclib.ServerProxy') as MockServerProxy:
+            mock_server_proxy = MockServerProxy.return_value
+            mock_server_proxy.package_releases.side_effect = [
+                None,
+                ['1.3.0', '1.2.3']
+            ]
+
+            self.assertEqual(self.role.get_package_latest_version('django'), '1.3.0')
+            mock_server_proxy.package_releases.assert_called_with('Django')
+
