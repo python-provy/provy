@@ -7,6 +7,7 @@ from nose.tools import istest
 from provy.more.debian import AptitudeRole, PipRole
 
 
+# This seems silly, but it actually helps with test readability ;-)
 NOTHING = None
 
 
