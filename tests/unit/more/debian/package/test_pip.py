@@ -129,3 +129,25 @@ class PipRoleTest(TestCase):
             install_calls = mock_aptitude.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('python-setuptools'), call('python-dev')])
 
+    @istest
+    def gets_none_as_version_if_remote_doesnt_have_it_installed(self):
+        test_case = self
+        @contextmanager
+        def fake_settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with patch('fabric.api.settings', fake_settings), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning=''):
+            self.assertIsNone(self.role.get_package_remote_version('django'))
+
+    @istest
+    def gets_version_if_remote_has_it_installed(self):
+        test_case = self
+        @contextmanager
+        def fake_settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with patch('fabric.api.settings', fake_settings), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning='django==1.2.3'):
+            self.assertEqual(self.role.get_package_remote_version('django'), '1.2.3')
+
