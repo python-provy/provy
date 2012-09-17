@@ -20,6 +20,7 @@ class VirtualenvRole(Role):
     system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
     <em>Properties</em>
     base_directory - directory where the virtual environment subdirectory will be put at. For example, if you set it as "/home/johndoe/my_envs", and use venv("some_env"), it will create a virtual environment at "/home/johndoe/my_envs/some_env". Defaults to $HOME/.virtualenvs .
+    user - the user with which the virtual environment should be created. Defaults to the context user.
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
@@ -32,9 +33,10 @@ class VirtualenvRole(Role):
             with self.using(PipRole) as pip, self.using(VirtualenvRole) as venv, venv('fancylib'):
                 pip.ensure_package_installed('django')
 
-            # this is when you want to set a different base virtualenv directory, and include the system-wide site-packages.
+            # this is when you want to set a different base virtualenv directory and user, and include the system-wide site-packages.
             with self.using(PipRole) as pip, self.using(VirtualenvRole) as venv:
                 venv.base_directory = '/home/johndoe/Envs'
+                venv.user = 'johndoe'
                 with venv('fancylib2', system_site_packages=True):
                     pip.ensure_package_installed('tornado')
     </pre>
