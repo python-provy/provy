@@ -99,5 +99,5 @@ class VirtualenvRole(Role):
         '''
         env_dir = os.path.join(self.base_directory, env_name)
         site_packages_arg = '--system-site-packages ' if system_site_packages else ''
-        self.execute('virtualenv %s%s' % (site_packages_arg, env_dir))
+        self.execute('virtualenv %s%s' % (site_packages_arg, env_dir), user=self.user)
         return env_dir
