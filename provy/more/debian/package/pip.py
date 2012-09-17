@@ -31,6 +31,10 @@ class PipRole(Role):
 
     use_sudo = True
 
+    def __init__(self, prov, context):
+        super(PipRole, self).__init__(prov, context)
+        self.user = None
+
     def provision(self):
         '''
         Installs pip dependencies. This method should be called upon if overriden in base classes, or PIP won't work properly in the remote server.
@@ -48,7 +52,7 @@ class PipRole(Role):
             role.ensure_up_to_date()
             role.ensure_package_installed('python-setuptools')
             role.ensure_package_installed('python-dev')
-        self.execute("easy_install pip", sudo=True, stdout=False)
+        self.execute("easy_install pip", sudo=True, stdout=False, user=None)
 
     def extract_package_data_from_input(self, input_line):
         package_constraint = None
@@ -97,7 +101,7 @@ class PipRole(Role):
             if not version:
                 package_name = package_info['name']
             #package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
-            package_string = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name, stdout=False, sudo=self.use_sudo)
+            package_string = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name, stdout=False, sudo=self.use_sudo, user=self.user)
             if package_name in package_string:
                 installed_version = package_string.split('==')[-1]
                 if 'version' in package_info:
@@ -127,7 +131,7 @@ class PipRole(Role):
         </pre>
         '''
         with settings(warn_only=True):
-            result = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name.lower(), stdout=False, sudo=self.use_sudo)
+            result = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name.lower(), stdout=False, sudo=self.use_sudo, user=self.user)
             if result:
                 package, version = result.split('==')
                 return version
@@ -211,12 +215,12 @@ class PipRole(Role):
             version = 'version' in package_info and package_info['version'] or version
             if not self.is_package_installed(package_name, version):
                 self.log('%s version %s should be installed (via pip)! Rectifying that...' % (package_name, version))
-                self.execute('pip install %s%s%s' % (package_name, version_constraint, version), stdout=False, sudo=self.use_sudo)
+                self.execute('pip install %s%s%s' % (package_name, version_constraint, version), stdout=False, sudo=self.use_sudo, user=self.user)
                 self.log('%s version %s installed!' % (package_name, version))
                 return True
         elif not self.is_package_installed(package_name):
             self.log('%s is not installed (via pip)! Installing...' % package_name)
-            self.execute('pip install %s' % package_name, stdout=False, sudo=self.use_sudo)
+            self.execute('pip install %s' % package_name, stdout=False, sudo=self.use_sudo, user=self.user)
             self.log('%s installed!' % package_name)
             return True
 
@@ -264,7 +268,7 @@ class PipRole(Role):
 
         if is_installed and self.package_can_be_updated(package_name):
             self.log('%s is installed (via pip)! Updating...' % package_name)
-            self.execute('pip install -U --no-dependencies %s' % package_name, stdout=False, sudo=self.use_sudo)
+            self.execute('pip install -U --no-dependencies %s' % package_name, stdout=False, sudo=self.use_sudo, user=self.user)
             self.log('%s updated!' % package_name)
             return True
         elif not is_installed:

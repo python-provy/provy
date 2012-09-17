@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from unittest import TestCase
 
-from mock import MagicMock, patch, call
+from mock import MagicMock, patch, call, ANY
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, PipRole
@@ -13,12 +13,12 @@ NOTHING = None
 
 class PipRoleTestCase(TestCase):
     @contextmanager
-    def executing(self, command, returning=None):
+    def executing(self, command, returning=None, user=None):
         with patch('provy.core.roles.Role.execute') as execute:
             execute.return_value = returning
             yield execute
             if command is not None:
-                execute.assert_called_with(command, sudo=True, stdout=False)
+                execute.assert_called_with(command, sudo=True, stdout=False, user=user)
             else:
                 self.assertFalse(execute.called)
 
@@ -58,7 +58,7 @@ class PipRoleTestCase(TestCase):
 
 class PipRoleTest(PipRoleTestCase):
     def setUp(self):
-        self.role = PipRole(prov=None, context={})
+        self.role = PipRole(prov=None, context={'user': 'johndoe',})
 
     @istest
     def extracts_package_name_as_data_from_input(self):
@@ -133,6 +133,12 @@ class PipRoleTest(PipRoleTestCase):
     @istest
     def installs_a_package_by_name_if_its_not_installed(self):
         with self.checking_that_package(is_installed=False), self.executing('pip install django'):
+            self.role.ensure_package_installed('django')
+
+    @istest
+    def installs_a_package_with_a_different_user(self):
+        with self.checking_that_package(is_installed=False), self.executing('pip install django', user='donjoe'):
+            self.role.user = 'donjoe'
             self.role.ensure_package_installed('django')
 
     @istest
