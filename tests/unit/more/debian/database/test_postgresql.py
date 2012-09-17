@@ -50,15 +50,36 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
 
     @istest
     def creates_a_user_prompting_for_password(self):
-        with self.successful_execution("createuser -P foo"):
+        with self.successful_execution("createuser -PSDR foo"):
             self.assertTrue(self.role.create_user("foo"))
             name, e_args, e_kwargs = self.execute.mock_calls[0]
             self.assertEqual(e_kwargs['stdout'], True)
 
     @istest
     def creates_a_user_without_password(self):
-        with self.successful_execution("createuser foo"):
+        with self.successful_execution("createuser -SDR foo"):
             self.assertTrue(self.role.create_user("foo", ask_password=False))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
+
+    @istest
+    def creates_a_superuser(self):
+        with self.successful_execution("createuser -Ps foo"):
+            self.assertTrue(self.role.create_user("foo", is_superuser=True))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
+
+    @istest
+    def creates_a_user_that_can_create_databases(self):
+        with self.successful_execution("createuser -PSdR foo"):
+            self.assertTrue(self.role.create_user("foo", can_create_databases=True))
+            name, e_args, e_kwargs = self.execute.mock_calls[0]
+            self.assertEqual(e_kwargs['stdout'], True)
+
+    @istest
+    def creates_a_user_that_can_create_roles(self):
+        with self.successful_execution("createuser -PSDr foo"):
+            self.assertTrue(self.role.create_user("foo", can_create_roles=True))
             name, e_args, e_kwargs = self.execute.mock_calls[0]
             self.assertEqual(e_kwargs['stdout'], True)
 
@@ -80,21 +101,33 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             self.assertFalse(self.role.user_exists("bar"))
 
     @istest
-    def creates_user_if_it_doesnt_exist_yet(self):
+    def ensures_user_is_created_if_it_doesnt_exist_yet(self):
         with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\""):
-            with self.successful_execution("createuser -P bar"):
+            with self.successful_execution("createuser -PSDR bar"):
                 self.assertTrue(self.role.ensure_user("bar"))
 
     @istest
-    def creates_user_without_password_if_it_doesnt_exist_yet(self):
+    def ensures_user_is_created_without_password_if_it_doesnt_exist_yet(self):
         with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\""):
-            with self.successful_execution("createuser bar"):
+            with self.successful_execution("createuser -SDR bar"):
                 self.assertTrue(self.role.ensure_user("bar", ask_password=False))
 
     @istest
     def doesnt_create_user_if_it_already_exists(self):
         with self.successful_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='baz'\""):
             self.assertTrue(self.role.ensure_user("baz"))
+
+    @istest
+    def ensures_superuser_is_created_if_it_doesnt_exist_yet(self):
+        with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\""):
+            with self.successful_execution("createuser -Ps bar"):
+                self.assertTrue(self.role.ensure_user("bar", is_superuser=True))
+
+    @istest
+    def ensures_user_with_more_privileges_is_created_if_it_doesnt_exist_yet(self):
+        with self.failed_execution("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='bar'\""):
+            with self.successful_execution("createuser -PSdr bar"):
+                self.assertTrue(self.role.ensure_user("bar", can_create_databases=True, can_create_roles=True))
 
     @istest
     def creates_a_database(self):

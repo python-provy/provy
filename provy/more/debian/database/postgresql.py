@@ -42,12 +42,15 @@ class PostgreSQLRole(Role):
     def __execute(self, command, stdout=True):
         return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
-    def create_user(self, username, ask_password=True):
+    def create_user(self, username, ask_password=True, is_superuser=False, can_create_databases=False, can_create_roles=False):
         '''
         Creates a user for the database.
         <em>Parameters</em>
         username - name of the user to be created.
-        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
+        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password. Defaults to True.
+        is_superuser - if True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
+        can_create_databases - if True, gives database creation privilege to the user. Defaults to False.
+        can_create_roles - if True, gives this user privilege to create other users. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -56,8 +59,18 @@ class PostgreSQLRole(Role):
                         role.create_user("john", ask_password=False)
         </pre>
         '''
-        pass_prompt_arg = "-P " if ask_password else ""
-        return self.__execute("createuser %s%s" % (pass_prompt_arg, username))
+        creation_args = self.__collect_user_creation_args(ask_password, is_superuser, can_create_databases, can_create_roles)
+        return self.__execute("createuser -%s %s" % (''.join(creation_args), username))
+
+    def __collect_user_creation_args(self, ask_password, is_superuser, can_create_databases, can_create_roles):
+        creation_args = []
+        if ask_password:
+            creation_args.append('P')
+        creation_args.append('S' if not is_superuser else 's')
+        if not is_superuser:
+            creation_args.append('D' if not can_create_databases else 'd')
+            creation_args.append('R' if not can_create_roles else 'r')
+        return creation_args
 
     def drop_user(self, username):
         '''
@@ -89,12 +102,15 @@ class PostgreSQLRole(Role):
         '''
         return bool(self.__execute("psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='%s'\"" % username, stdout=False))
 
-    def ensure_user(self, username, ask_password=True):
+    def ensure_user(self, username, ask_password=True, is_superuser=False, can_create_databases=False, can_create_roles=False):
         '''
         Ensures that a user exists in the database. If it doesn't, create it.
         <em>Parameters</em>
         username - name of the user to be checked/created.
         ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
+        is_superuser - if True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
+        can_create_databases - if True, gives database creation privilege to the user. Defaults to False.
+        can_create_roles - if True, gives this user privilege to create other users. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -105,7 +121,7 @@ class PostgreSQLRole(Role):
         '''
         if not self.user_exists(username):
             self.log('User "%s" does not exist yet. Creating...' % username)
-            return self.create_user(username, ask_password)
+            return self.create_user(username, ask_password, is_superuser, can_create_databases, can_create_roles)
         return True
 
     def create_database(self, database, owner=None):
