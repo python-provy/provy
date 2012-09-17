@@ -17,6 +17,9 @@ import xmlrpclib
 class PipRole(Role):
     '''
     This role provides package management operations with PIP within Debian distributions.
+    <em>Class/object properties</em>
+    use_sudo - if False, the packages will be installed as normal user. Defaults to True.
+    user - user through which the packages will be installed. Defaults to None, which means that, using together with the default use_sudo, will install packages globally.
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
@@ -30,10 +33,7 @@ class PipRole(Role):
     '''
 
     use_sudo = True
-
-    def __init__(self, prov, context):
-        super(PipRole, self).__init__(prov, context)
-        self.user = None
+    user = None
 
     def provision(self):
         '''
