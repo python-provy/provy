@@ -20,3 +20,8 @@ class ProvyTestCase(TestCase):
     def execute_mock(self):
         with patch('provy.core.roles.Role.execute') as execute:
             yield execute
+
+    @contextmanager
+    def mock_role_method(self, method):
+        with patch('provy.core.roles.Role.%s' % method) as mock:
+            yield mock
