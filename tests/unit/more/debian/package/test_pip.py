@@ -5,16 +5,17 @@ from mock import MagicMock, patch, call, ANY
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, PipRole
+from tests.unit.tools.helpers import ProvyTestCase
 
 
 # This seems silly, but it actually helps with test readability ;-)
 NOTHING = None
 
 
-class PipRoleTestCase(TestCase):
+class PipRoleTestCase(ProvyTestCase):
     @contextmanager
     def executing(self, command, returning=None, user=None):
-        with patch('provy.core.roles.Role.execute') as execute:
+        with self.execute_mock() as execute:
             execute.return_value = returning
             yield execute
             if command is not None:
@@ -153,13 +154,7 @@ class PipRoleTest(PipRoleTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        mock_aptitude = MagicMock(spec=AptitudeRole)
-
-        @contextmanager
-        def fake_using(self, klass):
-            yield mock_aptitude
-
-        with patch('provy.core.roles.Role.using', fake_using), self.executing('easy_install pip'):
+        with self.using_stub(AptitudeRole) as mock_aptitude, self.executing('easy_install pip'):
             self.role.provision()
             install_calls = mock_aptitude.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('python-setuptools'), call('python-dev')])
