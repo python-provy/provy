@@ -115,6 +115,8 @@ class SupervisorRole(Role):
         self.register_template_loader('provy.more.debian.monitoring')
 
         with self.using(PipRole) as role:
+            role.use_sudo = True
+            role.user = None
             role.ensure_package_installed('supervisor')
 
     def update_init_script(self, config_file_path):
