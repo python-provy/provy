@@ -17,6 +17,8 @@ import xmlrpclib
 class PipRole(Role):
     '''
     This role provides package management operations with PIP within Debian distributions.
+    By default, all commands executed with this role will be executed with sudo, unless you set a different user (refer to the "set_user" method below).
+    You can also change the class parameters below in the class directly to have a global effect (use carefully!).
     <em>Class/object properties</em>
     use_sudo - if False, the packages will be installed as normal user. Defaults to True.
     user - user through which the packages will be installed. Defaults to None, which means that, using together with the default use_sudo, will install packages globally.
@@ -277,3 +279,47 @@ class PipRole(Role):
 
         self.log('%s is up to date (via pip).' % package_name)
         return False
+
+    def set_user(self, user):
+        '''
+        Prepares the pip role instance to run its commands as a specific user.
+        <em>Parameters</em>
+        user - The username with which the role should run its commands.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_package_installed('django') # runs as sudo
+                    role.set_user('johndoe')
+                    role.ensure_package_installed('django') # runs as "johndoe" user
+        </pre>
+        '''
+
+        self.user = user
+        self.use_sudo = False
+
+    def set_sudo(self):
+        '''
+        Prepares the pip role instance to run its commands with sudo; This is useful when you had previously set a user, and want it to run back as sudo.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_package_installed('django') # runs as sudo
+                    role.set_user('johndoe')
+                    role.ensure_package_installed('django') # runs as "johndoe" user
+                    role.set_sudo()
+                    role.ensure_package_installed('django') # runs as sudo
+        </pre>
+        '''
+
+        self.user = None
+        self.use_sudo = True

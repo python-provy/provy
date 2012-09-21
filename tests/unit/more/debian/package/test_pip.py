@@ -236,3 +236,21 @@ class PipRoleTest(PipRoleTestCase):
         with self.checking_that_package(is_installed=True, can_be_updated=False), self.executing(NOTHING), self.installing(NOTHING):
             self.role.ensure_package_up_to_date('django')
 
+    @istest
+    def sets_specific_user_for_operations(self):
+        self.role.use_sudo = True
+        self.role.user = None
+        self.role.set_user('johndoe')
+
+        self.assertFalse(self.role.use_sudo)
+        self.assertEqual(self.role.user, 'johndoe')
+
+    @istest
+    def sets_back_to_sudo(self):
+        self.role.use_sudo = False
+        self.role.user = 'johndoe'
+        self.role.set_sudo()
+
+        self.assertTrue(self.role.use_sudo)
+        self.assertEqual(self.role.user, None)
+
