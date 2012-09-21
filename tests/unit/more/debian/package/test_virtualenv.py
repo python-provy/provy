@@ -28,13 +28,7 @@ class VirtualenvRoleTest(ProvyTestCase):
 
     @istest
     def installs_virtualenv_harness_when_provisioned(self):
-        mock_role = MagicMock(spec=PipRole)
-
-        @contextmanager
-        def fake_using(self, klass):
-            yield mock_role
-
-        with patch('provy.core.roles.Role.using', fake_using):
+        with self.using_stub(PipRole) as mock_role:
             self.role.provision()
             install_calls = mock_role.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('virtualenv'), call('virtualenvwrapper')])
