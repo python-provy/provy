@@ -21,9 +21,5 @@ class SupervisorRoleTest(ProvyTestCase):
     @istest
     def forces_as_sudo_to_install(self):
         with self.using_stub(PipRole) as mock_pip, patch('provy.core.roles.Role.register_template_loader'):
-            mock_pip.use_sudo = False
-            mock_pip.user = 'johndoe'
             self.role.provision()
-
-            self.assertTrue(mock_pip.use_sudo)
-            self.assertIsNone(mock_pip.user)
+            self.assertTrue(mock_pip.set_sudo.called)
