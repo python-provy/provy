@@ -54,6 +54,14 @@ class VirtualenvRoleTest(ProvyTestCase):
             remote_exists_dir.assert_called_with(virtual_env_dir)
 
     @istest
+    def checks_that_a_virtual_env_doesnt_exist(self):
+        with self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = False
+            self.assertFalse(self.role.env_exists('fancylib'))
+            virtual_env_dir = os.path.join(self.role.base_directory, 'fancylib')
+            remote_exists_dir.assert_called_with(virtual_env_dir)
+
+    @istest
     def wraps_the_env_usage_with_creation_activation_and_deactivation(self):
         execute = MagicMock()
 
