@@ -63,10 +63,13 @@ class VirtualenvRoleTest(ProvyTestCase):
                 execute('some command')
                 execute('some command 2')
 
+            env_creation_call = call('virtualenv %s/fancylib' % venv.base_directory, user='johndoe')
+            activation_prefix_call = call('prefix: "source %s/fancylib/bin/activate"' % venv.base_directory)
+
             expected_executes = [
-                call('virtualenv %s/fancylib' % venv.base_directory, user='johndoe'),
+                env_creation_call,
                 call('called before prefix'),
-                call('prefix: "source %s/fancylib/bin/activate"' % venv.base_directory),
+                activation_prefix_call,
                 call('some command'),
                 call('some command 2'),
                 call('called after prefix'),
