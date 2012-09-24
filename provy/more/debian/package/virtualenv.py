@@ -103,3 +103,22 @@ class VirtualenvRole(Role):
         site_packages_arg = '--system-site-packages ' if system_site_packages else ''
         self.execute('virtualenv %s%s' % (site_packages_arg, env_dir), user=self.user)
         return env_dir
+
+    def env_exists(self, env_name):
+        '''
+        Checks if a virtual environment exists.
+        <em>Parameters</em>
+        env_name - name of the virtual environment to be checked.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import VirtualenvRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VirtualenvRole) as venv:
+                    venv.env_exists('fancylib') # True or False
+        </pre>
+        '''
+        virtual_env_dir = os.path.join(self.base_directory, env_name)
+        return self.remote_exists_dir(virtual_env_dir)
