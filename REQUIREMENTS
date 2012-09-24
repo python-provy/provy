@@ -1,6 +1,8 @@
 fabric
 jinja2
-M2Crypto
+-e bzr+http://bazaar.launchpad.net/~ubuntu-branches/ubuntu/precise/m2crypto/precise/#egg=M2Crypto
 nose
 mock
 coverage
+yanc
+xtraceback
