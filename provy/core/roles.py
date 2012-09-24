@@ -813,3 +813,61 @@ class Role(object):
                     role.ensure_package_installed('nginx')
         '''
         return UsingRole(role, self.prov, self.context)
+
+    def get_distro_info(self):
+        '''
+        Returns a DistroInfo with valuable information regarding the distribution of the server.
+        In the backgrounds, what it does is to run
+        $ lsb_release -a
+        in the server, so you might want to check which results are usual for your distribution.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                distro_info = self.role.get_distro_info()
+
+                # Supposing the server is a Debian Squeeze, the following statements will probably be true:
+                distro_info.distributor_id == 'Debian'
+                distro_info.description == 'Debian GNU/Linux 6.0.5 (squeeze)'
+                distro_info.release == '6.0.5'
+                distro_info.codename == 'squeeze'
+
+                # Supposing the server is a Ubuntu Precise Pangolin, the following statements will probably be true:
+                distro_info.distributor_id == 'Ubuntu'
+                distro_info.description == 'Ubuntu 12.04.1 LTS'
+                distro_info.release == '12.04'
+                distro_info.codename == 'precise'
+
+                # Supposing the server is a CentOS, the following statements may be true:
+                distro_info.lsb_version == ':core-4.0-ia32:core-4.0-noarch:graphics-4.0-ia32:graphics-4.0-noarch:printing-4.0-ia32:printing-4.0-noarch'
+                distro_info.distributor_id == 'CentOS'
+                distro_info.description == 'CentOS release 5.8 (Final)'
+                distro_info.release == '5.8'
+                distro_info.codename == 'Final'
+        '''
+        raw_distro_info = self.execute('lsb_release -a')
+        distro_info_lines = raw_distro_info.split('\n')
+        distro_info_dict = {}
+        distro_info = DistroInfo()
+
+        for line in distro_info_lines:
+            if ':' in line:
+                key, value = line.split(':', 1)
+                info_property = key.lower().replace(' ', '_')
+                setattr(distro_info, info_property, value.strip())
+
+        return distro_info
+
+
+class DistroInfo(object):
+    '''
+    Value object used to contain distribution information.
+    Refer to Role.get_distro_info() usage.
+    '''
+    lsb_version = None
+    distributor_id = None
+    description = None
+    release = None
+    codename = None
