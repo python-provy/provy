@@ -13,6 +13,11 @@ class VirtualenvRoleTest(ProvyTestCase):
     def setUp(self):
         self.role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
 
+    @contextmanager
+    def env_exists(self, env_name):
+        with patch('provy.more.debian.VirtualenvRole.env_exists') as env_exists:
+            yield env_exists
+
     @istest
     def refers_to_specific_subdir_at_user_home(self):
         role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
@@ -72,12 +77,15 @@ class VirtualenvRoleTest(ProvyTestCase):
             yield
             execute('called after prefix')
 
-        with patch('provy.core.roles.Role.execute', execute), patch('fabric.api.prefix', prefix):
+        with patch('provy.core.roles.Role.execute', execute), patch('fabric.api.prefix', prefix), self.env_exists('fancylib') as env_exists:
             venv = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+            env_exists.return_value = False
 
             with venv('fancylib'):
                 execute('some command')
                 execute('some command 2')
+
+            env_exists.assert_called_with('fancylib')
 
             env_creation_call = call('virtualenv %s/fancylib' % venv.base_directory, user='johndoe')
             activation_prefix_call = call('prefix: "source %s/fancylib/bin/activate"' % venv.base_directory)
@@ -91,6 +99,38 @@ class VirtualenvRoleTest(ProvyTestCase):
                 call('called after prefix'),
             ]
             execute.assert_has_calls(expected_executes)
+
+    @istest
+    def doesnt_create_env_if_it_already_exists(self):
+        execute = MagicMock()
+
+        @contextmanager
+        def prefix(command):
+            execute('called before prefix')
+            execute('prefix: "%s"' % command)
+            yield
+            execute('called after prefix')
+
+        with patch('provy.core.roles.Role.execute', execute), patch('fabric.api.prefix', prefix), self.env_exists('fancylib') as env_exists:
+            venv = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+            env_exists.return_value = True
+
+            with venv('fancylib'):
+                execute('some command')
+                execute('some command 2')
+
+            env_exists.assert_called_with('fancylib')
+
+            activation_prefix_call = call('prefix: "source %s/fancylib/bin/activate"' % venv.base_directory)
+
+            expected_executes = [
+                call('called before prefix'),
+                activation_prefix_call,
+                call('some command'),
+                call('some command 2'),
+                call('called after prefix'),
+            ]
+            self.assertEqual(execute.mock_calls, expected_executes)
 
     @istest
     def wraps_the_env_usage_creating_system_site_packages(self):

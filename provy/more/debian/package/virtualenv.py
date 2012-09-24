@@ -57,7 +57,10 @@ class VirtualenvRole(Role):
     def __call__(self, env_name, system_site_packages=False):
         from fabric.api import prefix
 
-        env_dir = self.create_env(env_name, system_site_packages=system_site_packages)
+        env_dir = os.path.join(self.base_directory, env_name)
+
+        if not self.env_exists(env_name):
+            self.create_env(env_name, system_site_packages=system_site_packages)
 
         with prefix('source %s/bin/activate' % env_dir):
             yield
