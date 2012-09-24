@@ -15,6 +15,7 @@ class VirtualenvRole(Role):
     '''
     This role provides virtualenv management. It also provides virtualenvwrapper provisioning, although it's not internally used in this role.
     When using the object as a context manager (that is, using a "with" block) it will make sure that the virtual environment is created and that the commands that run inside it run within this same virtual environment (which affects, for example, the python and pip commands).
+    If the virtual environment already exists, it just bypasses the creation procedure.
     <em>Context manager parameters</em>
     env_name - name of the virtual environment to be created and to keep activated when running commands inside the context manager.
     system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
@@ -53,16 +54,31 @@ class VirtualenvRole(Role):
         else:
             return '/home/%s' % self.user
 
+    def env_dir(self, env_name):
+        '''
+        Gets the virtual environment directory for a given environment name.
+        Please note that this doesn't check if the env actually exists.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import VirtualenvRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(VirtualenvRole) as venv, venc('fancylib'):
+                    self.env_dir('fancylib')
+        </pre>
+        '''
+        return os.path.join(self.base_directory, env_name)
+
     @contextmanager
     def __call__(self, env_name, system_site_packages=False):
         from fabric.api import prefix
 
-        env_dir = os.path.join(self.base_directory, env_name)
-
         if not self.env_exists(env_name):
             self.create_env(env_name, system_site_packages=system_site_packages)
 
-        with prefix('source %s/bin/activate' % env_dir):
+        with prefix('source %s/bin/activate' % self.env_dir(env_name)):
             yield
 
     def provision(self):
@@ -102,7 +118,7 @@ class VirtualenvRole(Role):
                     env_dir = venv.create_env('fancylib') # will return the directory where the virtual environment was created
         </pre>
         '''
-        env_dir = os.path.join(self.base_directory, env_name)
+        env_dir = self.env_dir(env_name)
         site_packages_arg = '--system-site-packages ' if system_site_packages else ''
         self.execute('virtualenv %s%s' % (site_packages_arg, env_dir), user=self.user)
         return env_dir
@@ -123,5 +139,4 @@ class VirtualenvRole(Role):
                     venv.env_exists('fancylib') # True or False
         </pre>
         '''
-        virtual_env_dir = os.path.join(self.base_directory, env_name)
-        return self.remote_exists_dir(virtual_env_dir)
+        return self.remote_exists_dir(self.env_dir(env_name))
