@@ -40,6 +40,9 @@ class NodeJsRole(Role):
                 self.provision_role(NodeJsRole) # no need to call this if using with block.
         </pre>
         '''
+        if self.is_already_installed():
+            return
+
         distro_info = self.get_distro_info()
 
         if distro_info.distributor_id == 'Ubuntu':
@@ -62,7 +65,8 @@ class NodeJsRole(Role):
 
         class MySampleRole(Role):
             def provision(self):
-                self.provision_to_debian(NodeJsRole)
+                with self.using(NodeJsRole) as nodejs:
+                    nodejs.provision_to_debian()
         </pre>
         '''
         with self.using(AptitudeRole) as aptitude:
@@ -87,7 +91,8 @@ class NodeJsRole(Role):
 
         class MySampleRole(Role):
             def provision(self):
-                self.provision_to_ubuntu(NodeJsRole)
+                with self.using(NodeJsRole) as nodejs:
+                    nodejs.provision_to_ubuntu()
         </pre>
         '''
         with self.using(AptitudeRole) as aptitude:
@@ -101,6 +106,19 @@ class NodeJsRole(Role):
         aptitude.ensure_package_installed('nodejs-dev')
 
     def is_already_installed(self):
+        '''
+        Checks if NodeJS is already installed on the server.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import NodeJsRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(NodeJsRole) as nodejs:
+                    nodejs.is_already_installed() # True or False
+        </pre>
+        '''
         with settings(warn_only=True):
             result = self.execute('node --version')
 

@@ -13,6 +13,11 @@ class NodeJsRoleTest(ProvyTestCase):
     def setUp(self):
         self.role = NodeJsRole(prov=None, context={})
 
+    @contextmanager
+    def node_method(self, method_name):
+        with patch('provy.more.debian.NodeJsRole.%s' % method_name) as mock:
+            yield mock
+
     @istest
     def adds_repositories_and_installs_necessary_sources_to_provision_to_debian(self):
         with self.execute_mock() as execute, self.using_stub(AptitudeRole) as mock_aptitude, self.mock_role_method('ensure_dir') as ensure_dir:
@@ -88,12 +93,21 @@ class NodeJsRoleTest(ProvyTestCase):
 
     @istest
     def provisions_to_debian_if_is_debian(self):
-        with self.provisioning_to('debian'), patch('provy.more.debian.NodeJsRole.provision_to_debian') as provision_to_debian:
+        with self.provisioning_to('debian'), self.node_method('provision_to_debian') as provision_to_debian, self.node_method('is_already_installed') as is_already_installed:
+            is_already_installed.return_value = False
             self.role.provision()
             provision_to_debian.assert_called_with()
 
     @istest
     def provisions_to_ubuntu_if_is_ubuntu(self):
-        with self.provisioning_to('ubuntu'), patch('provy.more.debian.NodeJsRole.provision_to_ubuntu') as provision_to_ubuntu:
+        with self.provisioning_to('ubuntu'), self.node_method('provision_to_ubuntu') as provision_to_ubuntu, self.node_method('is_already_installed') as is_already_installed:
+            is_already_installed.return_value = False
             self.role.provision()
             provision_to_ubuntu.assert_called_with()
+
+    @istest
+    def doesnt_provision_if_already_installed(self):
+        with self.provisioning_to('ubuntu'), self.node_method('provision_to_ubuntu') as provision_to_ubuntu, self.node_method('is_already_installed') as is_already_installed:
+            is_already_installed.return_value = True
+            self.role.provision()
+            self.assertFalse(provision_to_ubuntu.called)
