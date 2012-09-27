@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Node.JS utility methods for Debian distributions.
+Roles in this namespace are meant to provide Node.JS utility methods for Debian and Ubuntu distributions.
 '''
 
 from fabric.api import cd, settings
@@ -12,7 +12,7 @@ from provy.more.debian import AptitudeRole
 
 class NodeJsRole(Role):
     '''
-    This role provides Node.JS utilities for Debian distributions.
+    This role provides Node.JS utilities for Debian and Ubuntu distributions.
 
     <em>Sample usage</em>
     <pre class="sh_python">
@@ -21,17 +21,14 @@ class NodeJsRole(Role):
 
     class MySampleRole(Role):
         def provision(self):
-            NodeJsRole.version = '0.4.11' # change to whatever version you need
             self.provision_role(NodeJsRole)
     </pre>
     '''
 
-    version = '0.4.11'
-
-    def _provision(self):
+    def provision(self):
         '''
-        Installs Node.JS and its dependencies. This method should be called upon if overriden in base classes, or Node won't work properly in the remote server.
-        If you set a class property called version, that version of Node.JS will be installed instead of 0.4.11.
+        Installs Node.JS, NPM and their dependencies. This method should be called upon if overriden in base classes, or Node won't work properly in the remote server.
+        If the server is a Debian, will install via source packages, if it's Ubuntu, will install via Chris Lea's official PPA repository.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -40,48 +37,33 @@ class NodeJsRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 self.provision_role(NodeJsRole) # no need to call this if using with block.
-
-        # or
-        class MySampleRole(Role):
-            def provision(self):
-                NodeJsRole.version = '0.4.11'
-                self.provision_role(NodeJsRole) # no need to call this if using with block.
-                # now node js 0.4.11 is installed.
         </pre>
         '''
-        with self.using(AptitudeRole) as role:
-            role.ensure_package_installed('g++')
-            role.ensure_package_installed('make')
-            role.ensure_package_installed('git-core')
-            role.ensure_package_installed('libssl-dev')
-
-        result = None
-        with settings(warn_only=True):
-            result = self.execute('node --version', stdout=False)
-
-        if not result or 'command not found' in result or not ('v%s' % self.version) in result:
-            self.log('node.js not installed... installing...')
-            self.ensure_dir('/tmp/downloads', sudo=True)
-            self.execute('cd /tmp/downloads && wget http://nodejs.org/dist/node-v%s.tar.gz' % self.version, stdout=True, sudo=True)
-            self.execute('cd /tmp/downloads && tar -xzvf node-v%s.tar.gz' % self.version, stdout=False, sudo=True)
-            self.execute('cd /tmp/downloads/node-v%s && ./configure' % self.version, stdout=False, sudo=True)
-            self.log('Compiling node.js...')
-            self.execute('cd /tmp/downloads/node-v%s && make' % self.version, stdout=False, sudo=True)
-            self.log('Installing node.js...')
-            self.execute('cd /tmp/downloads/node-v%s && sudo make install' % self.version, stdout=False, sudo=True)
-            self.log('node.js installed')
-            return True
-        return False
-
-    def provision(self):
         distro_info = self.get_distro_info()
 
         if distro_info.distributor_id == 'Ubuntu':
+            self.log('Installing Node.JS and NPM via PPA packages')
             self.provision_to_ubuntu()
         else:
+            self.log('Installing Node.JS and NPM via source packages')
             self.provision_to_debian()
 
+        self.log('Node.JS and NPM installed')
+
     def provision_to_debian(self):
+        '''
+        Installs Node.JS, NPM and their dependencies via source packages.
+        It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import NodeJsRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_to_debian(NodeJsRole)
+        </pre>
+        '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('g++')
 
@@ -94,6 +76,19 @@ class NodeJsRole(Role):
             self.execute('tar xzvf node-latest.tar.gz && cd `ls -rd node-v*` && ./configure && make install', sudo=True)
 
     def provision_to_ubuntu(self):
+        '''
+        Installs Node.JS, NPM and their dependencies via Chris Lea's official PPA repository.
+        It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import NodeJsRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_to_ubuntu(NodeJsRole)
+        </pre>
+        '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('python-software-properties')
 
