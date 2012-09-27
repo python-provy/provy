@@ -84,3 +84,14 @@ class NodeJsRole(Role):
         with cd(installer_directory):
             self.execute('wget -N http://nodejs.org/dist/node-latest.tar.gz', sudo=True)
             self.execute('tar xzvf node-latest.tar.gz && cd `ls -rd node-v*` && ./configure && make install', sudo=True)
+
+    def provision_to_ubuntu(self):
+        with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_package_installed('python-software-properties')
+
+        self.execute('add-apt-repository ppa:chris-lea/node.js', sudo=True)
+
+        aptitude.force_update()
+        aptitude.ensure_package_installed('nodejs')
+        aptitude.ensure_package_installed('npm')
+        aptitude.ensure_package_installed('nodejs-dev')
