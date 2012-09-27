@@ -58,6 +58,7 @@ class NodeJsRole(Role):
         '''
         Installs Node.JS, NPM and their dependencies via source packages.
         It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
+        Also, this method doesn't check if NodeJS is already installed before provisioning it.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -84,6 +85,7 @@ class NodeJsRole(Role):
         '''
         Installs Node.JS, NPM and their dependencies via Chris Lea's official PPA repository.
         It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
+        Also, this method doesn't check if NodeJS is already installed before provisioning it.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
