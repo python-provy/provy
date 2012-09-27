@@ -37,3 +37,15 @@ class NodeJsRoleTest(ProvyTestCase):
             mock_aptitude.ensure_package_installed.assert_any_call('nodejs')
             mock_aptitude.ensure_package_installed.assert_any_call('npm')
             mock_aptitude.ensure_package_installed.assert_any_call('nodejs-dev')
+
+    @istest
+    def provisions_to_debian_if_is_debian(self):
+        with self.provisioning_to('debian'), patch('provy.more.debian.NodeJsRole.provision_to_debian') as provision_to_debian:
+            self.role.provision()
+            provision_to_debian.assert_called_with()
+
+    @istest
+    def provisions_to_ubuntu_if_is_ubuntu(self):
+        with self.provisioning_to('ubuntu'), patch('provy.more.debian.NodeJsRole.provision_to_ubuntu') as provision_to_ubuntu:
+            self.role.provision()
+            provision_to_ubuntu.assert_called_with()

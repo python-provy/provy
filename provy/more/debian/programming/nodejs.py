@@ -28,7 +28,7 @@ class NodeJsRole(Role):
 
     version = '0.4.11'
 
-    def provision(self):
+    def _provision(self):
         '''
         Installs Node.JS and its dependencies. This method should be called upon if overriden in base classes, or Node won't work properly in the remote server.
         If you set a class property called version, that version of Node.JS will be installed instead of 0.4.11.
@@ -72,6 +72,14 @@ class NodeJsRole(Role):
             self.log('node.js installed')
             return True
         return False
+
+    def provision(self):
+        distro_info = self.get_distro_info()
+
+        if distro_info.distributor_id == 'Ubuntu':
+            self.provision_to_ubuntu()
+        else:
+            self.provision_to_debian()
 
     def provision_to_debian(self):
         with self.using(AptitudeRole) as aptitude:
