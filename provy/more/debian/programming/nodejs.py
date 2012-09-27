@@ -5,7 +5,7 @@
 Roles in this namespace are meant to provide Node.JS utility methods for Debian distributions.
 '''
 
-from fabric.api import settings
+from fabric.api import cd, settings
 
 from provy.core import Role
 from provy.more.debian import AptitudeRole
@@ -25,7 +25,7 @@ class NodeJsRole(Role):
             self.provision_role(NodeJsRole)
     </pre>
     '''
- 
+
     version = '0.4.11'
 
     def provision(self):
@@ -73,4 +73,14 @@ class NodeJsRole(Role):
             return True
         return False
 
+    def provision_to_debian(self):
+        with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_package_installed('g++')
 
+        installer_directory = '/tmp/nodejs'
+
+        self.ensure_dir(installer_directory, sudo=True)
+
+        with cd(installer_directory):
+            self.execute('wget -N http://nodejs.org/dist/node-latest.tar.gz', sudo=True)
+            self.execute('tar xzvf node-latest.tar.gz && cd `ls -rd node-v*` && ./configure && make install', sudo=True)
