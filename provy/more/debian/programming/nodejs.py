@@ -5,6 +5,8 @@
 Roles in this namespace are meant to provide Node.JS utility methods for Debian and Ubuntu distributions.
 '''
 
+import re
+
 from fabric.api import cd, settings
 
 from provy.core import Role
@@ -13,7 +15,6 @@ from provy.more.debian import AptitudeRole
 class NodeJsRole(Role):
     '''
     This role provides Node.JS utilities for Debian and Ubuntu distributions.
-
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
@@ -98,3 +99,12 @@ class NodeJsRole(Role):
         aptitude.ensure_package_installed('nodejs')
         aptitude.ensure_package_installed('npm')
         aptitude.ensure_package_installed('nodejs-dev')
+
+    def is_already_installed(self):
+        with settings(warn_only=True):
+            result = self.execute('node --version')
+
+        if not result:
+            return False
+
+        return bool(re.match(r'v[\d]', result))

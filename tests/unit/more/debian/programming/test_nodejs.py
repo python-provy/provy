@@ -39,6 +39,54 @@ class NodeJsRoleTest(ProvyTestCase):
             mock_aptitude.ensure_package_installed.assert_any_call('nodejs-dev')
 
     @istest
+    def checks_that_node_is_already_installed(self):
+        test_case = self
+        @contextmanager
+        def settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+            execute.return_value = 'v0.8.10'
+            self.assertTrue(self.role.is_already_installed())
+
+    @istest
+    def checks_that_node_is_not_installed_yet_by_output_string(self):
+        test_case = self
+        @contextmanager
+        def settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+            execute.return_value = 'command not found'
+            self.assertFalse(self.role.is_already_installed())
+
+    @istest
+    def checks_that_node_is_not_installed_yet_by_stranger_output_string(self):
+        test_case = self
+        @contextmanager
+        def settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+            execute.return_value = 'verbose error: command not found'
+            self.assertFalse(self.role.is_already_installed())
+
+    @istest
+    def checks_that_node_is_not_installed_yet_by_output_as_none(self):
+        test_case = self
+        @contextmanager
+        def settings(self, warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+            execute.return_value = None
+            self.assertFalse(self.role.is_already_installed())
+
+    @istest
     def provisions_to_debian_if_is_debian(self):
         with self.provisioning_to('debian'), patch('provy.more.debian.NodeJsRole.provision_to_debian') as provision_to_debian:
             self.role.provision()
