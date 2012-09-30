@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from unittest import TestCase
 
 from mock import MagicMock, patch, call
 from nose.tools import istest

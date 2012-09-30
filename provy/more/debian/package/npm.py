@@ -44,15 +44,6 @@ class NPMRole(Role):
 
         self.provision_role(NodeJsRole)
 
-        result = None
-        with settings(warn_only=True):
-            result = self.execute('npm --version', stdout=False)
-
-        if not result or 'command not found' in result:
-            self.log('NPM not installed. Installing...')
-            self.execute('curl http://npmjs.org/install.sh | clean=yes sh', sudo=True, stdout=False)
-            self.log('NPM installed!')
-
     def is_package_installed(self, package_name, version=None):
         '''
         Returns True if the given package is installed via NPM, False otherwise.
