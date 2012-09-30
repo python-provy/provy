@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+'''
+Roles in this namespace are meant to provide Apache HTTP server utility methods for Debian distributions.
+'''
+
 from provy.core.roles import Role
 from provy.more.debian import AptitudeRole
 
