@@ -55,6 +55,14 @@ class ApacheRole(Role):
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('apache2')
 
+    def cleanup(self):
+        '''
+        Restarts Apache if any changes have been made.
+        There's no need to call this method manually.
+        '''
+        if self.must_restart:
+            self.restart()
+
     def ensure_mod(self, mod):
         '''
         Installs the module package and enables it in Apache.

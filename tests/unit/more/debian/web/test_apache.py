@@ -69,8 +69,11 @@ class ApacheRoleTest(ProvyTestCase):
 
     @istest
     def ensures_that_it_must_be_restarted(self):
+
         self.assertFalse(self.role.must_restart)
+
         self.role.ensure_restart()
+
         self.assertTrue(self.role.must_restart)
 
     @istest
@@ -78,4 +81,20 @@ class ApacheRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             self.role.ensure_restart()
             self.role.restart()
+
             self.assertFalse(self.role.must_restart)
+
+    @istest
+    def restarts_on_cleanup_if_must_be_restarted(self):
+        with patch('provy.more.debian.ApacheRole.restart') as restart:
+            self.role.ensure_restart()
+            self.role.cleanup()
+
+            self.assertTrue(restart.called)
+
+    @istest
+    def doesnt_restart_on_cleanup_if_doesnt_need_to_be_restarted(self):
+        with patch('provy.more.debian.ApacheRole.restart') as restart:
+            self.role.cleanup()
+
+            self.assertFalse(restart.called)
