@@ -61,3 +61,16 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.restart()
 
             execute.assert_called_with('service apache2 restart', sudo=True)
+
+    @istest
+    def ensures_that_it_must_be_restarted(self):
+        self.assertFalse(self.role.must_restart)
+        self.role.ensure_restart()
+        self.assertTrue(self.role.must_restart)
+
+    @istest
+    def must_not_restart_again_if_already_restarted(self):
+        with self.execute_mock() as execute:
+            self.role.ensure_restart()
+            self.role.restart()
+            self.assertFalse(self.role.must_restart)

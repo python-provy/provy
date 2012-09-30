@@ -34,6 +34,10 @@ class ApacheRole(Role):
     def __enabled_site_for(self, name):
         return '/etc/apache2/sites-enabled/%s' % name
 
+    def __init__(self, prov, context):
+        super(ApacheRole, self).__init__(prov, context)
+        self.must_restart = False
+
     def provision(self):
         '''
         Installs Apache dependencies. This method should be called upon if overriden in base classes, or Apache won't work properly in the remote server.
@@ -105,6 +109,10 @@ class ApacheRole(Role):
         with settings(warn_only=True):
             self.remove_file(self.__enabled_site_for(site), sudo=True)
 
+    def ensure_restart(self):
+        self.must_restart = True
+
     def restart(self):
         self.execute('service apache2 restart', sudo=True)
+        self.must_restart = False
 
