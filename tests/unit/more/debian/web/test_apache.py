@@ -51,3 +51,10 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.ensure_site_enabled('bar-website')
 
             remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
+
+    @istest
+    def ensures_that_a_website_is_disabled(self):
+        with self.mock_role_method('remove_file') as remove_file:
+            self.role.ensure_site_disabled('bar-website')
+
+            remove_file.assert_called_with('/etc/apache2/sites-enabled/bar-website', sudo=True)

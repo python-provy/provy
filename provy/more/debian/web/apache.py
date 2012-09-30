@@ -28,6 +28,12 @@ class ApacheRole(Role):
     </pre>
     '''
 
+    def __available_site_for(self, name):
+        return '/etc/apache2/sites-available/%s' % name
+
+    def __enabled_site_for(self, name):
+        return '/etc/apache2/sites-enabled/%s' % name
+
     def provision(self):
         '''
         Installs Apache dependencies. This method should be called upon if overriden in base classes, or Apache won't work properly in the remote server.
@@ -87,17 +93,17 @@ class ApacheRole(Role):
         </pre>
         '''
 
-        available = '/etc/apache2/sites-available/%s' % site
-        enabled = '/etc/apache2/sites-enabled/%s' % site
-
-        self.update_file(template, available, options=options, sudo=True)
-        self.remote_symlink(from_file=available, to_file=enabled, sudo=True)
+        self.update_file(template, self.__available_site_for(site), options=options, sudo=True)
+        self.remote_symlink(from_file=self.__available_site_for(site), to_file=self.__enabled_site_for(site), sudo=True)
         self.execute('service apache2 restart', sudo=True)
 
     def ensure_site_enabled(self, site):
 
-        available = '/etc/apache2/sites-available/%s' % site
-        enabled = '/etc/apache2/sites-enabled/%s' % site
+        with settings(warn_only=True):
+            self.remote_symlink(from_file=self.__available_site_for(site), to_file=self.__enabled_site_for(site), sudo=True)
+
+    def ensure_site_disabled(self, site):
 
         with settings(warn_only=True):
-            self.remote_symlink(from_file=available, to_file=enabled, sudo=True)
+            self.remove_file(self.__enabled_site_for(site), sudo=True)
+
