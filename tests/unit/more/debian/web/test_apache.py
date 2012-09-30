@@ -26,20 +26,23 @@ class ApacheRoleTest(ProvyTestCase):
 
             aptitude.ensure_package_installed.assert_called_with('libapache2-mod-foo')
             execute.assert_called_with('a2enmod foo', sudo=True)
+            self.assertTrue(self.role.must_restart)
 
     @istest
-    def ensures_site_is_available_and_enabled_from_template(self):
+    def ensures_site_is_available_from_template(self):
         with self.execute_mock() as execute, self.mock_role_method('update_file') as update_file, self.mock_role_method('remote_symlink') as remote_symlink:
             self.role.create_site('bar-website', template='/local/path/to/bar-website')
 
             update_file.assert_called_with('/local/path/to/bar-website', '/etc/apache2/sites-available/bar-website', options={}, sudo=True)
+            self.assertTrue(self.role.must_restart)
 
     @istest
-    def ensures_site_is_available_and_enabled_from_template_and_options(self):
+    def ensures_site_is_available_from_template_and_options(self):
         with self.execute_mock() as execute, self.mock_role_method('update_file') as update_file, self.mock_role_method('remote_symlink') as remote_symlink:
             self.role.create_site('bar-website', template='/local/path/to/bar-website', options={'foo': 'Baz',})
 
             update_file.assert_called_with('/local/path/to/bar-website', '/etc/apache2/sites-available/bar-website', options={'foo': 'Baz',}, sudo=True)
+            self.assertTrue(self.role.must_restart)
 
     @istest
     def ensures_that_a_website_is_enabled(self):
@@ -47,6 +50,7 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.ensure_site_enabled('bar-website')
 
             remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
+            self.assertTrue(self.role.must_restart)
 
     @istest
     def ensures_that_a_website_is_disabled(self):
@@ -54,6 +58,7 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.ensure_site_disabled('bar-website')
 
             remove_file.assert_called_with('/etc/apache2/sites-enabled/bar-website', sudo=True)
+            self.assertTrue(self.role.must_restart)
 
     @istest
     def can_be_restarted(self):

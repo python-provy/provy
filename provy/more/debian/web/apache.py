@@ -74,6 +74,7 @@ class ApacheRole(Role):
             aptitude.ensure_package_installed('libapache2-mod-%s' % mod)
 
         self.execute('a2enmod %s' % mod, sudo=True)
+        self.ensure_restart()
 
     def create_site(self, site, template, options={}):
         '''
@@ -98,16 +99,19 @@ class ApacheRole(Role):
         '''
 
         self.update_file(template, self.__available_site_for(site), options=options, sudo=True)
+        self.ensure_restart()
 
     def ensure_site_enabled(self, site):
 
         with settings(warn_only=True):
             self.remote_symlink(from_file=self.__available_site_for(site), to_file=self.__enabled_site_for(site), sudo=True)
+        self.ensure_restart()
 
     def ensure_site_disabled(self, site):
 
         with settings(warn_only=True):
             self.remove_file(self.__enabled_site_for(site), sudo=True)
+        self.ensure_restart()
 
     def ensure_restart(self):
         self.must_restart = True
