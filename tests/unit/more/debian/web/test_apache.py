@@ -18,3 +18,11 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.provision()
 
             aptitude.ensure_package_installed.assert_called_with('apache2')
+
+    @istest
+    def ensures_module_is_installed_and_enabled(self):
+        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
+            self.role.ensure_mod('foo')
+
+            aptitude.ensure_package_installed.assert_called_with('libapache2-mod-foo')
+            execute.assert_called_with('a2enmod foo', sudo=True)
