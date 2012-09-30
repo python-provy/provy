@@ -33,8 +33,6 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.create_site('bar-website', template='/local/path/to/bar-website')
 
             update_file.assert_called_with('/local/path/to/bar-website', '/etc/apache2/sites-available/bar-website', options={}, sudo=True)
-            remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
-            execute.assert_called_with('service apache2 restart', sudo=True)
 
     @istest
     def ensures_site_is_available_and_enabled_from_template_and_options(self):
@@ -42,8 +40,6 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.create_site('bar-website', template='/local/path/to/bar-website', options={'foo': 'Baz',})
 
             update_file.assert_called_with('/local/path/to/bar-website', '/etc/apache2/sites-available/bar-website', options={'foo': 'Baz',}, sudo=True)
-            remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
-            execute.assert_called_with('service apache2 restart', sudo=True)
 
     @istest
     def ensures_that_a_website_is_enabled(self):

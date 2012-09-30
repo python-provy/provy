@@ -94,8 +94,6 @@ class ApacheRole(Role):
         '''
 
         self.update_file(template, self.__available_site_for(site), options=options, sudo=True)
-        self.remote_symlink(from_file=self.__available_site_for(site), to_file=self.__enabled_site_for(site), sudo=True)
-        self.execute('service apache2 restart', sudo=True)
 
     def ensure_site_enabled(self, site):
 
