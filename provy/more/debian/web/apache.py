@@ -24,7 +24,9 @@ class ApacheRole(Role):
         def provision(self):
             with self.using(ApacheRole) as role:
                 role.ensure_mod('php5') # Installs and enables mod_php
+                role.ensure_site_disabled('default')
                 role.create_site(site='my-site', template='my-site')
+                role.ensure_site_enabled('my-site')
     </pre>
     '''
 
@@ -110,21 +112,79 @@ class ApacheRole(Role):
         self.ensure_restart()
 
     def ensure_site_enabled(self, site):
+        '''
+        Ensures that a symlink is created for the specified site at the Apache list of enabled sites from the list of available sites.
+        <em>Parameters</em>
+        site - Name of the site to enable.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import ApacheRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(ApacheRole) as role:
+                    role.ensure_site_enabled('my-site')
+        </pre>
+        '''
 
         with settings(warn_only=True):
             self.remote_symlink(from_file=self.__available_site_for(site), to_file=self.__enabled_site_for(site), sudo=True)
         self.ensure_restart()
 
     def ensure_site_disabled(self, site):
+        '''
+        Ensures that the specified site is removed from the Apache list of enabled sites.
+        <em>Parameters</em>
+        site - Name of the site to disable.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import ApacheRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(ApacheRole) as role:
+                    role.ensure_site_disabled('default')
+        </pre>
+        '''
 
         with settings(warn_only=True):
             self.remove_file(self.__enabled_site_for(site), sudo=True)
         self.ensure_restart()
 
     def ensure_restart(self):
+        '''
+        Ensures that Apache gets restarted on cleanup. There's no need to call this method as any changes to Apache will trigger it.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import ApacheRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(ApacheRole) as role:
+                    role.ensure_restart()
+        </pre>
+        '''
+
         self.must_restart = True
 
     def restart(self):
+        '''
+        Forcefully restarts Apache.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import ApacheRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(ApacheRole) as role:
+                    role.restart()
+        </pre>
+        '''
+
         self.execute('service apache2 restart', sudo=True)
         self.must_restart = False
 
