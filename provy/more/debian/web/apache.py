@@ -4,6 +4,8 @@
 Roles in this namespace are meant to provide Apache HTTP Server utility methods for Debian distributions.
 '''
 
+from fabric.api import settings
+
 from provy.core.roles import Role
 from provy.more.debian import AptitudeRole
 
@@ -91,3 +93,11 @@ class ApacheRole(Role):
         self.update_file(template, available, options=options, sudo=True)
         self.remote_symlink(from_file=available, to_file=enabled, sudo=True)
         self.execute('service apache2 restart', sudo=True)
+
+    def ensure_site_enabled(self, site):
+
+        available = '/etc/apache2/sites-available/%s' % site
+        enabled = '/etc/apache2/sites-enabled/%s' % site
+
+        with settings(warn_only=True):
+            self.remote_symlink(from_file=available, to_file=enabled, sudo=True)

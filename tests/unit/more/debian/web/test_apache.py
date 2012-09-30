@@ -44,3 +44,10 @@ class ApacheRoleTest(ProvyTestCase):
             update_file.assert_called_with('/local/path/to/bar-website', '/etc/apache2/sites-available/bar-website', options={'foo': 'Baz',}, sudo=True)
             remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
             execute.assert_called_with('service apache2 restart', sudo=True)
+
+    @istest
+    def ensures_that_a_website_is_enabled(self):
+        with self.mock_role_method('remote_symlink') as remote_symlink:
+            self.role.ensure_site_enabled('bar-website')
+
+            remote_symlink.assert_called_with(from_file='/etc/apache2/sites-available/bar-website', to_file='/etc/apache2/sites-enabled/bar-website', sudo=True)
