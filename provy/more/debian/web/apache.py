@@ -105,3 +105,6 @@ class ApacheRole(Role):
         with settings(warn_only=True):
             self.remove_file(self.__enabled_site_for(site), sudo=True)
 
+    def restart(self):
+        self.execute('service apache2 restart', sudo=True)
+

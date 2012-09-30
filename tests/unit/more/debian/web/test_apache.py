@@ -54,3 +54,10 @@ class ApacheRoleTest(ProvyTestCase):
             self.role.ensure_site_disabled('bar-website')
 
             remove_file.assert_called_with('/etc/apache2/sites-enabled/bar-website', sudo=True)
+
+    @istest
+    def can_be_restarted(self):
+        with self.execute_mock() as execute:
+            self.role.restart()
+
+            execute.assert_called_with('service apache2 restart', sudo=True)
