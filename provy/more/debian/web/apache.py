@@ -19,10 +19,10 @@ class ApacheRole(Role):
 
         self.execute('a2enmod %s' % mod, sudo=True)
 
-    def ensure_site(self, name, file, options={}):
+    def create_site(self, name, template, options={}):
         available = '/etc/apache2/sites-available/%s' % name
         enabled = '/etc/apache2/sites-enabled/%s' % name
 
-        self.update_file(file, available, options=options, sudo=True)
+        self.update_file(template, available, options=options, sudo=True)
         self.remote_symlink(from_file=available, to_file=enabled, sudo=True)
-        self.execute('service apache2 reload', sudo=True)
+        self.execute('service apache2 restart', sudo=True)
