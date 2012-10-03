@@ -47,3 +47,10 @@ class MongoDBRoleTest(ProvyTestCase):
         with self.provisioning_to('ubuntu'), self.mongo_method('provision_to_ubuntu') as provision_to_ubuntu:
             self.role.provision()
             provision_to_ubuntu.assert_called_with()
+
+    @istest
+    def restarts_the_server(self):
+        with self.execute_mock() as execute:
+            self.role.restart()
+
+            execute.assert_called_with('service mongodb restart', sudo=True)
