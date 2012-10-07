@@ -104,3 +104,24 @@ class MongoDBRoleTest(ProvyTestCase):
                 '',  # newline in the end of the file
             ]))
             put_file.assert_called_with(from_file='/some/tmp/path', to_file='/etc/mongodb.conf', sudo=True)
+
+    @istest
+    def overwrites_original_configuration_when_redefined(self):
+        with self.mock_file_ops() as (read_remote_file, write_to_temp_file, put_file):
+            read_remote_file.return_value = self.content_from_list([
+                'foo=Foo',
+            ])
+            write_to_temp_file.return_value = '/some/tmp/path'
+
+            self.role.configure({
+                'foo': 'Baz',
+                'bar': 'Bar',
+            })
+
+            read_remote_file.assert_called_with('/etc/mongodb.conf', sudo=True)
+            write_to_temp_file.assert_called_with(self.content_from_list([
+                'foo = Baz',
+                'bar = Bar',
+                '',  # newline in the end of the file
+            ]))
+            put_file.assert_called_with(from_file='/some/tmp/path', to_file='/etc/mongodb.conf', sudo=True)
