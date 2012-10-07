@@ -112,6 +112,32 @@ class MongoDBRole(Role):
         self.execute('service mongodb restart', sudo=True)
 
     def configure(self, configuration):
+        '''
+        Configures the MongoDB database according to a dictionary.
+        Some important details about this method:
+        <ul>
+            <li>It will leave configuration items untouched if they're not changed;</li>
+            <li>It will create a new configuration item if it doesn't exist yet;</li>
+            <li>It will overwrite the configuration items defined in the original configuration by the ones defined in the "configuration" argument, if they have the same name;</li>
+            <li>It will convert boolean items to lowercase (like "True" to "true"), when writing, to follow the mongodb.conf conventions;</li>
+            <li>It will leave file comments untouched, to avoid losing potentially important information;</li>
+        </ul>
+        <em>Parameters</em>
+        configuration - dict with the intended configuration items.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import MongoDBRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(MongoDBRole) as mongo:
+                    mongo.configure({
+                        'port': 9876,
+                        'replSet': 'my_replica_set',
+                    })
+        </pre>
+        '''
         mongodb_config_path = '/etc/mongodb.conf'
 
         config = self.__config_from_remote(mongodb_config_path)

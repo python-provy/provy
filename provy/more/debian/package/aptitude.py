@@ -208,9 +208,9 @@ class AptitudeRole(Role):
     def is_package_installed(self, package_name):
         '''
         Returns True if the given package is installed via aptitude, False otherwise.
-        <em>Sample usage</em>
         <em>Parameters</em>
         package_name - Name of the package to verify
+        <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
         from provy.more.debian import AptitudeRole
