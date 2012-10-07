@@ -13,15 +13,16 @@ setup(
     author_email='heynemann@gmail.com',
     url='http://heynemann.github.com/provy',
     license='MIT',
-    classifiers=['Development Status :: 3 - Alpha',
-                   'Intended Audience :: Developers',
-                   'License :: OSI Approved :: MIT License',
-                   'Natural Language :: English',
-                   'Operating System :: MacOS',
-                   'Operating System :: Microsoft :: Windows',
-                   'Operating System :: POSIX :: Linux',
-                   'Programming Language :: Python :: 2.6',
-                   'Topic :: System :: Installation/Setup'
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2.6',
+        'Topic :: System :: Installation/Setup'
     ],
     packages=find_packages(),
     include_package_data=True,
@@ -32,7 +33,8 @@ setup(
     install_requires=[
         "fabric",
         "jinja2",
-        "M2Crypto"
+        "M2Crypto",
+        "configobj",
     ],
 
     entry_points={
