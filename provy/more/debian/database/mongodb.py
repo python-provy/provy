@@ -114,14 +114,29 @@ class MongoDBRole(Role):
     def configure(self, configuration):
         mongodb_config_path = '/etc/mongodb.conf'
 
-        config_content = self.read_remote_file(mongodb_config_path, sudo=True)
-        config_buffer = StringIO(config_content)
-        config = ConfigObj(infile=config_buffer)
+        config = self.__config_from_remote(mongodb_config_path)
+        self.__set_config_items(configuration, config)
+        tmp_file = self.__tmp_file_with_config(config)
 
-        config.update(configuration)
+        self.put_file(from_file=tmp_file, to_file=mongodb_config_path, sudo=True)
+
+    def __tmp_file_with_config(self, config):
 
         output_buffer = StringIO()
         config.write(output_buffer)
         tmp_file = self.write_to_temp_file(output_buffer.getvalue())
+        return tmp_file
 
-        self.put_file(from_file=tmp_file, to_file=mongodb_config_path, sudo=True)
+    def __config_from_remote(self, mongodb_config_path):
+
+        config_content = self.read_remote_file(mongodb_config_path, sudo=True)
+        config_buffer = StringIO(config_content)
+        config = ConfigObj(infile=config_buffer)
+        return config
+
+    def __set_config_items(self, configuration, config):
+
+        for key, value in configuration.items():
+            if isinstance(value, bool):
+                value = str(value).lower()
+            config[key] = value
