@@ -5,6 +5,10 @@
 Roles in this namespace are meant to provide MongoDB database management utilities for Debian distributions.
 '''
 
+from cStringIO import StringIO
+
+from configobj import ConfigObj
+
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
@@ -106,3 +110,18 @@ class MongoDBRole(Role):
         </pre>
         '''
         self.execute('service mongodb restart', sudo=True)
+
+    def configure(self, configuration):
+        mongodb_config_path = '/etc/mongodb.conf'
+
+        config_content = self.read_remote_file(mongodb_config_path, sudo=True)
+        config_buffer = StringIO(config_content)
+        config = ConfigObj(infile=config_buffer)
+
+        config.update(configuration)
+
+        output_buffer = StringIO()
+        config.write(output_buffer)
+        tmp_file = self.write_to_temp_file(output_buffer.getvalue())
+
+        self.put_file(from_file=tmp_file, to_file=mongodb_config_path, sudo=True)

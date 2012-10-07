@@ -16,6 +16,9 @@ class MongoDBRoleTest(ProvyTestCase):
         with patch('provy.more.debian.MongoDBRole.%s' % method_name) as mock:
             yield mock
 
+    def content_from_list(self, list_):
+        return '\n'.join(list_)
+
     @istest
     def installs_necessary_packages_to_provision_to_debian(self):
         with self.using_stub(AptitudeRole) as mock_aptitude:
@@ -54,3 +57,26 @@ class MongoDBRoleTest(ProvyTestCase):
             self.role.restart()
 
             execute.assert_called_with('service mongodb restart', sudo=True)
+
+    @istest
+    def appends_configuration_to_server_config(self):
+        with self.mock_role_method('read_remote_file') as read_remote_file:
+            with self.mock_role_method('write_to_temp_file') as write_to_temp_file:
+                with self.mock_role_method('put_file') as put_file:
+
+                    read_remote_file.return_value = self.content_from_list([
+                        'foo=Foo',
+                    ])
+                    write_to_temp_file.return_value = '/some/tmp/path'
+
+                    self.role.configure({
+                        'bar': 'Bar',
+                    })
+
+                    read_remote_file.assert_called_with('/etc/mongodb.conf', sudo=True)
+                    write_to_temp_file.assert_called_with(self.content_from_list([
+                        'foo = Foo',
+                        'bar = Bar',
+                        '',  # newline in the end of the file
+                    ]))
+                    put_file.assert_called_with(from_file='/some/tmp/path', to_file='/etc/mongodb.conf', sudo=True)
