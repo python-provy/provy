@@ -52,6 +52,7 @@ class GitRole(Role):
         path - Path to create the local repository.
         owner - User that owns the repository directory.
         branch - If specified, the given branch will be checked-out, otherwise it stays in the master branch.
+        sudo - If False, won't sudo when creating the repository. Defaults to True.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -80,7 +81,7 @@ class GitRole(Role):
                 self.execute("git clone %s %s" % (repo, path),
                              sudo=sudo,
                              stdout=False)
- 
+
 
             self.log("Repository %s cloned!" % repo)
 
