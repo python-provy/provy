@@ -74,7 +74,7 @@ class GitRole(Role):
                              sudo=sudo,
                              stdout=False)
             elif owner:
-                self.execute("su -l seeries -c 'git clone %s %s'" % (repo, path),
+                self.execute("su -l %s -c 'git clone %s %s'" % (owner, repo, path),
                              sudo=True,
                              stdout=False)
             else:
