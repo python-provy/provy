@@ -4,6 +4,7 @@
 '''
 Roles in this namespace are meant to provide PostgreSQL database management utilities for Debian distributions.
 '''
+from StringIO import StringIO
 
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
@@ -25,6 +26,26 @@ class PostgreSQLRole(Role):
 
     </pre>
     '''
+
+    def execute_script(self, database, script):
+        """
+            Executes sql snippet via psql command. It is safer tha
+
+
+        """
+        self.execute_script_file(database, StringIO(script))
+
+
+
+    def execute_script_file(self, database, local_script_file):
+        sql = self.create_temp_file()
+        self.put_file(local_script_file, sql, sudo=True, stdout=False)
+        self.change_file_owner(sql, "postgres")
+        self.execute("psql -f {temp_file} {database}".format(temp_file = sql, database = database), user="postgres")
+        self.remove_file(sql, sudo = True, stdout=False)
+
+
+
     def provision(self):
         '''
         Installs PostgreSQL and its dependencies. This method should be called upon if overriden in base classes, or PostgreSQL won't work properly in the remote server.
@@ -42,8 +63,8 @@ class PostgreSQLRole(Role):
     def __execute(self, command, stdout=True):
         return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
-    def create_user(self, username, ask_password=True, is_superuser=False, can_create_databases=False, can_create_roles=False):
-        '''
+    def create_user(self, username, password, is_superuser=False, can_create_databases=False, can_create_roles=False):
+        """
         Creates a user for the database.
         <em>Parameters</em>
         username - name of the user to be created.
@@ -58,9 +79,25 @@ class PostgreSQLRole(Role):
                     with self.using(PostgreSQLRole) as role:
                         role.create_user("john", ask_password=False)
         </pre>
-        '''
-        creation_args = self.__collect_user_creation_args(ask_password, is_superuser, can_create_databases, can_create_roles)
-        return self.__execute("createuser -%s %s" % (''.join(creation_args), username))
+        """
+
+        script_parts = []
+        script_parts.append("CREATE USER")
+        script_parts.append('"{}"'.format(username))
+        script_parts.append("WITH")
+        if is_superuser:
+            script_parts.append("SUPERUSER")
+        else:
+            script_parts.append("NOSUPERUSER")
+        if can_create_databases:
+            script_parts.append("CREATEDB")
+        else:
+            script_parts.append("NOCREATEDB")
+        if password:
+            script_parts.append("PASSWORD '{}'".format(password))
+        if can_create_roles:
+            raise ValueError("Can create roles attribute for now is unsupported")
+        self.execute_script("postgres", " ".join(script_parts))
 
     def __collect_user_creation_args(self, ask_password, is_superuser, can_create_databases, can_create_roles):
         creation_args = []
@@ -72,7 +109,7 @@ class PostgreSQLRole(Role):
             creation_args.append('R' if not can_create_roles else 'r')
         return creation_args
 
-    def drop_user(self, username):
+    def drop_user(self, username, ignore_if_not_exists =False):
         '''
         Drops a user from the database.
         <em>Parameters</em>
@@ -85,7 +122,14 @@ class PostgreSQLRole(Role):
                         role.drop_user("john")
         </pre>
         '''
-        return self.__execute("dropuser %s" % username)
+        script = ["DROP USER"]
+
+        if ignore_if_not_exists:
+            script.append("IF EXISTS")
+        script.append(username)
+        script.append(";")
+
+        self.execute_script("postgres",  " ".join(script))
 
     def user_exists(self, username):
         '''
@@ -141,7 +185,7 @@ class PostgreSQLRole(Role):
         owner_arg = " -O %s" % owner if owner is not None else ""
         return self.__execute("createdb %s%s" % (database, owner_arg))
 
-    def drop_database(self, database):
+    def drop_database(self, database, ignore_if_not_exists =False):
         '''
         Drops a database.
         <em>Parameters</em>
@@ -154,7 +198,11 @@ class PostgreSQLRole(Role):
                         role.drop_database("foo")
         </pre>
         '''
-        return self.__execute("dropdb %s" % database)
+        script = ["DROP DATABASE"]
+        if ignore_if_not_exists:
+            script.append("IF EXISTS")
+        script.append(database)
+        return self.execute_script("postgres", " ".join(script))
 
     def database_exists(self, database):
         '''
