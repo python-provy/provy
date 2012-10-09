@@ -4,6 +4,7 @@
 '''
 Module responsible for the base Role and its operations.
 '''
+from StringIO import StringIO
 
 import codecs
 import zlib
@@ -11,6 +12,7 @@ import os
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
+import json
 
 from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
@@ -217,7 +219,20 @@ class Role(object):
                                         stdout=False, sudo=True)
         </pre>
         '''
+        tempfile = self.create_temp_file(suffix="py")
+        self.put_file(StringIO(command), tempfile, stdout=False)
+        result = self.execute("python {}".format(tempfile), stdout, sudo)
+        self.remove_file(tempfile, stdout=False)
+        return result
+
+    def execute_python_bare(self, command, stdout=False, sudo=False):
+
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
+
+    def remote_list_directory(self, path):
+        result = self.execute_python_bare('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
+        contents = json.loads(result)
+        return contents
 
     def get_logged_user(self):
         '''
@@ -304,7 +319,29 @@ class Role(object):
                 self.context['target_dir'] = self.remote_temp_dir()
         </pre>
         '''
-        return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
+        return self.execute_python_bare('from tempfile import gettempdir; print gettempdir()', stdout=False)
+
+    def create_temp_dir(self, suffix = "", prefix = "tmp", dir = None):
+        """
+        Creates temp dir on remote site.
+        """
+        if dir is not None:
+            dir = '"{}"'.format(dir)
+        script = """from tempfile import mkdtemp;
+tempdir = mkdtemp("{suffix}", "{prefix}", {dir});
+print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
+        return self.execute_python(script)
+
+    def create_temp_file(self, suffix = "", prefix = "tmp", dir = None):
+        """
+        Creates remote temporary file on the remote site.
+
+        Uses randomly generated uids to create file name, which makes name clash unprobrable.
+
+        """
+        from uuid import uuid4
+        return self.remote_temp_dir() + "/" + prefix + str(uuid4()) + suffix
+
 
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
