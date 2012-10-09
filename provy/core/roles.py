@@ -99,6 +99,11 @@ class Role(object):
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
 
+    @property
+    def roles_in_context(self):
+        return self.context.get("roles_in_context", tuple([]))
+
+
     def schedule_cleanup(self):
         '''
         Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
