@@ -359,6 +359,10 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
                 self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
         </pre>
         '''
+
+        if not owner:
+            owner = self.context['owner']
+
         if owner:
             sudo = True
 
@@ -702,6 +706,9 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
 
         if options is None:
             options = {}
+
+        if owner is None:
+            owner = self.context.get('owner', None)
 
         local_temp_path = None
         try:
