@@ -7,14 +7,32 @@ Roles in this namespace are meant to provide Django app server utility methods f
 
 from os.path import dirname, join, splitext, split
 
+import tempfile
+
 from provy.core import Role
+from provy.more.centos import UserRole
+from provy.more.debian import VirtualenvRole
 from provy.more.debian.package.pip import PipRole
 from provy.more.debian.package.aptitude import AptitudeRole
 from provy.more.debian.monitoring.supervisor import SupervisorRole
 
+
 SITES_KEY = 'django-sites'
 MUST_RESTART_KEY = 'restart-django-sites'
 
+DEFAULT_WSGI = """
+import os
+import sys
+
+path = '{{site_root}}'
+if path not in sys.path:
+    sys.path.append(path)
+
+os.environ['DJANGO_SETTINGS_MODULE'] = '{{settings}}'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
+"""
 
 class WithSite(object):
     def __init__(self, django, name):
@@ -29,6 +47,7 @@ class WithSite(object):
         self.processes = 1
         self.starting_port = 8000
         self.user = None
+
         if SupervisorRole in self.django.context['roles_in_context']:
             self.use_supervisor = True
             self.supervisor_log_folder = self.django.context['roles_in_context'][SupervisorRole].log_folder
@@ -54,6 +73,9 @@ class WithSite(object):
             self.django.restart_supervisor_on_changes = True
 
         self.django.context[SITES_KEY].append(self)
+
+
+
 
 
 class DjangoRole(Role):
@@ -250,3 +272,128 @@ class DjangoRole(Role):
                     self.execute('update-rc.d %s defaults' % script_name, stdout=False, sudo=True)
 
         return at_least_one_updated
+
+
+
+NO_DEFAULT = object
+
+class DjangoRole2(Role):
+    def __init__(self, prov, context):
+        super(DjangoRole2, self).__init__(prov, context)
+        self.options_created = False
+
+    def get_from_ctx_or_kwargs(self, key, kwargs, default = NO_DEFAULT):
+        if key in kwargs:
+            return kwargs[key]
+        if key in self.context:
+            return self.context[key]
+        if default is NO_DEFAULT:
+            raise ValueError()
+        return default
+
+    def provision(self):
+        super(DjangoRole2, self).provision()
+        self.register_template_loader('provy.more.debian.web')
+
+
+    @property
+    def remote_settings_file(self):
+        return self.root_dir + "/" + self.settings_file
+
+    def create_settings_file(self, settings_template, additional_options = None):
+        options = {
+
+        }
+        if additional_options:
+            options.update(additional_options)
+        self.update_file(settings_template, self.remote_settings_file, options=additional_options, owner=self.site_os_user)
+        self.options_created = True
+
+    def call_command(self, command):
+        command = "cd {root_dir} && ./{manage} {command}".format(root_dir=self.root_dir,
+                         manage=self.remote_manage_script, command=command)
+        self.execute(command, user = self.site_os_user)
+
+    def setup(self, **kwargs):
+
+        self.root_dir = self.get_from_ctx_or_kwargs("django_root_dir", kwargs)
+        self.site_os_user = self.get_from_ctx_or_kwargs("django_site_os_user", kwargs, None)
+
+        if self.site_os_user is None:
+            self.site_os_user = self.context['owner']
+
+        self.remote_manage_script = self.get_from_ctx_or_kwargs("remote_django_managepy", kwargs, "remote_manage.py")
+        self.settings_mod = self.get_from_ctx_or_kwargs("remote_settings_module", kwargs, "prod_settings")
+        self.settings_file = self.settings_mod + ".py"
+
+        self.wsgi_script = self.get_from_ctx_or_kwargs("django_wsgi_script", kwargs, None)
+
+    def create_manage_script(self, template="manage_py.py.template", additional_options = None):
+
+        def get_interpreter():
+            if VirtualenvRole in self.roles_in_context:
+                virtualenv = self.context.get('virtual_env_name', None)
+                if virtualenv is not None:
+                    env_dir = self.roles_in_context[VirtualenvRole].env_dir(virtualenv)
+                    return env_dir + "/bin/python"
+                else:
+                    return "/usr/bin/env python"
+
+
+        options = {
+             "settings_module" : self.settings_mod,
+             "site_root" : self.root_dir,
+             "python" : get_interpreter()
+        }
+
+        if additional_options:
+            options.update(additional_options)
+
+        script = self.root_dir + self.remote_manage_script
+        self.update_file(template, script, options = options, owner=self.site_os_user)
+        self.change_file_mode(script, 700)
+
+
+
+    def create_wsgi(self, location = None, wsgi_template = "django.wsgi.template", additional_options = None):
+
+        if location is None:
+            location = "/wsgi.py"
+
+        options = {
+            "settings" : self.settings_file[:-3],
+            "site_root" : self.root_dir
+        }
+
+        if additional_options:
+            options.update(additional_options)
+
+        dir_location = self.root_dir + location
+
+        self.ensure_dir(split(dir_location)[0])
+
+        self.update_file(wsgi_template, dir_location, options=options, owner=self.site_os_user)
+
+    def syncdb(self):
+        self.call_command("syncdb --noinput")
+
+
+    def collectstatic(self):
+        self.call_command("collectstatic --noinput")
+
+    def migrate(self):
+        self.call_command("migrate --noinput ")
+
+    def loaddata_from(self, local_data_file, format = "json"):
+#        if not self.options_created:
+#            raise ValueError()
+
+        remote_dir = self.remote_temp_dir()
+
+        remote_file = remote_dir + "/datafile." + format
+        self.put_file(local_data_file, remote_file)
+
+        self.call_command("loaddata {}".format(remote_file))
+
+
+
