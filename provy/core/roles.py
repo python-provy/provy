@@ -538,7 +538,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         return self.remove_file(path, sudo)
 
 
-    def remove_file(self, path, sudo=False):
+    def remove_file(self, path, sudo=False, stdout = True):
         '''
         Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
         <em>Parameters</em>
@@ -554,12 +554,15 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         </pre>
         '''
 
-        if self.remote_exists(path):
+
+        def remove():
             command = 'rm -rf %s' % path
             self.execute(command, stdout=False, sudo=sudo)
-            self.log('%s removed!' % path)
-            return True
-        return False
+            if stdout:
+                self.log('%s removed!' % path)
+
+
+        self._maybe_silence_remotye_operation(stdout, remove)
 
     def replace_file(self, from_file, to_file):
         '''
@@ -623,7 +626,23 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
             extended[key] = value
         return extended
 
-    def put_file(self, from_file, to_file, sudo=False):
+    def _maybe_silence_remotye_operation(self, stdout, oper):
+        """
+        If stdout is true disables fabric output of operation.
+
+        :param oper: noarg function that performs operation
+        """
+
+        if stdout:
+            oper()
+            return
+        with settings(
+            hide('warnings', 'running', 'stdout', 'stderr'),
+            warn_only=True
+        ):
+            oper()
+
+    def put_file(self, from_file, to_file, sudo=False, stdout= True):
         '''
         Puts a file to the remote server.
         <em>Parameters</em>
@@ -641,13 +660,17 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
                          sudo=True)
         </pre>
         '''
-        if sudo:
-            temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
-            put(from_file, temp_path)
-            self.execute('cp %s %s' % (temp_path, to_file), stdout=False, sudo=True)
-            return
 
-        put(from_file, to_file)
+        def _put():
+            if sudo:
+                temp_path = self.create_temp_file()
+                put(from_file, temp_path, mode=0700)
+                self.execute('mv %s %s' % (temp_path, to_file), stdout=False, sudo=True)
+                return
+
+            put(from_file, to_file)
+
+        self._maybe_silence_remotye_operation(stdout, _put)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
         '''
