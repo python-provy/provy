@@ -555,7 +555,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         '''
 
         if self.remote_exists(path):
-            command = 'rm -f %s' % path
+            command = 'rm -rf %s' % path
             self.execute(command, stdout=False, sudo=sudo)
             self.log('%s removed!' % path)
             return True
