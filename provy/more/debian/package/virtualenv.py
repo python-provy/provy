@@ -94,8 +94,14 @@ class VirtualenvRole(Role):
         if not self.env_exists(env_name):
             self.create_env(env_name, system_site_packages=system_site_packages)
 
-        with prefix('source %s/bin/activate' % self.env_dir(env_name)):
-            yield
+        self.context['virtual_env_name'] = env_name
+
+        try:
+            with prefix('source %s/bin/activate' % self.env_dir(env_name)):
+                yield
+        finally:
+            pass
+        del self.context['virtual_env_name']
 
     def provision(self):
         '''
