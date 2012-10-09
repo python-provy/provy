@@ -27,6 +27,24 @@ class SSHRole(Role):
     </pre>
     '''
 
+    def ensure_ssh_dir(self, user):
+        path = "/home/{}/.ssh".format(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+        self.change_file_mode(path, 700)
+        return path
+
+    def override_authorized_keys(self, user, authorized_key_file):
+        path = self.ensure_ssh_dir(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+        file_path = path + "/authorized_keys"
+        self.update_file(authorized_key_file, file_path, owner=user, sudo=True)
+
+    def override_known_hosts(self, user, known_hosts_file):
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/known_hosts"
+        self.update_file(known_hosts_file, file_path, owner=user, sudo=True)
+        self.execute("chmod -R og-rwx {}".format(path), sudo=True)
+
     def ensure_ssh_key(self, user, private_key_file):
         '''
         Ensures that the specified private ssh key is present in the remote server. Also creates the public key for this private key.
