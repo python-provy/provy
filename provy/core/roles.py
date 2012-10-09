@@ -706,7 +706,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
             local_temp_path = self.write_to_temp_file(template)
 
             if not self.remote_exists(to_file):
-                self.put_file(local_temp_path, to_file, sudo)
+                self.put_file(local_temp_path, to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -717,7 +717,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
             to_md5 = self.md5_remote(to_file)
             if from_md5.strip() != to_md5.strip():
                 self.log('Hashes differ %s => %s! Copying %s to server %s!' % (from_md5, to_md5, from_file, self.context['host']))
-                self.put_file(local_temp_path, to_file, sudo)
+                self.put_file(local_temp_path, to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
