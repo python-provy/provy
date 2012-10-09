@@ -672,7 +672,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
 
         self._maybe_silence_remotye_operation(stdout, _put)
 
-    def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
+    def update_file(self, from_file, to_file, owner=None, options=None, sudo=False):
         '''
         One of the most used methods in provy. This method renders a template, then if the contents differ from the remote server (or the file does not exist at the remote server), it sends the results there.
         Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
@@ -699,6 +699,10 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
                                  sudo=True)
         </pre>
         '''
+
+        if options is None:
+            options = {}
+
         local_temp_path = None
         try:
             template = self.render(from_file, options)
