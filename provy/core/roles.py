@@ -14,7 +14,7 @@ from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 import json
 
-from fabric.api import run, put, settings, hide
+from fabric.api import run, put, settings, hide, cd
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
@@ -174,7 +174,7 @@ class Role(object):
         '''
         pass
 
-    def execute(self, command, stdout=True, sudo=False, user=None):
+    def execute(self, command, stdout=False, sudo=False, user=None, cwd = None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
@@ -192,13 +192,19 @@ class Role(object):
                 self.execute('ls /', stdout=False, user='vip')
         </pre>
         '''
-        if stdout:
-            return self.__execute_command(command, sudo=sudo, user=user)
 
-        with settings(
-            hide('warnings', 'running', 'stdout', 'stderr')
-        ):
-            return self.__execute_command(command, sudo=sudo, user=user)
+        if cwd is None:
+            cwd = self.remote_temp_dir()
+
+        with cd(cwd):
+
+            if stdout:
+                return self.__execute_command(command, sudo=sudo, user=user)
+
+            with settings(
+                hide('warnings', 'running', 'stdout', 'stderr')
+            ):
+                return self.__execute_command(command, sudo=sudo, user=user)
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
