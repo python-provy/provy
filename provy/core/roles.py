@@ -193,10 +193,7 @@ class Role(object):
         </pre>
         '''
 
-        if cwd is None:
-            cwd = self.remote_temp_dir()
-
-        with cd(cwd):
+        def cd_wrapped():
 
             if stdout:
                 return self.__execute_command(command, sudo=sudo, user=user)
@@ -205,6 +202,11 @@ class Role(object):
                 hide('warnings', 'running', 'stdout', 'stderr')
             ):
                 return self.__execute_command(command, sudo=sudo, user=user)
+
+        if cwd:
+            with cd(cwd):
+                return cd_wrapped()
+        return cd_wrapped()
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
@@ -337,6 +339,8 @@ class Role(object):
 tempdir = mkdtemp("{suffix}", "{prefix}", {dir});
 print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         return self.execute_python(script)
+
+
 
     def create_temp_file(self, suffix = "", prefix = "tmp", dir = None):
         """
@@ -652,7 +656,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         ):
             oper()
 
-    def put_file(self, from_file, to_file, sudo=False, stdout= True):
+    def put_file(self, from_file, to_file, owner = None,  sudo=False, stdout= True):
         '''
         Puts a file to the remote server.
         <em>Parameters</em>
@@ -672,10 +676,12 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         '''
 
         def _put():
-            if sudo:
+            if sudo or owner:
                 temp_path = self.create_temp_file()
                 put(from_file, temp_path, mode=0700)
                 self.execute('mv %s %s' % (temp_path, to_file), stdout=False, sudo=True)
+                if owner:
+                    self.change_file_owner(to_file, owner)
                 return
 
             put(from_file, to_file)
