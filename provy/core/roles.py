@@ -726,10 +726,8 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         try:
             template = self.render(from_file, options)
 
-            local_temp_path = self.write_to_temp_file(template)
-
             if not self.remote_exists(to_file):
-                self.put_file(local_temp_path, to_file, sudo or owner is not None)
+                self.put_file(StringIO(template), to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -767,7 +765,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
                 self.put_file(path, '/tmp/some-file')
         </pre>
         '''
-        local_temp_path = ''
+
         with NamedTemporaryFile(delete=False) as f:
             f.write(text)
             local_temp_path = f.name
