@@ -136,16 +136,33 @@ class AptitudeRole(Role):
         self.execute(command, stdout=False, sudo=True)
         return True
 
+    def ensure_package_removed(self, package_name, purge = False):
+
+        operation = "purge" if purge else "remove"
+
+        if isinstance(package_name, (list, set, tuple)):
+            if any(map(self.is_package_installed, package_name)):
+                self.log("Removing packages {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, " ".join(package_name)), sudo=True)
+        else:
+            if self.is_package_installed(package_name):
+                self.log("Removing package {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, package_name), sudo=True)
+
+
+
     def override_sources_list(self, sources_list_file):
         close = False
         if isinstance(sources_list_file, basestring):
             close = True
             sources_list_file = open(sources_list_file)
         tempfile = self.create_temp_file()
-        self.put_file(sources_list_file, to_file=tempfile)
+        self.log("Overriding aptitude sources")
+        self.put_file(sources_list_file, to_file=tempfile, stdout=True)
         self.execute('cat "{}" > /etc/apt/sources.list'.format(tempfile), stdout=False, sudo=True)
         if close:
             sources_list_file.close()
+        self.force_update()
 
 
     @property
@@ -179,7 +196,7 @@ class AptitudeRole(Role):
                     role.store_update_date()
         </pre>
         '''
-        self.execute('echo "%s" > %s' % (datetime.now().strftime(self.time_format), self.update_date_file), stdout=False)
+        self.execute('echo "%s" > %s' % (datetime.now().strftime(self.time_format), self.update_date_file), stdout=False, sudo=True)
 
     def get_last_update_date(self):
         '''
@@ -314,6 +331,47 @@ class AptitudeRole(Role):
         except SystemExit:
             return False
 
+def UninstallPackages(package_list, purge = False):
+    """
+    Example usage::
+        servers = {
+            'new': {
+                'address': '192.168.57.20',
+                'user': USERNAME,
+                'roles': [
+                    UninstallPackages(("exim4", "exim4-base", "exim4-config", "exim4-deamon-light", "bsd-mailx"))
+                ]
+                }
+            }
+        }
+    """
+    class PackageRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                role.ensure_package_removed(package_list, purge=purge)
+    return PackageRole
+
+def InstallPackages(package_list):
+    """
+    Example usage:
+    servers = {
+            'new': {
+                'address': '192.168.57.20',
+                'user': USERNAME,
+                'roles': [
+                    InstallPackages(("exim4", "exim4-base", "exim4-config", "exim4-deamon-light", "bsd-mailx"))
+                ]
+                }
+            }
+        }
+
+    """
+    class PackageRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                for pack in package_list:
+                    role.ensure_package_installed(pack)
+    return PackageRole
 
 class PackageNotFound(Exception):
     '''Should be raised when a package doesn't exist.'''
