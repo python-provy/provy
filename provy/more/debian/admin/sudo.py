@@ -14,12 +14,12 @@ class SudoRole(Role):
         self.change_dir_owner(tmpdir, "root")
         self.change_dir_mode(tmpdir, 440)
         remote_name = tmpdir + "/sudoers"
-        self.put_file(local_file, remote_name, sudo=True)
+        self.put_file(local_file, remote_name, sudo=True, stdout=False)
         return remote_name
 
     def check_sudoers(self, local_file):
         remote_name = self._upload_sudoers(local_file)
-        self.execute("visudo -c -f {}".format(remote_name), sudo=True)
+        self.execute("visudo -c -f {}".format(remote_name), sudo=True, stdout=False)
         return remote_name
 
     def upload_sudoers(self, local_file):
