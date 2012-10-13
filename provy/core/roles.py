@@ -656,7 +656,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         ):
             oper()
 
-    def put_file(self, from_file, to_file, owner = None,  sudo=False, stdout= True):
+    def put_file(self, from_file, to_file, owner = None, sudo=False, override = False, stdout= True):
         '''
         Puts a file to the remote server.
         <em>Parameters</em>
@@ -679,7 +679,8 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
             if sudo or owner:
                 temp_path = self.create_temp_file()
                 put(from_file, temp_path, mode=0700)
-                self.execute('mv %s %s' % (temp_path, to_file), stdout=False, sudo=True)
+                switch = "-b" if not override else "-r"
+                self.execute('mv {} {} {}'.format(switch, temp_path, to_file), stdout=False, sudo=True)
                 if owner:
                     self.change_file_owner(to_file, owner)
                 return
@@ -726,8 +727,10 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
         try:
             template = self.render(from_file, options)
 
+            local_temp_path = self.write_to_temp_file(template)
+
             if not self.remote_exists(to_file):
-                self.put_file(StringIO(template), to_file, sudo or owner is not None)
+                self.put_file(local_temp_path, to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
