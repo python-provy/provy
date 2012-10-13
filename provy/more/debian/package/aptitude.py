@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import re
 from fabric.api import settings
 from provy.core import Role
+from provy.core.errors import ConfigurationError
 
 
 class AptitudeRole(Role):
@@ -50,11 +51,14 @@ class AptitudeRole(Role):
         self.ensure_up_to_date()
         self.ensure_package_installed('curl')
 
-    def ensure_gpg_key(self, url):
+
+
+    def ensure_gpg_key(self, url = None, file = None):
         '''
         Ensures that the specified gpg key is imported into aptitude.
         <em>Parameters</em>
         url - Url of the gpg key file.
+        file - Local filesystem file containing gpg file
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -64,10 +68,28 @@ class AptitudeRole(Role):
             def provision(self):
                 with self.using(AptitudeRole) as role:
                     role.ensure_gpg_key('http://some.url.com/to/key.gpg')
+                    role.ensure_gpg_key(CURRENT_DIR + '/data/foo.gpg')
         </pre>
         '''
-        command = "curl %s | apt-key add -" % url
-        self.execute(command, stdout=False, sudo=True)
+
+        def do_url():
+            command = "curl %s | apt-key add -" % url
+            self.execute(command, stdout=False, sudo=True)
+
+        def do_file():
+            temp_dir = self.create_temp_dir()
+            key_name = temp_dir + "/key.gpg"
+            self.put_file(file, key_name, sudo = True)
+            self.execute("apt-key add {}".format(key_name), sudo=True)
+
+        if not url and not file or (url and file):
+            raise ConfigurationError("Must specify url either file parameter of ensure_gpg_key (not both(")
+
+        if url:
+            do_url()
+
+        if file:
+            do_file()
 
     def has_source(self, source_string):
         '''
@@ -113,6 +135,18 @@ class AptitudeRole(Role):
         command = 'echo "%s" >> /etc/apt/sources.list' % source_string
         self.execute(command, stdout=False, sudo=True)
         return True
+
+    def override_sources_list(self, sources_list_file):
+        close = False
+        if isinstance(sources_list_file, basestring):
+            close = True
+            sources_list_file = open(sources_list_file)
+        tempfile = self.create_temp_file()
+        self.put_file(sources_list_file, to_file=tempfile)
+        self.execute('cat "{}" > /etc/apt/sources.list'.format(tempfile), stdout=False, sudo=True)
+        if close:
+            sources_list_file.close()
+
 
     @property
     def update_date_file(self):
