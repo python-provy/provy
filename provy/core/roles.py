@@ -652,7 +652,7 @@ print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
             return
         with settings(
             hide('warnings', 'running', 'stdout', 'stderr'),
-            warn_only=True
+            warn_only=False
         ):
             oper()
 
