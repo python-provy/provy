@@ -4,6 +4,7 @@
 '''
 Roles in this namespace are meant to provision packages installed via the Aptitude package manager for Debian distributions.
 '''
+from contextlib import contextmanager
 
 from os.path import join
 from datetime import datetime, timedelta
@@ -32,6 +33,36 @@ class AptitudeRole(Role):
     key = 'aptitude-up-to-date'
     aptitude = 'aptitude'
 
+    @classmethod
+    def disable_provision(cls, role):
+        """
+            Used to temporalily disable AptitudeRole.provision (Why one could want to do it: provision tries to
+            download curl, which depending on sources config might not work. Since overriding sources list also uses
+            this role).
+
+            Example usage::
+
+                class PrepareApt(Role):
+                    def provision(self):
+                        super(PrepareApt, self).provision()
+                        with AptitudeRole.disable_provision(self):
+                            with self.using(AptitudeRole) as role:
+                                role.override_sources_list(StringIO(SOURCES_LIST))
+
+            It can be nested.
+        """
+        @contextmanager
+        def manage_context(role):
+            role.context['aptitude_no_provision'] = role.context.get('aptitude_no_provision', 0) + 1
+            yield
+            if role.context['aptitude_no_provision'] == 1:
+                del role.context['aptitude_no_provision']
+            else:
+                role.context['aptitude_no_provision']-=1
+
+
+        return manage_context(role)
+
     def provision(self):
         '''
         Installs Aptitude dependencies. This method should be called upon if overriden in base classes, or Aptitude won't work properly in the remote server.
@@ -45,11 +76,13 @@ class AptitudeRole(Role):
                 self.provision_role(AptitudeRole) # does not need to be called if using with block.
         </pre>
         '''
-        if not self.is_package_installed('aptitude'):
-            self.execute('apt-get install aptitude', stdout=False, sudo=True)
 
-        self.ensure_up_to_date()
-        self.ensure_package_installed('curl')
+        if  not self.context.get('aptitude_no_provision', False):
+            if not self.is_package_installed('aptitude'):
+                self.execute('apt-get install aptitude', stdout=False, sudo=True)
+
+            self.ensure_up_to_date()
+            self.ensure_package_installed('curl')
 
 
 
@@ -69,6 +102,7 @@ class AptitudeRole(Role):
                 with self.using(AptitudeRole) as role:
                     role.ensure_gpg_key('http://some.url.com/to/key.gpg')
                     role.ensure_gpg_key(CURRENT_DIR + '/data/foo.gpg')
+                    role.ensure_gpg_key(StringIO(SOME_CONSTANT))
         </pre>
         '''
 
