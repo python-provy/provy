@@ -31,7 +31,7 @@ class SSHRole(Role):
     def ensure_ssh_dir(self, user):
         path = "/home/{}/.ssh".format(user)
         self.ensure_dir(path, sudo=True, owner=user)
-        self.change_file_mode(path, 700)
+        self.change_dir_mode(path, 700)
         self.change_dir_owner(path, "{u}:{u}".format(u = user))
         return path
 
