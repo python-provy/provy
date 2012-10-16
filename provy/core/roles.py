@@ -103,7 +103,10 @@ class Role(object):
 
     @property
     def roles_in_context(self):
-        return self.context.get("roles_in_context", tuple([]))
+        """
+            Returns roles in current context.
+        """
+        return self.context.get("roles_in_context", {})
 
 
     def schedule_cleanup(self):
@@ -174,6 +177,9 @@ class Role(object):
         '''
         pass
 
+
+
+
     def execute(self, command, stdout=False, sudo=False, user=None, cwd = None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
@@ -182,6 +188,7 @@ class Role(object):
         stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
         sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
         user - Defaults to None. If specified, will be the user with which the command will be executed.
+        cwd - if not none will execute in directory passed as this argument argument.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -215,8 +222,9 @@ class Role(object):
 
     def execute_python(self, command, stdout=True, sudo=False):
         '''
-        Just an abstraction over execute. This method executes the python code that is passed with python -c.
-        It has the same arguments as execute.
+        Executes python script passed as command argument, does it by putting tempfile containing the script in the
+        remote system, and then executes it using python command.
+
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -227,17 +235,34 @@ class Role(object):
                                         stdout=False, sudo=True)
         </pre>
         '''
-        tempfile = self.create_temp_file(suffix="py")
+        tempfile = self.create_temp_file(suffix=".py")
         self.put_file(StringIO(command), tempfile, stdout=False)
         result = self.execute("python {}".format(tempfile), stdout, sudo)
         self.remove_file(tempfile, stdout=False)
         return result
 
     def execute_python_bare(self, command, stdout=False, sudo=False):
+        """
+        Executes python script on remote server, does it by calling python with -c switch. Difference between
+        `execute_python` is that `execute_python_bare` doesn't invlove pushing a file to remote server, so may be
+        faster, `execute_python` will properly handle ", ' without need to do shell escapes, so is safer.
 
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.python_execute('import os; print os.curdir',
+                                        stdout=False, sudo=True)
+        </pre>
+        """
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
     def remote_list_directory(self, path):
+        """
+            Lists contents of remote directory and returns them as a python list.
+        """
         result = self.execute_python_bare('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
         contents = json.loads(result)
         return contents
@@ -331,7 +356,8 @@ class Role(object):
 
     def create_temp_dir(self, suffix = "", prefix = "tmp", dir = None):
         """
-        Creates temp dir on remote site.
+        Creates temp dir on remote site, using standard python utilities. This dir should be readable only by logged in
+        user.
         """
         if dir is not None:
             dir = '"{}"'.format(dir)
