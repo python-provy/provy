@@ -311,7 +311,7 @@ class AptitudeRole(Role):
         with settings(warn_only=True):
             return package_name in self.execute("dpkg -l | egrep 'ii[ ]*%s\\b'" % package_name, stdout=False, sudo=True)
 
-    def ensure_package_installed(self, package_name, stdout=False, sudo=True):
+    def ensure_package_installed(self, package_name, stdout=True, sudo=True):
         '''
         Ensures that the given package is installed via aptitude.
         <em>Parameters</em>
@@ -403,8 +403,12 @@ def InstallPackages(package_list):
     class PackageRole(Role):
         def provision(self):
             with self.using(AptitudeRole) as role:
-                for pack in package_list:
-                    role.ensure_package_installed(pack)
+                role.ensure_up_to_date()
+                if isinstance(package_list, basestring):
+                    role.ensure_package_installed(package_list)
+                else:
+                    for pack in package_list:
+                        role.ensure_package_installed(pack)
     return PackageRole
 
 class PackageNotFound(Exception):

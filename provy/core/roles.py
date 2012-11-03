@@ -180,7 +180,7 @@ class Role(object):
 
 
 
-    def execute(self, command, stdout=False, sudo=False, user=None, cwd = None):
+    def execute(self, command, stdout=True, sudo=False, user=None, cwd = None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
