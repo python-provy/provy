@@ -4,6 +4,7 @@
 '''
 Module responsible for the base Role and its operations.
 '''
+from StringIO import StringIO
 
 import codecs
 import zlib
@@ -11,8 +12,9 @@ import os
 from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
+import json
 
-from fabric.api import run, put, settings, hide
+from fabric.api import run, put, settings, hide, cd
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
@@ -99,6 +101,14 @@ class Role(object):
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
 
+    @property
+    def roles_in_context(self):
+        """
+            Returns roles in current context.
+        """
+        return self.context.get("roles_in_context", {})
+
+
     def schedule_cleanup(self):
         '''
         Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
@@ -167,7 +177,10 @@ class Role(object):
         '''
         pass
 
-    def execute(self, command, stdout=True, sudo=False, user=None):
+
+
+
+    def execute(self, command, stdout=True, sudo=False, user=None, cwd = None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
@@ -175,6 +188,7 @@ class Role(object):
         stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
         sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
         user - Defaults to None. If specified, will be the user with which the command will be executed.
+        cwd - if not none will execute in directory passed as this argument argument.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -185,13 +199,21 @@ class Role(object):
                 self.execute('ls /', stdout=False, user='vip')
         </pre>
         '''
-        if stdout:
-            return self.__execute_command(command, sudo=sudo, user=user)
 
-        with settings(
-            hide('warnings', 'running', 'stdout', 'stderr')
-        ):
-            return self.__execute_command(command, sudo=sudo, user=user)
+        def cd_wrapped():
+
+            if stdout:
+                return self.__execute_command(command, sudo=sudo, user=user)
+
+            with settings(
+                hide('warnings', 'running', 'stdout', 'stderr')
+            ):
+                return self.__execute_command(command, sudo=sudo, user=user)
+
+        if cwd:
+            with cd(cwd):
+                return cd_wrapped()
+        return cd_wrapped()
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
@@ -200,8 +222,9 @@ class Role(object):
 
     def execute_python(self, command, stdout=True, sudo=False):
         '''
-        Just an abstraction over execute. This method executes the python code that is passed with python -c.
-        It has the same arguments as execute.
+        Executes python script passed as command argument, does it by putting tempfile containing the script in the
+        remote system, and then executes it using python command.
+
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -212,7 +235,37 @@ class Role(object):
                                         stdout=False, sudo=True)
         </pre>
         '''
+        tempfile = self.create_temp_file(suffix=".py")
+        self.put_file(StringIO(command), tempfile, stdout=False)
+        result = self.execute("python {}".format(tempfile), stdout, sudo)
+        self.remove_file(tempfile, stdout=False)
+        return result
+
+    def execute_python_bare(self, command, stdout=False, sudo=False):
+        """
+        Executes python script on remote server, does it by calling python with -c switch. Difference between
+        `execute_python` is that `execute_python_bare` doesn't invlove pushing a file to remote server, so may be
+        faster, `execute_python` will properly handle ", ' without need to do shell escapes, so is safer.
+
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.python_execute('import os; print os.curdir',
+                                        stdout=False, sudo=True)
+        </pre>
+        """
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
+
+    def remote_list_directory(self, path):
+        """
+            Lists contents of remote directory and returns them as a python list.
+        """
+        result = self.execute_python_bare('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
+        contents = json.loads(result)
+        return contents
 
     def get_logged_user(self):
         '''
@@ -299,7 +352,32 @@ class Role(object):
                 self.context['target_dir'] = self.remote_temp_dir()
         </pre>
         '''
-        return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
+        return self.execute_python_bare('from tempfile import gettempdir; print gettempdir()', stdout=False)
+
+    def create_temp_dir(self, suffix = "", prefix = "tmp", dir = None):
+        """
+        Creates temp dir on remote site, using standard python utilities. This dir should be readable only by logged in
+        user.
+        """
+        if dir is not None:
+            dir = '"{}"'.format(dir)
+        script = """from tempfile import mkdtemp;
+tempdir = mkdtemp("{suffix}", "{prefix}", {dir});
+print tempdir;""".format(suffix=suffix, prefix=prefix, dir=dir)
+        return self.execute_python(script)
+
+
+
+    def create_temp_file(self, suffix = "", prefix = "tmp", dir = None):
+        """
+        Creates remote temporary file on the remote site.
+
+        Uses randomly generated uids to create file name, which makes name clash unprobrable.
+
+        """
+        from uuid import uuid4
+        return self.remote_temp_dir() + "/" + prefix + str(uuid4()) + suffix
+
 
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
@@ -317,6 +395,10 @@ class Role(object):
                 self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
         </pre>
         '''
+
+        if not owner:
+            owner = self.context['owner']
+
         if owner:
             sudo = True
 
@@ -496,7 +578,7 @@ class Role(object):
         return self.remove_file(path, sudo)
 
 
-    def remove_file(self, path, sudo=False):
+    def remove_file(self, path, sudo=False, stdout = True):
         '''
         Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
         <em>Parameters</em>
@@ -512,12 +594,15 @@ class Role(object):
         </pre>
         '''
 
-        if self.remote_exists(path):
-            command = 'rm -f %s' % path
+
+        def remove():
+            command = 'rm -rf %s' % path
             self.execute(command, stdout=False, sudo=sudo)
-            self.log('%s removed!' % path)
-            return True
-        return False
+            if stdout:
+                self.log('%s removed!' % path)
+
+
+        self._maybe_silence_remotye_operation(stdout, remove)
 
     def replace_file(self, from_file, to_file):
         '''
@@ -581,7 +666,23 @@ class Role(object):
             extended[key] = value
         return extended
 
-    def put_file(self, from_file, to_file, sudo=False):
+    def _maybe_silence_remotye_operation(self, stdout, oper):
+        """
+        If stdout is true disables fabric output of operation.
+
+        :param oper: noarg function that performs operation
+        """
+
+        if stdout:
+            oper()
+            return
+        with settings(
+            hide('warnings', 'running', 'stdout', 'stderr'),
+            warn_only=False
+        ):
+            oper()
+
+    def put_file(self, from_file, to_file, owner = None, sudo=False, override = False, stdout= True):
         '''
         Puts a file to the remote server.
         <em>Parameters</em>
@@ -599,15 +700,22 @@ class Role(object):
                          sudo=True)
         </pre>
         '''
-        if sudo:
-            temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
-            put(from_file, temp_path)
-            self.execute('cp %s %s' % (temp_path, to_file), stdout=False, sudo=True)
-            return
 
-        put(from_file, to_file)
+        def _put():
+            if sudo or owner:
+                temp_path = self.create_temp_file()
+                put(from_file, temp_path, mode=0700)
+                switch = "-b" if not override else "-r"
+                self.execute('mv {} {} {}'.format(switch, temp_path, to_file), stdout=False, sudo=True)
+                if owner:
+                    self.change_file_owner(to_file, owner)
+                return
 
-    def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
+            put(from_file, to_file)
+
+        self._maybe_silence_remotye_operation(stdout, _put)
+
+    def update_file(self, from_file, to_file, owner=None, options=None, sudo=False):
         '''
         One of the most used methods in provy. This method renders a template, then if the contents differ from the remote server (or the file does not exist at the remote server), it sends the results there.
         Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
@@ -634,6 +742,13 @@ class Role(object):
                                  sudo=True)
         </pre>
         '''
+
+        if options is None:
+            options = {}
+
+        if owner is None:
+            owner = self.context.get('owner', None)
+
         local_temp_path = None
         try:
             template = self.render(from_file, options)
@@ -641,7 +756,7 @@ class Role(object):
             local_temp_path = self.write_to_temp_file(template)
 
             if not self.remote_exists(to_file):
-                self.put_file(local_temp_path, to_file, sudo)
+                self.put_file(local_temp_path, to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -652,7 +767,7 @@ class Role(object):
             to_md5 = self.md5_remote(to_file)
             if from_md5.strip() != to_md5.strip():
                 self.log('Hashes differ %s => %s! Copying %s to server %s!' % (from_md5, to_md5, from_file, self.context['host']))
-                self.put_file(local_temp_path, to_file, sudo)
+                self.put_file(local_temp_path, to_file, sudo or owner is not None)
 
                 if owner:
                     self.change_file_owner(to_file, owner)
@@ -679,7 +794,7 @@ class Role(object):
                 self.put_file(path, '/tmp/some-file')
         </pre>
         '''
-        local_temp_path = ''
+
         with NamedTemporaryFile(delete=False) as f:
             f.write(text)
             local_temp_path = f.name

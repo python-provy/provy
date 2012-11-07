@@ -4,6 +4,7 @@
 '''
 Roles in this namespace are meant to provide SSH keygen utilities for Debian distributions.
 '''
+from StringIO import StringIO
 
 from os.path import join
 import base64
@@ -26,6 +27,43 @@ class SSHRole(Role):
                 role.ensure_ssh_key(user='someuser', private_key_file="private-key")
     </pre>
     '''
+
+    def ensure_ssh_dir(self, user):
+        path = "/home/{}/.ssh".format(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+        self.change_dir_mode(path, 700)
+        self.change_dir_owner(path, "{u}:{u}".format(u = user))
+        return path
+
+    def override_authorized_keys(self, user, authorized_key_file):
+        path = self.ensure_ssh_dir(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+
+        if isinstance(authorized_key_file, (list, tuple, set)):
+            file = StringIO()
+
+            for pubkey_file in authorized_key_file:
+                close = False
+                if isinstance(pubkey_file, basestring):
+                    file_ = open(pubkey_file)
+                    close = True
+                else:
+                    file_ = pubkey_file
+                file.write(file_.read())
+                if close:
+                    file_.close()
+
+            authorized_key_file = StringIO(file.getvalue())
+
+        file_path = path + "/authorized_keys"
+        self.put_file(authorized_key_file, file_path, owner="{0}:{0}".format(user), stdout=False)
+        self.change_file_mode(file_path, 600)
+
+    def override_known_hosts(self, user, known_hosts_file):
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/known_hosts"
+        self.update_file(known_hosts_file, file_path, owner=user, sudo=True)
+        self.execute("chmod -R og-rwx {}".format(path), sudo=True)
 
     def ensure_ssh_key(self, user, private_key_file):
         '''

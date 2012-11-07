@@ -48,6 +48,16 @@ class VirtualenvRole(Role):
         self.user = context['user']
         self.base_directory = os.path.join(self.__get_user_dir(), '.virtualenvs')
 
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self.base_directory = os.path.join(self.__get_user_dir(), '.virtualenvs')
+
+
     def __get_user_dir(self):
         if self.user == 'root':
             return '/root'
@@ -72,14 +82,26 @@ class VirtualenvRole(Role):
         return os.path.join(self.base_directory, env_name)
 
     @contextmanager
-    def __call__(self, env_name, system_site_packages=False):
+    def __call__(self, env_name, base_dir = None,  user = None, system_site_packages=False):
         from fabric.api import prefix
+
+        if user is not None:
+            self.user = user
+
+        if base_dir is not None:
+            self.base_directory = base_dir
 
         if not self.env_exists(env_name):
             self.create_env(env_name, system_site_packages=system_site_packages)
 
-        with prefix('source %s/bin/activate' % self.env_dir(env_name)):
-            yield
+        self.context['virtual_env_name'] = env_name
+
+        try:
+            with prefix('source %s/bin/activate' % self.env_dir(env_name)):
+                yield
+        finally:
+            pass
+        del self.context['virtual_env_name']
 
     def provision(self):
         '''
