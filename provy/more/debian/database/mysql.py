@@ -216,9 +216,12 @@ class MySQLRole(Role):
         </pre>
         '''
         grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % (username, login_from))
-        grants = [grant.values()[-1] for grant in grants]
+        only_grants = []
+        for grant in grants:
+            filtered_grants = filter(lambda x: x.startswith('GRANT '), grant.itervalues())
+            only_grants.extend(filtered_grants)
 
-        return grants
+        return only_grants
 
     def has_grant(self, privileges, on, username, login_from, with_grant_option):
         '''

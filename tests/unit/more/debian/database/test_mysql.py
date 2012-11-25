@@ -17,6 +17,10 @@ FOO_DB_WITHOUT_JOHN_GRANTS = """
 *************************** 1. row ***************************
 Grants for john@%: GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*B9EE00DF55E7C816911C6DA56F1E3A37BDB31093'
 """
+JOHN_USER_WITH_GRANT_ON_FOO = """
+*************************** 1. row ***************************
+Grants for john@%: GRANT ALL PRIVILEGES ON *.* TO 'john'@'%' WITH GRANT OPTION
+"""
 
 
 class MySQLRoleTest(ProvyTestCase):
@@ -46,3 +50,10 @@ class MySQLRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('all', 'foo', 'john', '%', False))
+
+    @istest
+    def can_get_user_grants(self):
+        with self.execute_mock() as execute:
+            execute.return_value = FOO_DB_WITHOUT_JOHN_GRANTS
+            expected = ["GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*B9EE00DF55E7C816911C6DA56F1E3A37BDB31093'"]
+            self.assertEqual(expected, self.role.get_user_grants('john', '%'))
