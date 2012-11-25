@@ -17,10 +17,6 @@ FOO_DB_WITHOUT_JOHN_GRANTS = """
 *************************** 1. row ***************************
 Grants for john@%: GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*B9EE00DF55E7C816911C6DA56F1E3A37BDB31093'
 """
-JOHN_USER_WITH_GRANT_ON_FOO = """
-*************************** 1. row ***************************
-Grants for john@%: GRANT ALL PRIVILEGES ON *.* TO 'john'@'%' WITH GRANT OPTION
-"""
 
 
 class MySQLRoleTest(ProvyTestCase):
