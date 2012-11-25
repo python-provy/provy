@@ -32,4 +32,4 @@ docs:
 	@python docs.py
 
 test:
-	@env PYTHONPATH=. nosetests --with-coverage --cover-package=provy --with-yanc --with-xtraceback tests/
+	@env PYTHONHASHSEED=random PYTHONPATH=. nosetests --with-coverage --cover-package=provy --with-yanc --with-xtraceback tests/
