@@ -90,11 +90,12 @@ class AptitudeRole(Role):
         result = self.execute('grep -ilR \'^%s\' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l' % source_string, stdout=False, sudo=True)
         return int(result) != 0
 
-    def ensure_aptitude_source(self, source_string):
+    def ensure_aptitude_source(self, source_string, source_name=None):
         '''
         Ensures that the specified repository is in aptitude's list of repositories.
         <em>Parameters</em>
         source_string - repository string
+        source_name - name for repository; if provided, a file <source_name>.list will be created and the source line will be added to this file
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -110,7 +111,12 @@ class AptitudeRole(Role):
             return False
 
         self.log("Aptitude source %s not found! Adding it..." % source_string)
-        command = 'echo "%s" >> /etc/apt/sources.list' % source_string
+
+        if source_name:
+            source_file = 'sources.list.d/%s.list' % source_name
+        else:
+            source_file = 'sources.list'
+        command = 'echo "%s" >> /etc/apt/%s' % (source_string, source_file)
         self.execute(command, stdout=False, sudo=True)
         return True
 

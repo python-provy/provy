@@ -56,3 +56,26 @@ class AptitudeRoleTest(ProvyTestCase):
             package_exists.return_value = False
             self.assertRaises(PackageNotFound, role.ensure_package_installed, 'phyton')
             self.assertTrue(package_exists.called)
+
+    @istest
+    def ensure_source_without_custom_name(self):
+        role = AptitudeRole(prov=None, context={})
+
+        source_line = 'deb http://example.org/pub/ubuntu natty main restricted'
+        with self.execute_mock() as execute, patch('provy.more.debian.AptitudeRole.has_source') as has_source:
+            has_source.return_value = False
+            role.ensure_aptitude_source(source_line)
+            self.assertTrue(has_source.called)
+            execute.assert_called_with('echo "%s" >> /etc/apt/sources.list' % source_line, stdout=False, sudo=True)
+
+    @istest
+    def ensure_source_with_custom_name(self):
+        role = AptitudeRole(prov=None, context={})
+
+        source_line = 'deb http://example.org/pub/ubuntu natty main restricted'
+        source_name = 'example_repo'
+        with self.execute_mock() as execute, patch('provy.more.debian.AptitudeRole.has_source') as has_source:
+            has_source.return_value = False
+            role.ensure_aptitude_source(source_line, source_name)
+            self.assertTrue(has_source.called)
+            execute.assert_called_with('echo "%s" >> /etc/apt/sources.list.d/%s.list' % (source_line, source_name), stdout=False, sudo=True)
