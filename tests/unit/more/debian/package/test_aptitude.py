@@ -1,7 +1,7 @@
-from contextlib import contextmanager
 import sys
+from base64 import b64encode
 
-from mock import MagicMock, patch, call
+from mock import MagicMock, patch
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, PackageNotFound
@@ -56,3 +56,15 @@ class AptitudeRoleTest(ProvyTestCase):
             package_exists.return_value = False
             self.assertRaises(PackageNotFound, role.ensure_package_installed, 'phyton')
             self.assertTrue(package_exists.called)
+
+    @istest
+    def ensure_source_must_generate_correct_source_file(self):
+        role = AptitudeRole(prov=None, context={})
+
+        source_line = 'deb http://example.org/pub/ubuntu natty main restricted'
+        expected_file = '%s_%s' % (b64encode(source_line)[:12], 'example.org')
+        with self.execute_mock() as execute, patch('provy.more.debian.AptitudeRole.has_source') as has_source:
+            has_source.return_value = False
+            role.ensure_aptitude_source(source_line)
+            self.assertTrue(has_source.called)
+            execute.assert_called_with('echo "%s" >> /etc/apt/sources.list.d/%s.list' % (source_line, expected_file), stdout=False, sudo=True)
