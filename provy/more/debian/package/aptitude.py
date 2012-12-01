@@ -5,9 +5,12 @@
 Roles in this namespace are meant to provision packages installed via the Aptitude package manager for Debian distributions.
 '''
 
+from base64 import b64encode
 from os.path import join
 from datetime import datetime, timedelta
 import re
+from urlparse import urlparse
+
 from fabric.api import settings
 from provy.core import Role
 
@@ -110,9 +113,18 @@ class AptitudeRole(Role):
             return False
 
         self.log("Aptitude source %s not found! Adding it..." % source_string)
-        command = 'echo "%s" >> /etc/apt/sources.list' % source_string
+
+        url = self.__parse_source_string(source_string)['uri']
+        domain = urlparse(url).netloc
+        source_file = '%s_%s' % (b64encode(source_string)[:12], domain)
+
+        command = 'echo "%s" >> /etc/apt/sources.list.d/%s.list' % (source_string, source_file)
         self.execute(command, stdout=False, sudo=True)
         return True
+
+    def __parse_source_string(self, source_string):
+        parts = re.split('\s+', source_string, 3)
+        return {'type': parts[0], 'uri': parts[1], 'distribution': parts[2], 'components': parts[3]}
 
     @property
     def update_date_file(self):
