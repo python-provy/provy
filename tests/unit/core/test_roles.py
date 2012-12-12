@@ -5,7 +5,7 @@ import sys
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
-from provy.core.roles import Role
+from provy.core.roles import Role, UsingRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -104,3 +104,57 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line('this line in', '/some/file', owner='foo')
             execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
+
+
+class UsingRoleTest(ProvyTestCase):
+    def any_context(self):
+        return {'used_roles': {},}
+
+    @istest
+    def returns_role_instance_for_with_block(self):
+        class DummyRole(Role):
+            def schedule_cleanup(self):
+                pass
+
+        with UsingRole(DummyRole, None, self.any_context()) as role:
+            self.assertIsInstance(role, DummyRole)
+
+    @istest
+    def provisions_role_when_entering_with_block(self):
+        sentinel = MagicMock()
+
+        class DummyRole(Role):
+            def schedule_cleanup(self):
+                pass
+
+            def provision(self):
+                sentinel()
+
+        with UsingRole(DummyRole, None, self.any_context()) as role:
+            self.assertTrue(sentinel.called)
+
+    @istest
+    def triggers_schedule_cleanup_when_exiting_with_block(self):
+        sentinel = MagicMock()
+
+        class DummyRole(Role):
+            def schedule_cleanup(self):
+                sentinel()
+
+        with UsingRole(DummyRole, None, self.any_context()) as role:
+            self.assertFalse(sentinel.called)
+        self.assertTrue(sentinel.called)
+
+    @istest
+    def reuses_role_if_already_in_use(self):
+        class DummyRole(Role):
+            def schedule_cleanup(self):
+                pass
+        context = self.any_context()
+        instance = DummyRole(None, context)
+        context['used_roles'][DummyRole] = instance
+
+        using = UsingRole(DummyRole, None, context)
+
+        with using as role:
+            self.assertEqual(using.role_instance, instance)
