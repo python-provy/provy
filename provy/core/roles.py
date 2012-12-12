@@ -793,7 +793,6 @@ class Role(object):
             def provision(self):
                 self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
-        owner_user = owner or self.context['owner']
         if not self.has_line(line, file_path):
             self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
