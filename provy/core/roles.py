@@ -779,10 +779,12 @@ class Role(object):
 
     def ensure_line(self, line, file_path, owner=None, sudo=False):
         '''
-        Returns True if the given line of text is present in the given file. Returns False otherwise (even if the file does not exist).
+        Ensures that the given line exists in the given file_path. Adds it if it doesn't exist, and creates the file if it doesn't exist.
         <em>Parameters</em>
         line - line of text to verify in the given file.
         file_path - complete path of the remote file.
+        owner - the user that owns the file. Defaults to None (the context user is used in this case).
+        sudo - execute as sudo? Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -793,8 +795,7 @@ class Role(object):
         '''
         owner_user = owner or self.context['owner']
         if not self.has_line(line, file_path):
-            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo)
-            self.change_file_owner(file_path, owner_user)
+            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
     def using(self, role):

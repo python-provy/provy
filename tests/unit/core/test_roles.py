@@ -11,7 +11,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class RoleTest(ProvyTestCase):
     def setUp(self):
-        self.role = Role(prov=None, context={})
+        self.role = Role(prov=None, context={'owner': 'foo',})
 
     @istest
     def checks_if_a_remote_directory_exists(self):
@@ -76,3 +76,31 @@ class RoleTest(ProvyTestCase):
             self.assertEqual(distro_info.description, 'CentOS release 5.8 (Final)')
             self.assertEqual(distro_info.release, '5.8')
             self.assertEqual(distro_info.codename, 'Final')
+
+    @istest
+    def ignores_line_if_already_exists_in_file(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = True
+            self.role.ensure_line('this line in', '/some/file')
+            self.assertFalse(execute.called)
+
+    @istest
+    def inserts_line_if_it_doesnt_exist_yet(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file')
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def inserts_line_with_sudo(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file', sudo=True)
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=True, user=None)
+
+    @istest
+    def inserts_line_with_specific_user(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file', owner='foo')
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
