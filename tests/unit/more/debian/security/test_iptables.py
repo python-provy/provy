@@ -23,7 +23,7 @@ class IPTablesRoleTest(ProvyTestCase):
         with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
             self.role.provision()
 
-            execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp -m tcp --dport 22', stdout=False, sudo=True)
+            execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp --dport 22', stdout=False, sudo=True)
 
     @istest
     def lists_all_available_chains_and_rules(self):

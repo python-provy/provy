@@ -57,7 +57,7 @@ class IPTablesRole(Role):
         '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('iptables')
-            self.execute('iptables -A INPUT -j ACCEPT -p tcp -m tcp --dport 22', stdout=False, sudo=True)
+            self.allow(port="22")
 
     def list_rules(self):
         '''
