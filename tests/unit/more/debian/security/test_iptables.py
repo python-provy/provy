@@ -158,3 +158,17 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.deny(match="state", state="ESTABLISHED,RELATED")
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p all -m state --state ESTABLISHED,RELATED', stdout=False, sudo=True)
+
+    @istest
+    def drops_incoming_connections_in_all_ports_and_protocols(self):
+        with self.execute_mock() as execute:
+            self.role.drop()
+
+            execute.assert_called_with('iptables -A INPUT -j DROP -p all', stdout=False, sudo=True)
+
+    @istest
+    def drops_tcp_connections_in_a_specific_port(self):
+        with self.execute_mock() as execute:
+            self.role.drop(port=80, protocol="tcp")
+
+            execute.assert_called_with('iptables -A INPUT -j DROP -p tcp --dport 80', stdout=False, sudo=True)

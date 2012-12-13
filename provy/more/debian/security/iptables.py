@@ -156,7 +156,7 @@ class IPTablesRole(Role):
 
     def deny(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
         '''
-        Denies connections to be made to or from the server.
+        Denies connections to be made to or from the server, responding with a "connection refused" packet.
         <em>Parameters</em>
         port - Port to be used. Defaults to None, which means all ports will be denied.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
@@ -177,3 +177,27 @@ class IPTablesRole(Role):
         </pre>
         '''
         self.__change_rule("REJECT", port, direction, protocol, interface, match, **options)
+
+    def drop(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
+        '''
+        Drop connections to be made to or from the server, without responding anything to the client (drop packets on the ground).
+        <em>Parameters</em>
+        port - Port to be used. Defaults to None, which means all ports will be dropped.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
+        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
+        match - Match filter. Defaults to None.
+        **options - arbitrary options that will be used in conjunction to the match filters.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import IPTablesRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(IPTablesRole) as iptables:
+                    self.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
+
+        </pre>
+        '''
+        self.__change_rule("DROP", port, direction, protocol, interface, match, **options)
