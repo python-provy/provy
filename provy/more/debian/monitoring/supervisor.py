@@ -135,7 +135,7 @@ class SupervisorRole(Role):
         </pre>
         '''
 
-        options = {'config_file': join(config_file_path, 'supervisord.conf')}
+        options = {'config_file': '/'.join((config_file_path, 'supervisord.conf'))}
         result = self.update_file('supervisord.init.template', '/etc/init.d/supervisord', owner=self.context['owner'], options=options, sudo=True)
 
         if result:
@@ -211,7 +211,7 @@ class SupervisorRole(Role):
 
         self.context[CONFIG_KEY] = {
             'config_file_directory': config_file_directory,
-            'log_file': join(log_folder, 'supervisord.log'),
+            'log_file': '/'.join((log_folder, 'supervisord.log')),
             'log_file_max_mb': log_file_max_mb,
             'log_file_backups': log_file_backups,
             'log_level': log_level,
@@ -264,7 +264,7 @@ class SupervisorRole(Role):
 
             config = self.context[CONFIG_KEY]
 
-            conf_path = join(config['config_file_directory'], 'supervisord.conf')
+            conf_path = '/'.join((config['config_file_directory'], 'supervisord.conf'))
             options = config
 
             if PROGRAMS_KEY in self.context:

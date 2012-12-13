@@ -69,7 +69,7 @@ class VirtualenvRole(Role):
                     self.env_dir('fancylib')
         </pre>
         '''
-        return os.path.join(self.base_directory, env_name)
+        return '/'.join((self.base_directory, env_name))
 
     @contextmanager
     def __call__(self, env_name, system_site_packages=False):
