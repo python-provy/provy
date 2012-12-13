@@ -11,7 +11,7 @@
 import sys
 import os
 import re
-from os.path import exists, abspath, splitext
+from os.path import exists, abspath, splitext, basename
 from optparse import OptionParser
 
 from provy.core import run
@@ -53,7 +53,7 @@ def __get_provy_file_path(provyfile_name):
     path = abspath(provyfile_name)
     if not exists(path):
         return None
-    return splitext(path.replace(abspath('.'), '').lstrip('/').rstrip('/'))[0]
+    return splitext(basename(path))[0]
 
 
 def main():
