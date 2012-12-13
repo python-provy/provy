@@ -13,10 +13,17 @@ class IPTablesRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        with self.using_stub(AptitudeRole) as aptitude:
+        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
             self.role.provision()
 
-            aptitude.ensure_package_installed.assert_called_with('iptables')
+            aptitude.ensure_package_installed.assert_any_call('iptables')
+
+    @istest
+    def allows_ssh_connection_during_provisioning(self):
+        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
+            self.role.provision()
+
+            execute.assert_any_call('iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT', stdout=False, sudo=True)
 
     @istest
     def lists_all_available_chains_and_rules(self):
