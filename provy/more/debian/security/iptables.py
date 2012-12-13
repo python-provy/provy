@@ -106,3 +106,9 @@ class IPTablesRole(Role):
         if self.block_on_finish:
             self.execute('iptables -A INPUT -j DROP', stdout=False, sudo=True)
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
+
+    def allow(self, port=None):
+        command = "iptables -A INPUT -j ACCEPT -p tcp"
+        if port is not None:
+            command += " --dport %s" % port
+        self.execute(command, stdout=False, sudo=True)

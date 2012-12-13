@@ -67,3 +67,17 @@ class IPTablesRoleTest(ProvyTestCase):
 
             call_to_avoid = call("iptables -A INPUT -j DROP", stdout=False, sudo=True)
             self.assertNotIn(call_to_avoid, execute.mock_calls)
+
+    @istest
+    def allows_incoming_tcp_in_all_ports(self):
+        with self.execute_mock() as execute:
+            self.role.allow()
+
+            execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp', stdout=False, sudo=True)
+
+    @istest
+    def allows_incoming_tcp_in_a_specific_port(self):
+        with self.execute_mock() as execute:
+            self.role.allow(port=80)
+
+            execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp --dport 80', stdout=False, sudo=True)
