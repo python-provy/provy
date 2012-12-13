@@ -27,6 +27,10 @@ class IPTablesRole(Role):
             with self.using(IPTablesRole) as iptables:
                 iptables.block_on_finish = False
                 iptables.deny(22, direction="out") # here we used a number, but could be "ssh" as well
+
+            # this example allows established sessions in interface eth0
+            with self.using(IPTablesRole) as iptables:
+                iptables.allow(interface='eth0', match='state', state='ESTABLISHED,RELATED')
     </pre>
     '''
 
@@ -113,9 +117,11 @@ class IPTablesRole(Role):
             self.deny()
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
-    def __change_rule(self, policy, port, direction, protocol, match=None, **options):
+    def __change_rule(self, policy, port, direction, protocol, interface, match=None, **options):
         chain = self.DIRECTION_TO_CHAIN_MAP[direction]
         command = "iptables -A %s -j %s -p %s" % (chain, policy, protocol)
+        if interface is not None:
+            command += " -i %s" % interface
         if port is not None:
             command += " --dport %s" % port
         if match is not None:
@@ -124,13 +130,14 @@ class IPTablesRole(Role):
             command += " --%s %s" % (option_name, options[option_name])
         self.execute(command, stdout=False, sudo=True)
 
-    def allow(self, port=None, direction="in", protocol="tcp", match=None, **options):
+    def allow(self, port=None, direction="in", protocol="tcp", interface=None, match=None, **options):
         '''
         Allows connections to be made to or from the server.
         <em>Parameters</em>
         port - Port to be used. Defaults to None, which means all ports will be allowed.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
+        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
         match - Match filter. Defaults to None.
         **options - arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
@@ -145,15 +152,16 @@ class IPTablesRole(Role):
 
         </pre>
         '''
-        self.__change_rule("ACCEPT", port, direction, protocol, match, **options)
+        self.__change_rule("ACCEPT", port, direction, protocol, interface, match, **options)
 
-    def deny(self, port=None, direction="in", protocol="all", match=None, **options):
+    def deny(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
         '''
         Denies connections to be made to or from the server.
         <em>Parameters</em>
         port - Port to be used. Defaults to None, which means all ports will be denied.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
         match - Match filter. Defaults to None.
         **options - arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
@@ -168,4 +176,4 @@ class IPTablesRole(Role):
 
         </pre>
         '''
-        self.__change_rule("REJECT", port, direction, protocol, match, **options)
+        self.__change_rule("REJECT", port, direction, protocol, interface, match, **options)

@@ -90,6 +90,13 @@ class IPTablesRoleTest(ProvyTestCase):
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp --dport ssh', stdout=False, sudo=True)
 
     @istest
+    def allows_incoming_tcp_in_a_specific_interface(self):
+        with self.execute_mock() as execute:
+            self.role.allow(interface='eth0')
+
+            execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp -i eth0', stdout=False, sudo=True)
+
+    @istest
     def allows_outgoing_tcp_in_all_ports(self):
         with self.execute_mock() as execute:
             self.role.allow(direction="out")
