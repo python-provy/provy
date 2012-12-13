@@ -110,19 +110,18 @@ class IPTablesRole(Role):
         '''
         super(IPTablesRole, self).schedule_cleanup()
         if self.block_on_finish:
-            self.execute('iptables -A INPUT -j DROP', stdout=False, sudo=True)
+            self.deny()
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
-    def allow(self, port=None, direction="in", protocol="tcp"):
+    def __change_rule(self, policy, port, direction, protocol):
         chain = self.DIRECTION_TO_CHAIN_MAP[direction]
-        command = "iptables -A %s -j ACCEPT -p %s" % (chain, protocol)
+        command = "iptables -A %s -j %s -p %s" % (chain, policy, protocol)
         if port is not None:
             command += " --dport %s" % port
         self.execute(command, stdout=False, sudo=True)
 
+    def allow(self, port=None, direction="in", protocol="tcp"):
+        self.__change_rule("ACCEPT", port, direction, protocol)
+
     def deny(self, port=None, direction="in", protocol="all"):
-        chain = self.DIRECTION_TO_CHAIN_MAP[direction]
-        command = "iptables -A %s -j REJECT -p %s" % (chain, protocol)
-        if port is not None:
-            command += " --dport %s" % port
-        self.execute(command, stdout=False, sudo=True)
+        self.__change_rule("REJECT", port, direction, protocol)

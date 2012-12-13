@@ -57,7 +57,7 @@ class IPTablesRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             self.role.schedule_cleanup()
 
-            execute.assert_any_call("iptables -A INPUT -j DROP", stdout=False, sudo=True)
+            execute.assert_any_call("iptables -A INPUT -j REJECT -p all", stdout=False, sudo=True)
 
     @istest
     def leaves_others_unblocked_when_finishing_provisioning_if_desired(self):
@@ -65,7 +65,7 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.block_on_finish = False
             self.role.schedule_cleanup()
 
-            call_to_avoid = call("iptables -A INPUT -j DROP", stdout=False, sudo=True)
+            call_to_avoid = call("iptables -A INPUT -j REJECT -p all", stdout=False, sudo=True)
             self.assertNotIn(call_to_avoid, execute.mock_calls)
 
     @istest
