@@ -111,6 +111,13 @@ class IPTablesRoleTest(ProvyTestCase):
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p udp', stdout=False, sudo=True)
 
     @istest
+    def allows_incoming_tcp_in_all_ports_with_a_match_filter(self):
+        with self.execute_mock() as execute:
+            self.role.allow(match="state", state="ESTABLISHED,RELATED")
+
+            execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp -m state --state ESTABLISHED,RELATED', stdout=False, sudo=True)
+
+    @istest
     def denies_incoming_connections_in_all_ports_and_protocols(self):
         with self.execute_mock() as execute:
             self.role.deny()
@@ -137,3 +144,10 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.deny(direction="out")
 
             execute.assert_called_with('iptables -A OUTPUT -j REJECT -p all', stdout=False, sudo=True)
+
+    @istest
+    def denies_incoming_connections_in_all_ports_with_a_match_filter(self):
+        with self.execute_mock() as execute:
+            self.role.deny(match="state", state="ESTABLISHED,RELATED")
+
+            execute.assert_called_with('iptables -A INPUT -j REJECT -p all -m state --state ESTABLISHED,RELATED', stdout=False, sudo=True)

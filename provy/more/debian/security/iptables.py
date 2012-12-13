@@ -113,14 +113,18 @@ class IPTablesRole(Role):
             self.deny()
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
-    def __change_rule(self, policy, port, direction, protocol):
+    def __change_rule(self, policy, port, direction, protocol, match=None, **options):
         chain = self.DIRECTION_TO_CHAIN_MAP[direction]
         command = "iptables -A %s -j %s -p %s" % (chain, policy, protocol)
         if port is not None:
             command += " --dport %s" % port
+        if match is not None:
+            command += " -m %s" % match
+        for option_name in options:
+            command += " --%s %s" % (option_name, options[option_name])
         self.execute(command, stdout=False, sudo=True)
 
-    def allow(self, port=None, direction="in", protocol="tcp"):
+    def allow(self, port=None, direction="in", protocol="tcp", match=None, **options):
         '''
         Allows connections to be made to or from the server.
         <em>Parameters</em>
@@ -139,9 +143,9 @@ class IPTablesRole(Role):
 
         </pre>
         '''
-        self.__change_rule("ACCEPT", port, direction, protocol)
+        self.__change_rule("ACCEPT", port, direction, protocol, match, **options)
 
-    def deny(self, port=None, direction="in", protocol="all"):
+    def deny(self, port=None, direction="in", protocol="all", match=None, **options):
         '''
         Denies connections to be made to or from the server.
         <em>Parameters</em>
@@ -160,4 +164,4 @@ class IPTablesRole(Role):
 
         </pre>
         '''
-        self.__change_rule("REJECT", port, direction, protocol)
+        self.__change_rule("REJECT", port, direction, protocol, match, **options)
