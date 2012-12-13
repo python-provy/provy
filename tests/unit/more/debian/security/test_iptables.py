@@ -123,3 +123,10 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.deny(port=80, protocol="tcp")
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p tcp --dport 80', stdout=False, sudo=True)
+
+    @istest
+    def denies_outgoing_connections(self):
+        with self.execute_mock() as execute:
+            self.role.deny(direction="out")
+
+            execute.assert_called_with('iptables -A OUTPUT -j REJECT -p all', stdout=False, sudo=True)

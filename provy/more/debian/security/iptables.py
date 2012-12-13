@@ -120,8 +120,9 @@ class IPTablesRole(Role):
             command += " --dport %s" % port
         self.execute(command, stdout=False, sudo=True)
 
-    def deny(self, port=None, protocol="all"):
-        command = "iptables -A INPUT -j REJECT -p %s" % (protocol)
+    def deny(self, port=None, direction="in", protocol="all"):
+        chain = self.DIRECTION_TO_CHAIN_MAP[direction]
+        command = "iptables -A %s -j REJECT -p %s" % (chain, protocol)
         if port is not None:
             command += " --dport %s" % port
         self.execute(command, stdout=False, sudo=True)
