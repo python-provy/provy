@@ -102,3 +102,10 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.allow(protocol="udp")
 
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p udp', stdout=False, sudo=True)
+
+    @istest
+    def denies_incoming_connections_in_all_ports_and_protocols(self):
+        with self.execute_mock() as execute:
+            self.role.deny()
+
+            execute.assert_called_with('iptables -A INPUT -j REJECT -p all', stdout=False, sudo=True)
