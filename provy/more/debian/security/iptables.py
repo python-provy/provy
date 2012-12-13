@@ -19,14 +19,14 @@ class IPTablesRole(Role):
     class MySampleRole(Role):
         def provision(self):
 
-            # this example uses the defaults provided
+            # this example allows only incoming HTTP connections
             with self.using(IPTablesRole) as iptables:
-                iptables.list_rules()
+                iptables.allow('http')
 
-            # this is when you want to avoid blocking other ports and protocols that don't match any previous one
+            # this example allows any incoming connections, but block SSH outgoing connections
             with self.using(IPTablesRole) as iptables:
                 iptables.block_on_finish = False
-                iptables.list_rules()
+                iptables.deny(22, direction="out") # here we used a number, but could be "ssh" as well
     </pre>
     '''
 
@@ -57,7 +57,7 @@ class IPTablesRole(Role):
         '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('iptables')
-            self.allow(22)
+            self.allow('ssh')
 
     def list_rules(self):
         '''

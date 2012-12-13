@@ -23,7 +23,7 @@ class IPTablesRoleTest(ProvyTestCase):
         with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
             self.role.provision()
 
-            execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp --dport 22', stdout=False, sudo=True)
+            execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp --dport ssh', stdout=False, sudo=True)
 
     @istest
     def lists_all_available_chains_and_rules(self):
@@ -81,6 +81,13 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.allow(port=80)
 
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp --dport 80', stdout=False, sudo=True)
+
+    @istest
+    def allows_incoming_tcp_in_a_specific_port_by_name(self):
+        with self.execute_mock() as execute:
+            self.role.allow(port='ssh')
+
+            execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp --dport ssh', stdout=False, sudo=True)
 
     @istest
     def allows_outgoing_tcp_in_all_ports(self):
