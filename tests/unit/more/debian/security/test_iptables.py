@@ -17,3 +17,23 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.provision()
 
             aptitude.ensure_package_installed.assert_called_with('iptables')
+
+    @istest
+    def lists_all_available_chains_and_rules(self):
+        with self.execute_mock() as execute:
+            execute.return_value = "some rules"
+
+            result = self.role.list_rules()
+
+            execute.assert_called_with('iptables -L', stdout=True, sudo=True)
+            self.assertEqual(result, "some rules")
+
+    @istest
+    def lists_all_available_chains_and_rules_with_commands(self):
+        with self.execute_mock() as execute:
+            execute.return_value = "some rules"
+
+            result = self.role.list_rules_with_commands()
+
+            execute.assert_called_with('iptables-save', stdout=True, sudo=True)
+            self.assertEqual(result, "some rules")
