@@ -20,6 +20,7 @@ class IPTablesRole(Role):
     def provision(self):
         '''
         Installs iptables and its dependencies, if they're not already installed (though this is usually the case).
+        Also, it adds an ACCEPT rule for SSH (TCP/22), so that provy can continue to provision the server, and the user doesn't get locked out of it.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
