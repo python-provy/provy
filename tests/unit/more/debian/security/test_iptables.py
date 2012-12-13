@@ -23,7 +23,7 @@ class IPTablesRoleTest(ProvyTestCase):
         with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
             self.role.provision()
 
-            execute.assert_any_call('iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT', stdout=False, sudo=True)
+            execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp -m tcp --dport 22', stdout=False, sudo=True)
 
     @istest
     def lists_all_available_chains_and_rules(self):
@@ -50,5 +50,20 @@ class IPTablesRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             self.role.schedule_cleanup()
 
-            execute.assert_called_with("iptables-save > /etc/iptables.rules", sudo=True)
+            execute.assert_any_call("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
+    @istest
+    def blocks_all_other_ports_when_finishing_provisioning(self):
+        with self.execute_mock() as execute:
+            self.role.schedule_cleanup()
+
+            execute.assert_any_call("iptables -A INPUT -j DROP", stdout=False, sudo=True)
+
+    @istest
+    def leaves_others_unblocked_when_finishing_provisioning_if_desired(self):
+        with self.execute_mock() as execute:
+            self.role.block_on_finish = False
+            self.role.schedule_cleanup()
+
+            call_to_avoid = call("iptables -A INPUT -j DROP", stdout=False, sudo=True)
+            self.assertNotIn(call_to_avoid, execute.mock_calls)
