@@ -81,3 +81,17 @@ class IPTablesRoleTest(ProvyTestCase):
             self.role.allow(port=80)
 
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp --dport 80', stdout=False, sudo=True)
+
+    @istest
+    def allows_outgoing_tcp_in_all_ports(self):
+        with self.execute_mock() as execute:
+            self.role.allow(direction="out")
+
+            execute.assert_called_with('iptables -A OUTPUT -j ACCEPT -p tcp', stdout=False, sudo=True)
+
+    @istest
+    def allows_forward_tcp_in_all_ports(self):
+        with self.execute_mock() as execute:
+            self.role.allow(direction="forward")
+
+            execute.assert_called_with('iptables -A FORWARD -j ACCEPT -p tcp', stdout=False, sudo=True)

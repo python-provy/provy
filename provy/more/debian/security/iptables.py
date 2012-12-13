@@ -30,6 +30,12 @@ class IPTablesRole(Role):
     </pre>
     '''
 
+    DIRECTION_TO_CHAIN_MAP = {
+        "in": "INPUT",
+        "out": "OUTPUT",
+        "forward": "FORWARD",
+    }
+
     def __init__(self, prov, context):
         super(IPTablesRole, self).__init__(prov, context)
         self.block_on_finish = True
@@ -107,8 +113,9 @@ class IPTablesRole(Role):
             self.execute('iptables -A INPUT -j DROP', stdout=False, sudo=True)
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
-    def allow(self, port=None):
-        command = "iptables -A INPUT -j ACCEPT -p tcp"
+    def allow(self, port=None, direction="in"):
+        chain = self.DIRECTION_TO_CHAIN_MAP[direction]
+        command = "iptables -A %s -j ACCEPT -p tcp" % (chain)
         if port is not None:
             command += " --dport %s" % port
         self.execute(command, stdout=False, sudo=True)
