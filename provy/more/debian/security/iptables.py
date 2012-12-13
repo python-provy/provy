@@ -131,6 +131,8 @@ class IPTablesRole(Role):
         port - Port to be used. Defaults to None, which means all ports will be allowed.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
+        match - Match filter. Defaults to None.
+        **options - arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -152,6 +154,8 @@ class IPTablesRole(Role):
         port - Port to be used. Defaults to None, which means all ports will be denied.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        match - Match filter. Defaults to None.
+        **options - arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
