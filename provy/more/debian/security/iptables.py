@@ -69,3 +69,21 @@ class IPTablesRole(Role):
         </pre>
         '''
         return self.execute('iptables-save', stdout=True, sudo=True)
+
+    def schedule_cleanup(self):
+        '''
+        Apart from the core cleanup, this one saves the iptables rules to the iptables config file, so that it's not lost upon restart.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import IPTablesRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(IPTablesRole) as iptables:
+                    self.schedule_cleanup() # no need to call this explicitly
+
+        </pre>
+        '''
+        super(IPTablesRole, self).schedule_cleanup()
+        self.execute("iptables-save > /etc/iptables.rules", sudo=True)

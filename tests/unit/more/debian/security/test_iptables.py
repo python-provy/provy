@@ -9,7 +9,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class IPTablesRoleTest(ProvyTestCase):
     def setUp(self):
-        self.role = IPTablesRole(prov=None, context={})
+        self.role = IPTablesRole(prov=None, context={'cleanup': [],})
 
     @istest
     def installs_necessary_packages_to_provision(self):
@@ -44,3 +44,11 @@ class IPTablesRoleTest(ProvyTestCase):
 
             execute.assert_called_with('iptables-save', stdout=True, sudo=True)
             self.assertEqual(result, "some rules")
+
+    @istest
+    def saves_configurations_when_finishing_provisioning(self):
+        with self.execute_mock() as execute:
+            self.role.schedule_cleanup()
+
+            execute.assert_called_with("iptables-save > /etc/iptables.rules", sudo=True)
+
