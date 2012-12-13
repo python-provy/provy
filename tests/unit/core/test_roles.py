@@ -2,16 +2,25 @@ from contextlib import contextmanager
 import os
 import sys
 
+from jinja2 import ChoiceLoader, FileSystemLoader
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
 from provy.core.roles import Role, UsingRole
-from tests.unit.tools.helpers import ProvyTestCase
+from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
 class RoleTest(ProvyTestCase):
     def setUp(self):
-        self.role = Role(prov=None, context={'owner': 'foo',})
+        loader = ChoiceLoader([
+            FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
+        ])
+        context = {
+            'owner': 'foo',
+            'registered_loaders': [],
+            'loader': loader,
+        }
+        self.role = Role(prov=None, context=context)
 
     @istest
     def checks_if_a_remote_directory_exists(self):
@@ -104,6 +113,18 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line('this line in', '/some/file', owner='foo')
             execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
+
+    @istest
+    def registers_a_template_loader(self):
+        package_name = 'provy.more.debian.monitoring'
+
+        self.assertNotIn(package_name, self.role.context['registered_loaders'])
+        self.role.register_template_loader(package_name)
+        self.assertIn(package_name, self.role.context['registered_loaders'])
+
+        choice_loader = self.role.context['loader']
+        package_loader = choice_loader.loaders[1]
+        self.assertIn('monitoring', package_loader.provider.module_path)
 
 
 class UsingRoleTest(ProvyTestCase):

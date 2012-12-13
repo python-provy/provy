@@ -1,9 +1,13 @@
 from contextlib import contextmanager
+from os.path import abspath, dirname, join
 from unittest import TestCase
 
 from mock import MagicMock, patch
 
 from provy.core.roles import DistroInfo
+
+
+PROJECT_ROOT = abspath(join(dirname(__file__), '..', '..', '..'))
 
 
 class ProvyTestCase(TestCase):
