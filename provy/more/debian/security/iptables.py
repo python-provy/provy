@@ -57,7 +57,7 @@ class IPTablesRole(Role):
         '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('iptables')
-            self.allow(port="22")
+            self.allow(22)
 
     def list_rules(self):
         '''
@@ -121,7 +121,43 @@ class IPTablesRole(Role):
         self.execute(command, stdout=False, sudo=True)
 
     def allow(self, port=None, direction="in", protocol="tcp"):
+        '''
+        Allows connections to be made to or from the server.
+        <em>Parameters</em>
+        port - Port to be used. Defaults to None, which means all ports will be allowed.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
+        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import IPTablesRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(IPTablesRole) as iptables:
+                    self.allow(port=11211, direction="out", protocol="udp") # allow UDP connections to an external Memcached server.
+
+        </pre>
+        '''
         self.__change_rule("ACCEPT", port, direction, protocol)
 
     def deny(self, port=None, direction="in", protocol="all"):
+        '''
+        Denies connections to be made to or from the server.
+        <em>Parameters</em>
+        port - Port to be used. Defaults to None, which means all ports will be denied.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
+        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import IPTablesRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(IPTablesRole) as iptables:
+                    self.deny(port=11211, direction="out", protocol="udp") # deny UDP connections to an external Memcached server.
+
+        </pre>
+        '''
         self.__change_rule("REJECT", port, direction, protocol)
