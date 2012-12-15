@@ -255,6 +255,14 @@ class RoleTest(ProvyTestCase):
     def creates_a_local_temp_dir(self):
         self.assertTrue(self.role.local_temp_dir().startswith('/tmp'))
 
+    @istest
+    def creates_a_remote_temp_dir(self):
+        with self.mock_role_method('execute_python') as execute_python:
+            execute_python.return_value = '/some/remote/temp/dir'
+            directory = self.role.remote_temp_dir()
+            self.assertEqual(directory, '/some/remote/temp/dir')
+            execute_python.assert_called_with('from tempfile import gettempdir; print gettempdir()', stdout=False)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
