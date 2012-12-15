@@ -225,6 +225,22 @@ class RoleTest(ProvyTestCase):
             self.assertEqual(user, 'some user')
             execute.assert_called_with('whoami', stdout=False)
 
+    @istest
+    def verifies_that_remote_file_exists(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '0'
+
+            self.assertTrue(self.role.remote_exists('/some.path'))
+            execute.assert_called_with('test -f /some.path; echo $?', stdout=False, sudo=True)
+
+    @istest
+    def verifies_that_remote_file_doesnt_exist(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '1'
+
+            self.assertFalse(self.role.remote_exists('/some.path'))
+            execute.assert_called_with('test -f /some.path; echo $?', stdout=False, sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
