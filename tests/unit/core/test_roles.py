@@ -209,6 +209,13 @@ class RoleTest(ProvyTestCase):
             sudo.assert_called_with('some command', user='foo')
             hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
 
+    @istest
+    def executes_a_python_command(self):
+        with self.execute_mock() as execute:
+            self.role.execute_python('some command', stdout='is stdout?', sudo='is sudo?')
+
+            execute.assert_called_with('python -c "some command"', stdout='is stdout?', sudo='is sudo?')
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
