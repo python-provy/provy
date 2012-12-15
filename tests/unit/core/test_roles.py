@@ -164,6 +164,51 @@ class RoleTest(ProvyTestCase):
     def can_call_cleanup_safely(self):
         self.role.cleanup()
 
+    @istest
+    def executes_command_with_stdout_and_same_user(self):
+        with patch('fabric.api.run') as run:
+            self.role.execute('some command', stdout=True)
+
+            run.assert_called_with('some command')
+
+    @istest
+    def executes_command_with_stdout_and_sudo(self):
+        with patch('fabric.api.sudo') as sudo:
+            self.role.execute('some command', stdout=True, sudo=True)
+
+            sudo.assert_called_with('some command', user=None)
+
+    @istest
+    def executes_command_with_stdout_and_another_user(self):
+        with patch('fabric.api.sudo') as sudo:
+            self.role.execute('some command', stdout=True, user='foo')
+
+            sudo.assert_called_with('some command', user='foo')
+
+    @istest
+    def executes_command_without_stdout_but_same_user(self):
+        with patch('fabric.api.run') as run, patch('fabric.api.hide') as hide:
+            self.role.execute('some command', stdout=False)
+
+            run.assert_called_with('some command')
+            hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
+
+    @istest
+    def executes_command_without_stdout_but_sudo(self):
+        with patch('fabric.api.sudo') as sudo, patch('fabric.api.hide') as hide:
+            self.role.execute('some command', stdout=False, sudo=True)
+
+            sudo.assert_called_with('some command', user=None)
+            hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
+
+    @istest
+    def executes_command_without_stdout_but_another_user(self):
+        with patch('fabric.api.sudo') as sudo, patch('fabric.api.hide') as hide:
+            self.role.execute('some command', stdout=False, user='foo')
+
+            sudo.assert_called_with('some command', user='foo')
+            hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

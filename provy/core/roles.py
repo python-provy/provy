@@ -12,6 +12,7 @@ from os.path import exists, join, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 
+import fabric.api
 from fabric.api import run, put, settings, hide
 from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
@@ -188,15 +189,15 @@ class Role(object):
         if stdout:
             return self.__execute_command(command, sudo=sudo, user=user)
 
-        with settings(
-            hide('warnings', 'running', 'stdout', 'stderr')
+        with fabric.api.settings(
+            fabric.api.hide('warnings', 'running', 'stdout', 'stderr')
         ):
             return self.__execute_command(command, sudo=sudo, user=user)
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
-            return fab_sudo(command, user=user)
-        return run(command)
+            return fabric.api.sudo(command, user=user)
+        return fabric.api.run(command)
 
     def execute_python(self, command, stdout=True, sudo=False):
         '''
