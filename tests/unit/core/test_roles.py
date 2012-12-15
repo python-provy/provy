@@ -160,6 +160,10 @@ class RoleTest(ProvyTestCase):
 
         role_instance.schedule_cleanup.assert_called_with()
 
+    @istest
+    def can_call_cleanup_safely(self):
+        self.role.cleanup()
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
