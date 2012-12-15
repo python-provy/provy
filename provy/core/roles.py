@@ -227,7 +227,7 @@ class Role(object):
                 self.context['my-user'] = self.get_logged_user()
         </pre>
         '''
-        return self.execute_python('import os; print os.getlogin()', stdout=False)
+        return self.execute('whoami', stdout=False)
 
     def local_exists(self, file_path):
         '''

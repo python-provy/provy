@@ -216,6 +216,15 @@ class RoleTest(ProvyTestCase):
 
             execute.assert_called_with('python -c "some command"', stdout='is stdout?', sudo='is sudo?')
 
+    @istest
+    def gets_logged_user(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'some user'
+            user = self.role.get_logged_user()
+
+            self.assertEqual(user, 'some user')
+            execute.assert_called_with('whoami', stdout=False)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
