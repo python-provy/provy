@@ -19,6 +19,7 @@ class RoleTest(ProvyTestCase):
             'owner': 'foo',
             'registered_loaders': [],
             'loader': loader,
+            'cleanup': [],
         }
         self.role = Role(prov=None, context=context)
 
@@ -125,6 +126,19 @@ class RoleTest(ProvyTestCase):
         choice_loader = self.role.context['loader']
         package_loader = choice_loader.loaders[1]
         self.assertIn('monitoring', package_loader.provider.module_path)
+
+    @istest
+    def appends_role_instance_to_cleanup_list_when_scheduling_cleanup(self):
+        self.assertEqual(self.role.context['cleanup'], [])
+        self.role.schedule_cleanup()
+        self.assertEqual(self.role.context['cleanup'], [self.role])
+
+    @istest
+    def doesnt_append_again_if_role_is_already_in_cleanup_list(self):
+        same_class_instance = Role(None, {})
+        self.role.context['cleanup'] = [same_class_instance]
+        self.role.schedule_cleanup()
+        self.assertEqual(self.role.context['cleanup'], [same_class_instance])
 
 
 class UsingRoleTest(ProvyTestCase):
