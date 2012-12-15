@@ -140,6 +140,26 @@ class RoleTest(ProvyTestCase):
         self.role.schedule_cleanup()
         self.assertEqual(self.role.context['cleanup'], [same_class_instance])
 
+    @istest
+    def provisions_role(self):
+        role_instance = MagicMock()
+        def StubRole(prov, context):
+            return role_instance
+
+        self.role.provision_role(StubRole)
+
+        role_instance.provision.assert_called_with()
+
+    @istest
+    def schedules_cleanup_when_provisioning(self):
+        role_instance = MagicMock()
+        def StubRole(prov, context):
+            return role_instance
+
+        self.role.provision_role(StubRole)
+
+        role_instance.schedule_cleanup.assert_called_with()
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
