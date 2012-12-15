@@ -251,6 +251,10 @@ class RoleTest(ProvyTestCase):
         file_to_verify = '/some/sneaky.file'
         self.assertFalse(self.role.local_exists(file_to_verify))
 
+    @istest
+    def creates_a_local_temp_dir(self):
+        self.assertTrue(self.role.local_temp_dir().startswith('/tmp'))
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
