@@ -241,6 +241,16 @@ class RoleTest(ProvyTestCase):
             self.assertFalse(self.role.remote_exists('/some.path'))
             execute.assert_called_with('test -f /some.path; echo $?', stdout=False, sudo=True)
 
+    @istest
+    def verifies_that_a_local_file_exists(self):
+        file_to_verify = os.path.abspath(__file__)
+        self.assertTrue(self.role.local_exists(file_to_verify))
+
+    @istest
+    def verifies_that_a_local_file_doesnt_exist(self):
+        file_to_verify = '/some/sneaky.file'
+        self.assertFalse(self.role.local_exists(file_to_verify))
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
