@@ -263,6 +263,13 @@ class RoleTest(ProvyTestCase):
             self.assertEqual(directory, '/some/remote/temp/dir')
             execute_python.assert_called_with('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
+    @istest
+    def changes_the_owner_of_a_directory(self):
+        with self.execute_mock() as execute:
+            self.role.change_dir_owner('/some/dir', 'foo')
+
+            execute.assert_called_with('chown -R foo /some/dir', stdout=False, sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

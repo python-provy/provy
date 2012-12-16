@@ -342,7 +342,7 @@ class Role(object):
                 self.change_dir_owner(directory='/etc/my-path', owner='someuser')
         </pre>
         '''
-        self.execute('cd %s && chown -R %s .' % (directory, owner), stdout=False, sudo=True)
+        self.execute('chown -R %s %s' % (owner, directory), stdout=False, sudo=True)
 
     def change_file_owner(self, path, owner):
         '''
