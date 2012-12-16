@@ -329,7 +329,7 @@ class Role(object):
 
     def change_dir_owner(self, directory, owner):
         '''
-        Changes the owner of a given directory. Please be advised that this method is recursive, so all contents of directory will belong to the specified user.
+        Deprecated. Please use change_path_owner instead.
         <em>Parameters</em>
         directory - Directory to change owner.
         owner - User that should own this directory.
@@ -342,11 +342,11 @@ class Role(object):
                 self.change_dir_owner(directory='/etc/my-path', owner='someuser')
         </pre>
         '''
-        self.execute('chown -R %s %s' % (owner, directory), stdout=False, sudo=True)
+        self.change_path_owner(directory, owner)
 
     def change_file_owner(self, path, owner):
         '''
-        Changes the owner of a given file.
+        Deprecated. Please use change_path_owner instead.
         <em>Parameters</em>
         path - Path of the file.
         owner - User that should own this file.
@@ -356,11 +356,28 @@ class Role(object):
 
         class MySampleRole(Role):
             def provision(self):
-                self.change_file_owner(directory='/etc/init.d/someapp',
+                self.change_file_owner(path='/etc/init.d/someapp',
                                        owner='someuser')
         </pre>
         '''
-        self.execute('cd %s && chown -R %s %s' % (dirname(path), owner, split(path)[-1]), stdout=False, sudo=True)
+        self.change_path_owner(path, owner)
+
+    def change_path_owner(self, path, owner):
+        '''
+        Changes the owner of a given path. Please be advised that this method is recursive, so if the path is a directory, all contents of it will belong to the specified owner.
+        <em>Parameters</em>
+        path - Path to have its owner changed.
+        owner - User that should own this path.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_path_owner(path='/etc/my-path', owner='someuser')
+        </pre>
+        '''
+        self.execute('chown -R %s %s' % (owner, path), stdout=False, sudo=True)
 
     def get_object_mode(self, path):
         '''

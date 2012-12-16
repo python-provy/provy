@@ -270,6 +270,20 @@ class RoleTest(ProvyTestCase):
 
             execute.assert_called_with('chown -R foo /some/dir', stdout=False, sudo=True)
 
+    @istest
+    def changes_the_owner_of_a_file(self):
+        with self.execute_mock() as execute:
+            self.role.change_file_owner('/some/file.ext', 'foo')
+
+            execute.assert_called_with('chown -R foo /some/file.ext', stdout=False, sudo=True)
+
+    @istest
+    def changes_the_owner_of_a_path(self):
+        with self.execute_mock() as execute:
+            self.role.change_path_owner('/some/path', 'foo')
+
+            execute.assert_called_with('chown -R foo /some/path', stdout=False, sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
