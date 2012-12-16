@@ -321,6 +321,23 @@ class RoleTest(ProvyTestCase):
 
             self.assertFalse(execute.called)
 
+    @istest
+    def gets_object_mode_from_remote_file(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            remote_exists.return_value = True
+            execute.return_value = '755\n'
+
+            self.assertEqual(self.role.get_object_mode('/some/file.ext'), 755)
+            execute.assert_called_with('stat -c %a /some/file.ext', stdout=False, sudo=True)
+
+    @istest
+    def cannot_get_mode_if_file_doesnt_exist(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists.return_value = False
+            remote_exists_dir.return_value = False
+
+            self.assertRaises(IOError, self.role.get_object_mode, '/some/file.ext')
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

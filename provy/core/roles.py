@@ -383,7 +383,7 @@ class Role(object):
 
     def get_object_mode(self, path):
         '''
-        Returns the mode of a given object.
+        Returns the mode of a given object. Raises IOError if the path doesn't exist.
         <em>Parameters</em>
         path - Path of the given object.
         <em>Sample Usage</em>
@@ -397,7 +397,7 @@ class Role(object):
         </pre>
         '''
         if not self.remote_exists(path) and not self.remote_exists_dir(path):
-            raise RuntimeError('The file at path %s does not exist' % path)
+            raise IOError('The file at path %s does not exist' % path)
         return int(self.execute('stat -c %%a %s' % path, stdout=False, sudo=True))
 
     def change_dir_mode(self, path, mode, recursive=False):
