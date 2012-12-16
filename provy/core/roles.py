@@ -342,6 +342,7 @@ class Role(object):
                 self.change_dir_owner(directory='/etc/my-path', owner='someuser')
         </pre>
         '''
+        self.log('"change_dir_owner" is deprecated, please use "change_path_owner" instead.')
         self.change_path_owner(directory, owner)
 
     def change_file_owner(self, path, owner):
@@ -360,6 +361,7 @@ class Role(object):
                                        owner='someuser')
         </pre>
         '''
+        self.log('"change_file_owner" is deprecated, please use "change_path_owner" instead.')
         self.change_path_owner(path, owner)
 
     def change_path_owner(self, path, owner):
