@@ -338,6 +338,42 @@ class RoleTest(ProvyTestCase):
 
             self.assertRaises(IOError, self.role.get_object_mode, '/some/file.ext')
 
+    @istest
+    def changes_the_mode_of_a_path_if_its_different(self):
+        with self.execute_mock() as execute, self.mock_role_method('get_object_mode') as get_object_mode:
+            get_object_mode.return_value = 644
+
+            self.role.change_path_mode('/some/path', 755)
+
+            execute.assert_called_with('chmod 755 /some/path', stdout=False, sudo=True)
+
+    @istest
+    def recursively_changes_the_mode_of_a_path_if_its_different(self):
+        with self.execute_mock() as execute, self.mock_role_method('get_object_mode') as get_object_mode:
+            get_object_mode.return_value = 644
+
+            self.role.change_path_mode('/some/path', 755, recursive=True)
+
+            execute.assert_called_with('chmod -R 755 /some/path', stdout=False, sudo=True)
+
+    @istest
+    def doesnt_change_path_mode_if_its_the_same(self):
+        with self.execute_mock() as execute, self.mock_role_method('get_object_mode') as get_object_mode:
+            get_object_mode.return_value = 755
+
+            self.role.change_path_mode('/some/path', 755)
+
+            self.assertFalse(execute.called)
+
+    @istest
+    def recursively_changes_the_mode_of_a_path_even_if_the_mode_of_the_parent_path_is_the_same(self):
+        with self.execute_mock() as execute, self.mock_role_method('get_object_mode') as get_object_mode:
+            get_object_mode.return_value = 755
+
+            self.role.change_path_mode('/some/path', 755, recursive=True)
+
+            execute.assert_called_with('chmod -R 755 /some/path', stdout=False, sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

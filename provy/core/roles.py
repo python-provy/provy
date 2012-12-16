@@ -400,13 +400,38 @@ class Role(object):
             raise IOError('The file at path %s does not exist' % path)
         return int(self.execute('stat -c %%a %s' % path, stdout=False, sudo=True))
 
+    def change_path_mode(self, path, mode, recursive=False):
+        '''
+        Changes the mode of a given path.
+        <em>Parameters</em>
+        path - Path to have its mode changed.
+        mode - Mode to change to.
+        recursive - Indicates if the mode of the objects in the path should be changed recursively. Defaults to False.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.change_path_mode(directory='/home/user/logs',
+                                     mode=644,
+                                     recursive=True)
+        </pre>
+        '''
+        options = ""
+        if recursive:
+            options += "-R "
+
+        previous_mode = self.get_object_mode(path)
+        if previous_mode != mode or recursive:
+            self.execute('chmod %s%s %s' % (options, mode, path), stdout=False, sudo=True)
+
     def change_dir_mode(self, path, mode, recursive=False):
         '''
         Changes the mode of a given directory.
         <em>Parameters</em>
         path - Path of the directory.
         mode - Mode of the directory.
-        sudo - Indicates if the mode needs to be changed by the super-user.
         recursive - Indicates if the mode of the objects in the path should be changed recursively.
         <em>Sample Usage</em>
         <pre class="sh_python">
@@ -416,8 +441,7 @@ class Role(object):
             def provision(self):
                 self.change_dir_mode(directory='/home/user/logs',
                                      mode=644,
-                                     recursive=True,
-                                     sudo=True)
+                                     recursive=True)
         </pre>
         '''
         recursive_string = ""
@@ -436,7 +460,6 @@ class Role(object):
         <em>Parameters</em>
         path - Path of the file.
         mode - Mode of the file.
-        sudo - Indicates if the mode needs to be changed by the super-user.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
