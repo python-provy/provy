@@ -381,6 +381,13 @@ class RoleTest(ProvyTestCase):
 
             change_path_mode.assert_called_with('/some/dir', 755, recursive='is it recursive?')
 
+    @istest
+    def changes_the_mode_of_a_file(self):
+        with self.mock_role_method('change_path_mode') as change_path_mode:
+            self.role.change_file_mode('/some/file.ext', 755)
+
+            change_path_mode.assert_called_with('/some/file.ext', 755)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

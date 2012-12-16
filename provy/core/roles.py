@@ -425,6 +425,7 @@ class Role(object):
         previous_mode = self.get_object_mode(path)
         if previous_mode != mode or recursive:
             self.execute('chmod %s%s %s' % (options, mode, path), stdout=False, sudo=True)
+            self.log("Path %s had mode %s. Changed it %sto %s." % (path, previous_mode, recursive and "recursively " or "", mode))
 
     def change_dir_mode(self, path, mode, recursive=False):
         '''
@@ -449,7 +450,7 @@ class Role(object):
 
     def change_file_mode(self, path, mode):
         '''
-        Changes the mode of a given file.
+        Deprecated. Please use change_path_mode instead.
         <em>Parameters</em>
         path - Path of the file.
         mode - Mode of the file.
@@ -463,10 +464,7 @@ class Role(object):
                                       mode=777)
         </pre>
         '''
-        previous_mode = self.get_object_mode(path)
-        if previous_mode != mode:
-            self.execute('chmod %s %s' % (mode, path), stdout=False, sudo=True)
-            self.log("File %s had mode %s. Changed it to %s." % (path, previous_mode, mode))
+        self.change_path_mode(path, mode)
 
     def md5_local(self, path):
         '''
