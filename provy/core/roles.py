@@ -325,7 +325,7 @@ class Role(object):
             self.execute('mkdir -p %s' % directory, stdout=False, sudo=sudo)
 
         if owner:
-            self.change_dir_owner(directory, owner)
+            self.change_path_owner(directory, owner)
 
     def change_dir_owner(self, directory, owner):
         '''

@@ -284,6 +284,43 @@ class RoleTest(ProvyTestCase):
 
             execute.assert_called_with('chown -R foo /some/path', stdout=False, sudo=True)
 
+    @istest
+    def creates_a_directory_when_it_doesnt_exist_yet(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = False
+
+            self.role.ensure_dir('/some/dir')
+
+            execute.assert_called_with('mkdir -p /some/dir', stdout=False, sudo=False)
+
+    @istest
+    def creates_a_directory_with_sudo_when_it_doesnt_exist_yet(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = False
+
+            self.role.ensure_dir('/some/dir', sudo=True)
+
+            execute.assert_called_with('mkdir -p /some/dir', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_directory_with_specific_user_when_it_doesnt_exist_yet(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir, self.mock_role_method('change_path_owner') as change_path_owner:
+            remote_exists_dir.return_value = False
+
+            self.role.ensure_dir('/some/dir', owner='foo')
+
+            execute.assert_called_with('mkdir -p /some/dir', stdout=False, sudo=True)
+            change_path_owner.assert_called_with('/some/dir', 'foo')
+
+    @istest
+    def doesnt_create_directory_if_it_already_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = True
+
+            self.role.ensure_dir('/some/dir')
+
+            self.assertFalse(execute.called)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
