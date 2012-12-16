@@ -428,7 +428,7 @@ class Role(object):
 
     def change_dir_mode(self, path, mode, recursive=False):
         '''
-        Changes the mode of a given directory.
+        Deprecated. Please use change_path_mode instead.
         <em>Parameters</em>
         path - Path of the directory.
         mode - Mode of the directory.
@@ -444,14 +444,7 @@ class Role(object):
                                      recursive=True)
         </pre>
         '''
-        recursive_string = ""
-        if recursive:
-            recursive_string = "-R "
-
-        previous_mode = self.get_object_mode(path)
-        if previous_mode != mode:
-            self.execute('chmod %s%s %s' % (recursive_string, mode, path), stdout=False, sudo=True)
-            self.log("Directory %s had mode %s. Changed it %sto %s." % (path, previous_mode, recursive and "recursively " or "", mode))
+        self.change_path_mode(path, mode, recursive=recursive)
 
 
     def change_file_mode(self, path, mode):

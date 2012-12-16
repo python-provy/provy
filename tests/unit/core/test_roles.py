@@ -374,6 +374,13 @@ class RoleTest(ProvyTestCase):
 
             execute.assert_called_with('chmod -R 755 /some/path', stdout=False, sudo=True)
 
+    @istest
+    def changes_the_mode_of_a_directory(self):
+        with self.mock_role_method('change_path_mode') as change_path_mode:
+            self.role.change_dir_mode('/some/dir', 755, recursive='is it recursive?')
+
+            change_path_mode.assert_called_with('/some/dir', 755, recursive='is it recursive?')
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
