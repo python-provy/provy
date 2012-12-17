@@ -210,6 +210,39 @@ class RoleTest(ProvyTestCase):
             hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
 
     @istest
+    def executes_a_local_command_with_stdout_and_same_user(self):
+        with patch('fabric.api.local') as local:
+            local.return_value = 'some result'
+            self.assertEqual(self.role.execute_local('some command', stdout=True), 'some result')
+
+            local.assert_called_with('some command', capture=True)
+
+    @istest
+    def executes_a_local_command_with_stdout_and_sudo(self):
+        with patch('fabric.api.local') as local:
+            local.return_value = 'some result'
+            self.assertEqual(self.role.execute_local('some command', stdout=True, sudo=True), 'some result')
+
+            local.assert_called_with('sudo some command', capture=True)
+
+    @istest
+    def executes_a_local_command_with_stdout_and_another_user(self):
+        with patch('fabric.api.local') as local:
+            local.return_value = 'some result'
+            self.assertEqual(self.role.execute_local('some command', stdout=True, user='foo'), 'some result')
+
+            local.assert_called_with('sudo -u foo some command', capture=True)
+
+    @istest
+    def executes_a_local_command_without_stdout_and_another_user(self):
+        with patch('fabric.api.local') as local, patch('fabric.api.hide') as hide:
+            local.return_value = 'some result'
+            self.assertEqual(self.role.execute_local('some command', stdout=False, user='foo'), 'some result')
+
+            local.assert_called_with('sudo -u foo some command', capture=True)
+            hide.assert_called_with('warnings', 'running', 'stdout', 'stderr')
+
+    @istest
     def executes_a_python_command(self):
         with self.execute_mock() as execute:
             self.role.execute_python('some command', stdout='is stdout?', sudo='is sudo?')

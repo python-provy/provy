@@ -199,6 +199,38 @@ class Role(object):
             return fabric.api.sudo(command, user=user)
         return fabric.api.run(command)
 
+    def execute_local(self, command, stdout=True, sudo=False, user=None):
+        '''
+        Allows you to perform any shell action in the local machine. It is an abstraction over the fabric.api.local method.
+        <em>Parameters</em>
+        stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
+        sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
+        user - Defaults to None. If specified, will be the user with which the command will be executed.
+        <em>Sample Usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.execute_local('ls /', stdout=False, sudo=True)
+                self.execute_local('ls /', stdout=False, user='vip')
+        </pre>
+        '''
+        if stdout:
+            return self.__execute_local_command(command, sudo=sudo, user=user)
+
+        with fabric.api.settings(
+            fabric.api.hide('warnings', 'running', 'stdout', 'stderr')
+        ):
+            return self.__execute_local_command(command, sudo=sudo, user=user)
+
+    def __execute_local_command(self, command, sudo=False, user=None):
+        if user is not None:
+            command = 'sudo -u %s %s' % (user, command)
+        elif sudo:
+            command = 'sudo %s' % command
+        return fabric.api.local(command, capture=True)
+
     def execute_python(self, command, stdout=True, sudo=False):
         '''
         Just an abstraction over execute. This method executes the python code that is passed with python -c.
