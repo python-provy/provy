@@ -516,7 +516,7 @@ class Role(object):
         if not self.local_exists(path):
             return None
 
-        result = self.execute_local('md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        result = self.execute_local(self.__md5_hash_command(path), stdout=False, sudo=True)
         return result.strip()
 
     def md5_remote(self, path):
@@ -536,9 +536,11 @@ class Role(object):
         if not self.remote_exists(path):
             return None
 
-        result = self.execute('md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        result = self.execute(self.__md5_hash_command(path), stdout=False, sudo=True)
         return result.strip()
 
+    def __md5_hash_command(self, path):
+        return 'md5sum %s | cut -d " " -f 1' % path
 
     def remove_dir(self, path, sudo=False):
         '''
