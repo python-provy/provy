@@ -574,7 +574,7 @@ class Role(object):
         Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
         <em>Parameters</em>
         path - Path of the remote file.
-        sudo - Indicates whether the file should be removed by the super-user.
+        sudo - Indicates whether the file should be removed by the super-user. Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -586,8 +586,7 @@ class Role(object):
         '''
 
         if self.remote_exists(path):
-            command = 'rm -f %s' % path
-            self.execute(command, stdout=False, sudo=sudo)
+            self.execute('rm -f %s' % path, stdout=False, sudo=sudo)
             self.log('%s removed!' % path)
             return True
         return False

@@ -487,6 +487,30 @@ class RoleTest(ProvyTestCase):
             self.assertTrue(self.role.remove_dir('/some/dir', sudo=True))
             execute.assert_called_with('rmdir /some/dir', stdout=False, sudo=True)
 
+    @istest
+    def removes_a_file_if_it_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            remote_exists.return_value = True
+
+            self.assertTrue(self.role.remove_file('/some/file.ext'))
+            execute.assert_called_with('rm -f /some/file.ext', stdout=False, sudo=False)
+
+    @istest
+    def doesnt_remove_a_file_if_it_doesnt_exist(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            remote_exists.return_value = False
+
+            self.assertFalse(self.role.remove_file('/some/dir'))
+            self.assertFalse(execute.called)
+
+    @istest
+    def removes_a_file_as_sudo_if_it_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            remote_exists.return_value = True
+
+            self.assertTrue(self.role.remove_file('/some/file.ext', sudo=True))
+            execute.assert_called_with('rm -f /some/file.ext', stdout=False, sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
