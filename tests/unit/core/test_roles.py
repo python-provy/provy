@@ -421,6 +421,25 @@ class RoleTest(ProvyTestCase):
 
             change_path_mode.assert_called_with('/some/file.ext', 755)
 
+    @istest
+    def gets_the_md5_hash_of_a_local_file(self):
+        with self.mock_role_method('execute_local') as execute_local, self.mock_role_method('local_exists') as local_exists:
+            local_exists.return_value = True
+            execute_local.return_value = 'some-hash\n'
+
+            self.assertEqual(self.role.md5_local('/some/path'), 'some-hash')
+
+            execute_local.assert_called_with('sudo md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
+
+    @istest
+    def returns_none_if_file_doesnt_exist_for_md5_hash(self):
+        with self.mock_role_method('execute_local') as execute_local, self.mock_role_method('local_exists') as local_exists:
+            local_exists.return_value = False
+
+            self.assertIsNone(self.role.md5_local('/some/path'))
+
+            self.assertFalse(execute_local.called)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

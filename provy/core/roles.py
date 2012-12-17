@@ -516,9 +516,8 @@ class Role(object):
         if not self.local_exists(path):
             return None
 
-        lines = codecs.open(path, 'rb', 'utf-8').readlines()
-        prev = reduce(lambda prev, each_line: zlib.crc32(each_line, prev), lines, 0)
-        return "%X"%(prev & 0xFFFFFFFF)
+        result = self.execute_local('sudo md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        return result.strip()
 
     def md5_remote(self, path):
         '''
