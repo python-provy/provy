@@ -428,7 +428,6 @@ class RoleTest(ProvyTestCase):
             execute_local.return_value = 'some-hash\n'
 
             self.assertEqual(self.role.md5_local('/some/path'), 'some-hash')
-
             execute_local.assert_called_with('md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
 
     @istest
@@ -437,7 +436,6 @@ class RoleTest(ProvyTestCase):
             local_exists.return_value = False
 
             self.assertIsNone(self.role.md5_local('/some/path'))
-
             self.assertFalse(execute_local.called)
 
     @istest
@@ -447,7 +445,6 @@ class RoleTest(ProvyTestCase):
             execute.return_value = 'some-hash\n'
 
             self.assertEqual(self.role.md5_remote('/some/path'), 'some-hash')
-
             execute.assert_called_with('md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
 
     @istest
@@ -456,8 +453,39 @@ class RoleTest(ProvyTestCase):
             remote_exists.return_value = False
 
             self.assertIsNone(self.role.md5_remote('/some/path'))
-
             self.assertFalse(execute.called)
+
+    @istest
+    def removes_a_directory_if_it_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = True
+
+            self.assertTrue(self.role.remove_dir('/some/dir'))
+            execute.assert_called_with('rmdir /some/dir', stdout=False, sudo=False)
+
+    @istest
+    def doesnt_remove_a_directory_if_it_doesnt_exist(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = False
+
+            self.assertFalse(self.role.remove_dir('/some/dir'))
+            self.assertFalse(execute.called)
+
+    @istest
+    def removes_a_directory_recursively_if_it_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = True
+
+            self.assertTrue(self.role.remove_dir('/some/dir', recursive=True))
+            execute.assert_called_with('rm -rf /some/dir', stdout=False, sudo=False)
+
+    @istest
+    def removes_a_directory_as_sudo_if_it_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+            remote_exists_dir.return_value = True
+
+            self.assertTrue(self.role.remove_dir('/some/dir', sudo=True))
+            execute.assert_called_with('rmdir /some/dir', stdout=False, sudo=True)
 
 
 class UsingRoleTest(ProvyTestCase):

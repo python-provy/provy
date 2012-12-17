@@ -542,22 +542,31 @@ class Role(object):
     def __md5_hash_command(self, path):
         return 'md5sum %s | cut -d " " -f 1' % path
 
-    def remove_dir(self, path, sudo=False):
+    def remove_dir(self, path, sudo=False, recursive=False):
         '''
         Removes a directory in the remote server. Returns True in the event of the directory actually been removed. False otherwise.
         <em>Parameters</em>
         path - Path of the remote directory.
-        sudo - Indicates whether the directory should be removed by the super-user.
+        sudo - Indicates whether the directory should be removed by the super-user. Defaults to False.
+        recursive - Indicates whether the directory should be removed recursively or not. Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
 
         class MySampleRole(Role):
             def provision(self):
-                self.remove_dir('/tmp/my-dir', sudo=True)
+                self.remove_dir('/tmp/my-dir', sudo=True, recursive=True)
         </pre>
         '''
-        return self.remove_file(path, sudo)
+        if self.remote_exists_dir(path):
+            if recursive:
+                command = 'rm -rf %s'
+            else:
+                command = 'rmdir %s'
+            self.execute(command % path, stdout=False, sudo=sudo)
+            self.log('%s removed!' % path)
+            return True
+        return False
 
 
     def remove_file(self, path, sudo=False):
