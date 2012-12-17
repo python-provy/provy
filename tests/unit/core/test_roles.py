@@ -429,7 +429,7 @@ class RoleTest(ProvyTestCase):
 
             self.assertEqual(self.role.md5_local('/some/path'), 'some-hash')
 
-            execute_local.assert_called_with('sudo md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
+            execute_local.assert_called_with('md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
 
     @istest
     def returns_none_if_local_file_doesnt_exist_for_md5_hash(self):
@@ -448,7 +448,7 @@ class RoleTest(ProvyTestCase):
 
             self.assertEqual(self.role.md5_remote('/some/path'), 'some-hash')
 
-            execute.assert_called_with('sudo md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
+            execute.assert_called_with('md5sum /some/path | cut -d " " -f 1', stdout=False, sudo=True)
 
     @istest
     def returns_none_if_remote_file_doesnt_exist_for_md5_hash(self):

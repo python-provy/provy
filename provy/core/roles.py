@@ -516,7 +516,7 @@ class Role(object):
         if not self.local_exists(path):
             return None
 
-        result = self.execute_local('sudo md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        result = self.execute_local('md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
         return result.strip()
 
     def md5_remote(self, path):
@@ -536,7 +536,7 @@ class Role(object):
         if not self.remote_exists(path):
             return None
 
-        result = self.execute('sudo md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        result = self.execute('md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
         return result.strip()
 
 
