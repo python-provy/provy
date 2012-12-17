@@ -6,6 +6,7 @@ Module responsible for the base Role and its operations.
 '''
 
 import codecs
+from contextlib import contextmanager
 import zlib
 import os
 from os.path import exists, join, split, dirname, isabs
@@ -168,6 +169,16 @@ class Role(object):
         '''
         pass
 
+    @contextmanager
+    def __showing_command_output(self, show=True):
+        if show:
+            yield
+        else:
+            with fabric.api.settings(
+                fabric.api.hide('warnings', 'running', 'stdout', 'stderr')
+            ):
+                yield
+
     def execute(self, command, stdout=True, sudo=False, user=None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
@@ -186,12 +197,7 @@ class Role(object):
                 self.execute('ls /', stdout=False, user='vip')
         </pre>
         '''
-        if stdout:
-            return self.__execute_command(command, sudo=sudo, user=user)
-
-        with fabric.api.settings(
-            fabric.api.hide('warnings', 'running', 'stdout', 'stderr')
-        ):
+        with self.__showing_command_output(stdout):
             return self.__execute_command(command, sudo=sudo, user=user)
 
     def __execute_command(self, command, sudo=False, user=None):
@@ -216,12 +222,7 @@ class Role(object):
                 self.execute_local('ls /', stdout=False, user='vip')
         </pre>
         '''
-        if stdout:
-            return self.__execute_local_command(command, sudo=sudo, user=user)
-
-        with fabric.api.settings(
-            fabric.api.hide('warnings', 'running', 'stdout', 'stderr')
-        ):
+        with self.__showing_command_output(stdout):
             return self.__execute_local_command(command, sudo=sudo, user=user)
 
     def __execute_local_command(self, command, sudo=False, user=None):
