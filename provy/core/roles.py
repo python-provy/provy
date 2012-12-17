@@ -536,12 +536,8 @@ class Role(object):
         if not self.remote_exists(path):
             return None
 
-        command = """import zlib; import codecs; lines = codecs.open('%s', 'rb', 'utf-8').readlines(); prev = reduce(lambda prev, each_line: zlib.crc32(each_line, prev), lines, 0); print '%%X' %% (prev & 0xFFFFFFFF)"""
-
-        #result = self.execute_python("from hashlib import md5;import codecs; print md5(codecs.open('%s', 'r', 'utf-8').read()).hexdigest()" % path, stdout=False, sudo=True)
-        result = self.execute_python(command % path, stdout=False, sudo=True)
-
-        return result
+        result = self.execute('sudo md5sum %s | cut -d " " -f 1' % path, stdout=False, sudo=True)
+        return result.strip()
 
 
     def remove_dir(self, path, sudo=False):
