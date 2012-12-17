@@ -511,6 +511,20 @@ class RoleTest(ProvyTestCase):
             self.assertTrue(self.role.remove_file('/some/file.ext', sudo=True))
             execute.assert_called_with('rm -f /some/file.ext', stdout=False, sudo=True)
 
+    @istest
+    def puts_a_file_in_the_remote_path(self):
+        with patch('fabric.api.put') as put:
+            self.role.put_file('/from/file', '/to/file')
+
+            put.assert_called_with('/from/file', '/to/file', use_sudo=False)
+
+    @istest
+    def puts_a_file_as_sudo_in_the_remote_path(self):
+        with patch('fabric.api.put') as put:
+            self.role.put_file('/from/file', '/to/file', sudo=True)
+
+            put.assert_called_with('/from/file', '/to/file', use_sudo=True)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

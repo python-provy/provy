@@ -671,13 +671,7 @@ class Role(object):
                          sudo=True)
         </pre>
         '''
-        if sudo:
-            temp_path = join(self.remote_temp_dir(), split(from_file)[-1])
-            put(from_file, temp_path)
-            self.execute('cp %s %s' % (temp_path, to_file), stdout=False, sudo=True)
-            return
-
-        put(from_file, to_file)
+        fabric.api.put(from_file, to_file, use_sudo=sudo)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
         '''
