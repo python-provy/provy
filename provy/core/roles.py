@@ -593,7 +593,7 @@ class Role(object):
 
     def replace_file(self, from_file, to_file):
         '''
-        Replaces a file in the remote server with a file from the local system.
+        Deprecated. Please use put_file instead.
         <em>Parameters</em>
         from_file - Path in the local system.
         to_file - Path in the remote system.
@@ -606,7 +606,7 @@ class Role(object):
                 self.replace_file('/tmp/my-file', '/tmp/my-file')
         </pre>
         '''
-        put(from_file, to_file)
+        self.put_file(from_file, to_file)
 
     def remote_symlink(self, from_file, to_file, sudo=False):
         '''

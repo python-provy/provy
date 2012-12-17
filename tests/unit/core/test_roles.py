@@ -525,6 +525,13 @@ class RoleTest(ProvyTestCase):
 
             put.assert_called_with('/from/file', '/to/file', use_sudo=True)
 
+    @istest
+    def replaces_a_file(self):
+        with self.mock_role_method('put_file') as put_file:
+            self.role.replace_file('/from/file', '/to/file')
+
+            put_file.assert_called_with('/from/file', '/to/file')
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
