@@ -9,3 +9,4 @@ provy.egg-info
 *.swo
 .vagrant
 .coverage
+.idea/
