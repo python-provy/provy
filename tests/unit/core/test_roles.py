@@ -583,6 +583,26 @@ class RoleTest(ProvyTestCase):
 
             self.assertRaises(RuntimeError, self.role.remote_symlink, from_file, to_file)
 
+    @istest
+    def renders_a_template_based_on_absolute_path(self):
+        template_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
+        options = {'foo': 'FOO!',}
+
+        content = self.role.render(template_file, options)
+
+        self.assertIn('foo=FOO!', content)
+
+    @istest
+    def renders_a_template_based_on_filename(self):
+        template_dir = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures')
+        self.role.context['loader'] = FileSystemLoader(template_dir)
+        template_file = 'some_template.txt'
+        options = {'foo': 'FOO!',}
+
+        content = self.role.render(template_file, options)
+
+        self.assertIn('foo=FOO!', content)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
