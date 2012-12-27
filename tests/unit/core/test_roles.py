@@ -7,7 +7,7 @@ from jinja2 import ChoiceLoader, FileSystemLoader
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
-from provy.core.roles import Role, UsingRole
+from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
@@ -24,6 +24,12 @@ class RoleTest(ProvyTestCase):
             'host': 'localhost',
         }
         self.role = Role(prov=None, context=context)
+        self.update_data = UpdateData('/tmp/some-file.ext', 'some local md5', 'some remote md5')
+
+    @contextmanager
+    def mock_update_data(self):
+        with self.mock_role_method('_build_update_data'):
+            self.role._build_update_data.return_value = self.update_data
 
     @istest
     def checks_if_a_remote_directory_exists(self):
@@ -708,6 +714,69 @@ class RoleTest(ProvyTestCase):
 
             self.assertFalse(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
             self.assertFalse(self.role.put_file.called)
+
+    @istest
+    def builds_update_data(self):
+        from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
+        to_file = '/etc/foo.conf'
+        options = {'foo': 'FOO!',}
+        local_temp_path = '/tmp/template-to-update'
+        md5_local = 'some local md5'
+        md5_remote = 'some remote md5'
+
+        with self.mock_role_method('write_to_temp_file'), self.mock_role_method('md5_local'), self.mock_role_method('md5_remote'):
+            self.role.write_to_temp_file.return_value = local_temp_path
+            self.role.md5_local.return_value = md5_local
+            self.role.md5_remote.return_value = md5_remote
+
+            update_data = self.role._build_update_data(from_file, options, to_file)
+
+            self.assertEqual(update_data.local_temp_path, local_temp_path)
+            self.assertEqual(update_data.from_md5, md5_local)
+            self.assertEqual(update_data.to_md5, md5_remote)
+
+    @istest
+    def really_updates_file_without_owner(self):
+        to_file = '/etc/foo.conf'
+        local_temp_path = '/tmp/template-to-update'
+        sudo = 'is it sudo?'
+        owner = None
+
+        with self.mock_role_method('put_file'):
+            self.role._really_update_file(to_file, sudo, local_temp_path, owner)
+
+            self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
+
+    @istest
+    def really_updates_file_without_owner(self):
+        to_file = '/etc/foo.conf'
+        local_temp_path = '/tmp/template-to-update'
+        sudo = 'is it sudo?'
+        owner = 'foo'
+
+        with self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'):
+            self.role._really_update_file(to_file, sudo, local_temp_path, owner)
+
+            self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
+            self.role.change_file_owner.assert_called_with(to_file, owner)
+
+    @istest
+    def checks_that_content_differs_when_md5_is_different(self):
+        self.assertTrue(self.role._contents_differ('some local md5', 'some remote md5'))
+
+    @istest
+    def checks_that_content_doesnt_differ_when_md5_is_the_same(self):
+        self.assertFalse(self.role._contents_differ('same md5', 'same md5'))
+
+    @istest
+    def checks_that_content_doesnt_differ_when_md5_is_the_same_even_with_spaces(self):
+        self.assertFalse(self.role._contents_differ('same md5      ', '  same md5'))
+
+    @istest
+    def checks_that_content_differs_when_either_md5_is_none(self):
+        self.assertTrue(self.role._contents_differ(None, 'some md5'))
+        self.assertTrue(self.role._contents_differ('some md5', None))
+        self.assertTrue(self.role._contents_differ(None, None))
 
 
 class UsingRoleTest(ProvyTestCase):

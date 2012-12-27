@@ -726,11 +726,9 @@ class Role(object):
         return update_data
 
     def _contents_differ(self, to_md5, from_md5):
-        if to_md5 is not None:
-            contents_differ = from_md5.strip() != to_md5.strip()
-        else:
-            contents_differ = True
-        return contents_differ
+        if to_md5 is None or from_md5 is None:
+            return True
+        return from_md5.strip() != to_md5.strip()
 
     def _really_update_file(self, to_file, sudo, local_temp_path, owner):
         self.put_file(local_temp_path, to_file, sudo)
