@@ -653,26 +653,6 @@ class RoleTest(ProvyTestCase):
             self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
-    def updates_file_with_owner_when_remote_exists_but_is_different(self):
-        from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
-        to_file = '/etc/foo.conf'
-        options = {'foo': 'FOO!',}
-        local_temp_path = '/tmp/template-to-update'
-        sudo = 'is it sudo?'
-        owner = 'foo'
-
-        with self.mock_role_method('write_to_temp_file'), self.mock_role_method('put_file'), self.mock_role_method('remote_exists'), self.mock_role_method('md5_local'), self.mock_role_method('md5_remote'), self.mock_role_method('change_file_owner'):
-            self.role.remote_exists.return_value = True
-            self.role.write_to_temp_file.return_value = local_temp_path
-            self.role.md5_local.return_value = 'some local md5'
-            self.role.md5_remote.return_value = 'some remote md5'
-
-            self.assertTrue(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
-
-            self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
-            self.role.change_file_owner.assert_called_with(to_file, owner)
-
-    @istest
     def doesnt_update_file_when_content_is_the_same(self):
         from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
         to_file = '/etc/foo.conf'
