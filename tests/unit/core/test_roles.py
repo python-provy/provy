@@ -630,7 +630,7 @@ class RoleTest(ProvyTestCase):
         to_file = '/etc/foo.conf'
         options = {'foo': 'FOO!',}
         sudo = 'is it sudo?'
-        owner = None
+        owner = 'foo'
 
         with self.mock_update_data(), self.mock_role_method('_really_update_file'), self.mock_role_method('remote_exists'):
             self.role.remote_exists.return_value = False
@@ -638,24 +638,6 @@ class RoleTest(ProvyTestCase):
             self.assertTrue(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
 
             self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
-
-    @istest
-    def creates_a_new_file_with_owner_when_remote_doesnt_exist_during_update(self):
-        from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
-        to_file = '/etc/foo.conf'
-        options = {'foo': 'FOO!',}
-        local_temp_path = '/tmp/template-to-update'
-        sudo = 'is it sudo?'
-        owner = 'foo'
-
-        with self.mock_role_method('write_to_temp_file'), self.mock_role_method('put_file'), self.mock_role_method('remote_exists'), self.mock_role_method('change_file_owner'):
-            self.role.remote_exists.return_value = False
-            self.role.write_to_temp_file.return_value = local_temp_path
-
-            self.assertTrue(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
-
-            self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
-            self.role.change_file_owner.assert_called_with(to_file, owner)
 
     @istest
     def updates_file_when_remote_exists_but_is_different(self):
