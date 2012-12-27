@@ -722,10 +722,10 @@ class RoleTest(ProvyTestCase):
         self.assertFalse(self.role._contents_differ('same md5      ', '  same md5'))
 
     @istest
-    def checks_that_content_differs_when_either_md5_is_none(self):
+    def checks_that_content_differs_when_a_md5_is_none(self):
         self.assertTrue(self.role._contents_differ(None, 'some md5'))
         self.assertTrue(self.role._contents_differ('some md5', None))
-        self.assertTrue(self.role._contents_differ(None, None))
+        self.assertFalse(self.role._contents_differ(None, None))
 
 
 class UsingRoleTest(ProvyTestCase):
