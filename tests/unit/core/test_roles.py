@@ -755,6 +755,28 @@ class RoleTest(ProvyTestCase):
 
             execute_python.assert_called_with("import codecs; print codecs.open('%s', 'r', 'utf-8').read()" % path, stdout=False, sudo=sudo)
 
+    @istest
+    def checks_that_a_process_is_running(self):
+        process = 'nginx'
+        sudo = 'is it sudo?'
+
+        with self.execute_mock() as execute:
+            execute.return_value = '0'
+
+            self.assertTrue(self.role.is_process_running(process, sudo=sudo))
+            execute.assert_called_with('ps aux | egrep %s | egrep -v egrep > /dev/null;echo $?' % process, stdout=False, sudo=sudo)
+
+    @istest
+    def checks_that_a_process_is_not_running(self):
+        process = 'nginx'
+        sudo = 'is it sudo?'
+
+        with self.execute_mock() as execute:
+            execute.return_value = '1'
+
+            self.assertFalse(self.role.is_process_running(process, sudo=sudo))
+            execute.assert_called_with('ps aux | egrep %s | egrep -v egrep > /dev/null;echo $?' % process, stdout=False, sudo=sudo)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):

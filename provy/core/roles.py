@@ -821,11 +821,8 @@ class Role(object):
                 if self.is_process_running('nginx', sudo=True):
                     self.execute('pkill nginx', stdout=False, sudo=True)
         '''
-        result = self.execute('ps aux | egrep %s | egrep -v egrep;echo $?' % process, stdout=False, sudo=sudo)
-        results = result.split('\n')
-        if not results:
-            return False
-        return results[-1] == '0'
+        return_code = self.execute('ps aux | egrep %s | egrep -v egrep > /dev/null;echo $?' % process, stdout=False, sudo=sudo)
+        return int(return_code) == 0
 
     def has_line(self, line, file_path):
         '''
