@@ -743,6 +743,18 @@ class RoleTest(ProvyTestCase):
         self.assertTrue(self.role._contents_differ('some md5', None))
         self.assertFalse(self.role._contents_differ(None, None))
 
+    @istest
+    def reads_a_remote_file(self):
+        path = '/some/path'
+        sudo = 'is it sudo?'
+        content = 'some content'
+        with self.mock_role_method('execute_python') as execute_python:
+            execute_python.return_value = content
+
+            self.assertEqual(self.role.read_remote_file(path, sudo), content)
+
+            execute_python.assert_called_with("import codecs; print codecs.open('%s', 'r', 'utf-8').read()" % path, stdout=False, sudo=sudo)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
