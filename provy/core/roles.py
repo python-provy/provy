@@ -637,13 +637,9 @@ class Role(object):
                 if path != from_file:
                     self.log('Symlink has different path(%s). Syncing...' % path)
                     self.execute(command, stdout=False, sudo=sudo)
-                    return True
         else:
             self.log('Symlink not found at %s! Creating...' % from_file)
             self.execute(command, stdout=False, sudo=sudo)
-            return True
-
-        return False
 
     def __extend_context(self, options):
         extended = {}
