@@ -651,6 +651,22 @@ class RoleTest(ProvyTestCase):
             self.role._force_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
+    def cleans_temp_file_after_updating(self):
+        to_file = '/etc/foo.conf'
+        sudo = 'is it sudo?'
+        owner = 'foo'
+
+        with open(self.update_data.local_temp_path, 'w') as f:
+            f.write('foo')
+
+        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
+            self.role.remote_exists.return_value = True
+
+            self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner)
+
+            self.assertFalse(os.path.exists(self.update_data.local_temp_path))
+
+    @istest
     def doesnt_update_file_when_content_is_the_same(self):
         to_file = '/etc/foo.conf'
         sudo = 'is it sudo?'

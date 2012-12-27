@@ -704,8 +704,6 @@ class Role(object):
             if update_data and update_data.local_temp_path and exists(update_data.local_temp_path):
                 os.remove(update_data.local_temp_path)
 
-        return False
-
     def _update_file_with_data(self, to_file, update_data, from_file, sudo, owner):
         should_create = not self.remote_exists(to_file)
         contents_differ = self._contents_differ(update_data.to_md5, update_data.from_md5)
@@ -716,6 +714,7 @@ class Role(object):
         if should_create or contents_differ:
             self._force_update_file(to_file, sudo, update_data.local_temp_path, owner)
             return True
+        return False
 
     def _build_update_data(self, from_file, options, to_file):
         template = self.render(from_file, options)
