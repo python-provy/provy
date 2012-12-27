@@ -714,7 +714,7 @@ class Role(object):
             self.log('Hashes differ %s => %s! Copying %s to server %s!' % (update_data.from_md5, update_data.to_md5, from_file, self.context['host']))
 
         if should_create or contents_differ:
-            self._really_update_file(to_file, sudo, update_data.local_temp_path, owner)
+            self._force_update_file(to_file, sudo, update_data.local_temp_path, owner)
             return True
 
     def _build_update_data(self, from_file, options, to_file):
@@ -731,7 +731,7 @@ class Role(object):
             return True
         return from_md5.strip() != to_md5.strip()
 
-    def _really_update_file(self, to_file, sudo, local_temp_path, owner):
+    def _force_update_file(self, to_file, sudo, local_temp_path, owner):
         self.put_file(local_temp_path, to_file, sudo)
 
         if owner:

@@ -630,11 +630,11 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_really_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
             self.role.remote_exists.return_value = False
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
-            self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
+            self.role._force_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
     def updates_file_when_remote_exists_but_is_different(self):
@@ -642,13 +642,13 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_really_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
             self.role.remote_exists.return_value = True
             self.update_data.from_md5 = 'some local md5'
             self.update_data.to_md5 = 'some remote md5'
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
-            self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
+            self.role._force_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
     def doesnt_update_file_when_content_is_the_same(self):
@@ -656,13 +656,13 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_really_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
             self.role.remote_exists.return_value = True
             self.update_data.from_md5 = 'same md5'
             self.update_data.to_md5 = 'same md5'
 
             self.assertFalse(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
-            self.assertFalse(self.role._really_update_file.called)
+            self.assertFalse(self.role._force_update_file.called)
 
     @istest
     def builds_update_data(self):
@@ -692,7 +692,7 @@ class RoleTest(ProvyTestCase):
         owner = None
 
         with self.mock_role_method('put_file'):
-            self.role._really_update_file(to_file, sudo, local_temp_path, owner)
+            self.role._force_update_file(to_file, sudo, local_temp_path, owner)
 
             self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
 
@@ -704,7 +704,7 @@ class RoleTest(ProvyTestCase):
         owner = 'foo'
 
         with self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'):
-            self.role._really_update_file(to_file, sudo, local_temp_path, owner)
+            self.role._force_update_file(to_file, sudo, local_temp_path, owner)
 
             self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
             self.role.change_file_owner.assert_called_with(to_file, owner)
