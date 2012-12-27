@@ -532,6 +532,57 @@ class RoleTest(ProvyTestCase):
 
             put_file.assert_called_with('/from/file', '/to/file')
 
+    @istest
+    def creates_a_remote_symbolic_link_if_it_doesnt_exist_yet(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            from_file = '/from/file'
+            to_file = '/to/file'
+            remote_from_exists = True
+            remote_to_exists = False
+            sudo = 'is it sudo?'
+            remote_exists.side_effect = (remote_from_exists, remote_to_exists)
+
+            self.role.remote_symlink(from_file, to_file, sudo=sudo)
+
+            self.assertEqual(remote_exists.mock_calls, [
+                call(from_file),
+                call(to_file),
+            ])
+            execute.assert_called_with('ln -sf %s %s' % (from_file, to_file), sudo=sudo, stdout=False)
+
+    @istest
+    def creates_a_remote_symbolic_link_if_it_exists_but_with_different_path(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            from_file = '/from/file'
+            to_file = '/to/file'
+            another_from_file = '/another/from/file'
+            remote_from_exists = True
+            remote_to_exists = True
+            sudo = 'is it sudo?'
+            remote_exists.side_effect = (remote_from_exists, remote_to_exists)
+            execute.side_effect = ('-rw-rw-r-- 1 foo foo 4490 Dez 11 22:24 %s -> %s' % (to_file, another_from_file), None)
+
+            self.role.remote_symlink(from_file, to_file, sudo=sudo)
+
+            self.assertEqual(remote_exists.mock_calls, [
+                call(from_file),
+                call(to_file),
+            ])
+            self.assertEqual(execute.mock_calls, [
+                call('ls -la %s' % to_file, stdout=False, sudo=sudo),
+                call('ln -sf %s %s' % (from_file, to_file), sudo=sudo, stdout=False),
+            ])
+
+    @istest
+    def raises_exception_if_remote_file_doesnt_exist(self):
+        with self.mock_role_method('remote_exists') as remote_exists:
+            from_file = '/from/file'
+            to_file = '/to/file'
+            remote_from_exists = False
+            remote_exists.side_effect = (remote_from_exists, )
+
+            self.assertRaises(RuntimeError, self.role.remote_symlink, from_file, to_file)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
