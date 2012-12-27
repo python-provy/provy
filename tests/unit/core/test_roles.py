@@ -777,6 +777,62 @@ class RoleTest(ProvyTestCase):
             self.assertFalse(self.role.is_process_running(process, sudo=sudo))
             execute.assert_called_with('ps aux | egrep %s | egrep -v egrep > /dev/null;echo $?' % process, stdout=False, sudo=sudo)
 
+    @istest
+    def checks_that_a_file_has_a_certain_line(self):
+        content = """
+        some content
+        127.0.0.1    localhost
+        some other content
+        """
+        file_path = '/some/path'
+        line = '127.0.0.1 localhost'
+
+        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+            self.role.remote_exists.return_value = True
+            self.role.read_remote_file.return_value = content
+
+            self.assertTrue(self.role.has_line(line, file_path))
+
+            self.role.remote_exists.assert_called_with(file_path)
+            self.role.read_remote_file.assert_called_with(file_path)
+
+    @istest
+    def checks_that_a_file_doesnt_have_a_certain_line(self):
+        content = """
+        some content
+        127.0.0.1    localhost
+        some other content
+        """
+        file_path = '/some/path'
+        line = '192.168.0.1 my-gateway'
+
+        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+            self.role.remote_exists.return_value = True
+            self.role.read_remote_file.return_value = content
+
+            self.assertFalse(self.role.has_line(line, file_path))
+
+            self.role.remote_exists.assert_called_with(file_path)
+            self.role.read_remote_file.assert_called_with(file_path)
+
+    @istest
+    def checks_that_a_file_doesnt_have_a_certain_line_when_file_doesnt_exist(self):
+        content = """
+        some content
+        127.0.0.1    localhost
+        some other content
+        """
+        file_path = '/some/path'
+        line = '192.168.0.1 my-gateway'
+
+        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+            self.role.remote_exists.return_value = False
+
+            self.assertFalse(self.role.has_line(line, file_path))
+
+            self.role.remote_exists.assert_called_with(file_path)
+            self.assertFalse(self.role.read_remote_file.called)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
