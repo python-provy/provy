@@ -696,25 +696,26 @@ class Role(object):
                                  sudo=True)
         </pre>
         '''
-        local_temp_path = None
+        update_data = None
         try:
             update_data = self._build_update_data(from_file, options, to_file)
-            local_temp_path = update_data.local_temp_path
-
-            should_create = not self.remote_exists(to_file)
-            contents_differ = self._contents_differ(update_data.to_md5, update_data.from_md5)
-
-            if not should_create or contents_differ:
-                self.log('Hashes differ %s => %s! Copying %s to server %s!' % (update_data.from_md5, update_data.to_md5, from_file, self.context['host']))
-
-            if should_create or contents_differ:
-                self._really_update_file(to_file, sudo, local_temp_path, owner)
-                return True
+            return self._update_file_with_data(to_file, update_data, from_file, sudo, owner)
         finally:
-            if local_temp_path and exists(local_temp_path):
-                os.remove(local_temp_path)
+            if update_data and update_data.local_temp_path and exists(update_data.local_temp_path):
+                os.remove(update_data.local_temp_path)
 
         return False
+
+    def _update_file_with_data(self, to_file, update_data, from_file, sudo, owner):
+        should_create = not self.remote_exists(to_file)
+        contents_differ = self._contents_differ(update_data.to_md5, update_data.from_md5)
+
+        if not should_create or contents_differ:
+            self.log('Hashes differ %s => %s! Copying %s to server %s!' % (update_data.from_md5, update_data.to_md5, from_file, self.context['host']))
+
+        if should_create or contents_differ:
+            self._really_update_file(to_file, sudo, update_data.local_temp_path, owner)
+            return True
 
     def _build_update_data(self, from_file, options, to_file):
         template = self.render(from_file, options)
