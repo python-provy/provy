@@ -707,7 +707,6 @@ class RoleTest(ProvyTestCase):
             self.role.md5_remote.return_value = 'same md5'
 
             self.assertFalse(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
-
             self.assertFalse(self.role.put_file.called)
 
 

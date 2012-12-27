@@ -698,33 +698,45 @@ class Role(object):
         '''
         local_temp_path = None
         try:
-            template = self.render(from_file, options)
+            update_data = self._build_update_data(from_file, options, to_file)
+            local_temp_path = update_data.local_temp_path
 
-            local_temp_path = self.write_to_temp_file(template)
+            should_create = not self.remote_exists(to_file)
+            contents_differ = self._contents_differ(update_data.to_md5, update_data.from_md5)
 
-            if not self.remote_exists(to_file):
-                self.put_file(local_temp_path, to_file, sudo)
+            if not should_create or contents_differ:
+                self.log('Hashes differ %s => %s! Copying %s to server %s!' % (update_data.from_md5, update_data.to_md5, from_file, self.context['host']))
 
-                if owner:
-                    self.change_file_owner(to_file, owner)
-
-                return True
-
-            from_md5 = self.md5_local(local_temp_path)
-            to_md5 = self.md5_remote(to_file)
-            if from_md5.strip() != to_md5.strip():
-                self.log('Hashes differ %s => %s! Copying %s to server %s!' % (from_md5, to_md5, from_file, self.context['host']))
-                self.put_file(local_temp_path, to_file, sudo)
-
-                if owner:
-                    self.change_file_owner(to_file, owner)
-
+            if should_create or contents_differ:
+                self._really_update_file(to_file, sudo, local_temp_path, owner)
                 return True
         finally:
             if local_temp_path and exists(local_temp_path):
                 os.remove(local_temp_path)
 
         return False
+
+    def _build_update_data(self, from_file, options, to_file):
+        template = self.render(from_file, options)
+        local_temp_path = self.write_to_temp_file(template)
+        from_md5 = self.md5_local(local_temp_path)
+        to_md5 = self.md5_remote(to_file)
+
+        update_data = UpdateData(local_temp_path, from_md5, to_md5)
+        return update_data
+
+    def _contents_differ(self, to_md5, from_md5):
+        if to_md5 is not None:
+            contents_differ = from_md5.strip() != to_md5.strip()
+        else:
+            contents_differ = True
+        return contents_differ
+
+    def _really_update_file(self, to_file, sudo, local_temp_path, owner):
+        self.put_file(local_temp_path, to_file, sudo)
+
+        if owner:
+            self.change_file_owner(to_file, owner)
 
     def write_to_temp_file(self, text):
         '''
@@ -933,3 +945,13 @@ class DistroInfo(object):
     description = None
     release = None
     codename = None
+
+
+class UpdateData(object):
+    '''
+    Value object used in the update_file method.
+    '''
+    def __init__(self, local_temp_path, from_md5, to_md5):
+        self.local_temp_path = local_temp_path
+        self.from_md5 = from_md5
+        self.to_md5 = to_md5
