@@ -833,6 +833,13 @@ class RoleTest(ProvyTestCase):
             self.role.remote_exists.assert_called_with(file_path)
             self.assertFalse(self.role.read_remote_file.called)
 
+    @istest
+    def uses_role_context_manager(self):
+        manager = self.role.using('some role')
+        self.assertEqual(manager.role, 'some role')
+        self.assertEqual(manager.context, self.role.context)
+        self.assertEqual(manager.prov, self.role.prov)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
