@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import os
 import sys
+import tempfile
 
 from jinja2 import ChoiceLoader, FileSystemLoader
 from mock import MagicMock, patch, call
@@ -602,6 +603,18 @@ class RoleTest(ProvyTestCase):
         content = self.role.render(template_file, options)
 
         self.assertIn('foo=FOO!', content)
+
+    @istest
+    def writes_content_to_a_temp_file(self):
+        content = 'some content'
+
+        temp_file = self.role.write_to_temp_file(content)
+
+        self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
+
+        with open(temp_file) as f:
+            saved_content = f.read().strip()
+            self.assertEqual(saved_content, content)
 
 
 class UsingRoleTest(ProvyTestCase):
