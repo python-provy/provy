@@ -634,7 +634,6 @@ class RoleTest(ProvyTestCase):
             self.role.remote_exists.return_value = False
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
-
             self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
@@ -649,26 +648,21 @@ class RoleTest(ProvyTestCase):
             self.update_data.to_md5 = 'some remote md5'
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
-
             self.role._really_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
     def doesnt_update_file_when_content_is_the_same(self):
-        from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
         to_file = '/etc/foo.conf'
-        options = {'foo': 'FOO!',}
-        local_temp_path = '/tmp/template-to-update'
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_role_method('write_to_temp_file'), self.mock_role_method('put_file'), self.mock_role_method('remote_exists'), self.mock_role_method('md5_local'), self.mock_role_method('md5_remote'), self.mock_role_method('change_file_owner'):
+        with self.mock_update_data(), self.mock_role_method('_really_update_file'), self.mock_role_method('remote_exists'):
             self.role.remote_exists.return_value = True
-            self.role.write_to_temp_file.return_value = local_temp_path
-            self.role.md5_local.return_value = 'same md5'
-            self.role.md5_remote.return_value = 'same md5'
+            self.update_data.from_md5 = 'same md5'
+            self.update_data.to_md5 = 'same md5'
 
-            self.assertFalse(self.role.update_file(from_file, to_file, options=options, sudo=sudo, owner=owner))
-            self.assertFalse(self.role.put_file.called)
+            self.assertFalse(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
+            self.assertFalse(self.role._really_update_file.called)
 
     @istest
     def builds_update_data(self):
