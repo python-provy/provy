@@ -616,6 +616,22 @@ class RoleTest(ProvyTestCase):
             saved_content = f.read().strip()
             self.assertEqual(saved_content, content)
 
+    @istest
+    def creates_a_new_file_when_remote_doesnt_exist_during_update(self):
+        from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
+        to_file = '/etc/foo.conf'
+        options = {'foo': 'FOO!',}
+        local_temp_path = '/tmp/template-to-update'
+        sudo = 'is it sudo?'
+
+        with self.mock_role_method('write_to_temp_file') as write_to_temp_file, self.mock_role_method('put_file') as put_file, self.mock_role_method('remote_exists') as remote_exists:
+            remote_exists.return_value = False
+            write_to_temp_file.return_value = local_temp_path
+
+            self.role.update_file(from_file, to_file, options=options, sudo=sudo)
+
+            put_file.assert_called_with(local_temp_path, to_file, sudo)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
