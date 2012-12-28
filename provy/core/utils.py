@@ -20,6 +20,12 @@ def provyfile_path_from(args):
     raise IOError('No provyfile was found. Please specify an existant provyfile path, or create either a "provyfile.py" or "provy_file.py"')
 
 
+def provyfile_module_from(path):
+    (base, ext) = os.path.splitext(path)
+    base = base.replace('/', '.')
+    return base
+
+
 def import_module(module_name):
     module = __import__(module_name)
     if '.' in module_name:

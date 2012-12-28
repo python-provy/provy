@@ -7,7 +7,7 @@ import tempfile
 from mock import MagicMock, patch, call
 from nose.tools import istest
 
-from provy.core.utils import provyfile_path_from
+from provy.core.utils import provyfile_path_from, provyfile_module_from
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
@@ -59,3 +59,15 @@ class UtilsTest(ProvyTestCase):
             exists.side_effect = [False, False]
 
             self.assertRaises(IOError, provyfile_path_from, args=[])
+
+    @istest
+    def gets_provyfile_module_from_simple_path(self):
+        self.assertEqual(provyfile_module_from('provyfile.py'), 'provyfile')
+
+    @istest
+    def gets_provyfile_module_from_nested_path(self):
+        self.assertEqual(provyfile_module_from('some/dir/provyfile.py'), 'some.dir.provyfile')
+
+    @istest
+    def gets_provyfile_module_from_nested_path_without_extenstion(self):
+        self.assertEqual(provyfile_module_from('some/dir/provyfile'), 'some.dir.provyfile')
