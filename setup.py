@@ -24,7 +24,7 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Topic :: System :: Installation/Setup'
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     package_data={
         '': ['*.template'],
