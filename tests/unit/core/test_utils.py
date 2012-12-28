@@ -38,3 +38,24 @@ class UtilsTest(ProvyTestCase):
             exists.return_value = True
 
             self.assertRaises(ValueError, provyfile_path_from, args=[existing_file])
+
+    @istest
+    def gets_provyfile_as_default_value_if_existant(self):
+        with patch.object(os.path, 'exists') as exists:
+            exists.side_effect = [True]
+
+            self.assertEqual(provyfile_path_from(args=[]), 'provyfile.py')
+
+    @istest
+    def gets_provy_file_as_default_value_if_existant(self):
+        with patch.object(os.path, 'exists') as exists:
+            exists.side_effect = [False, True]
+
+            self.assertEqual(provyfile_path_from(args=[]), 'provy_file.py')
+
+    @istest
+    def raises_exception_if_no_provyfile_is_found(self):
+        with patch.object(os.path, 'exists') as exists:
+            exists.side_effect = [False, False]
+
+            self.assertRaises(IOError, provyfile_path_from, args=[])
