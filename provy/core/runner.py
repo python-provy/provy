@@ -81,15 +81,11 @@ def run(provfile_path, server_name, password, extra_options):
         print
 
 
-def get_roles_for(prov, role_name):
-    return get_items(prov, role_name, 'roles', lambda item: isinstance(item, (list, tuple)))
-
-
 def get_servers_for(prov, server_name):
-    return get_items(prov, server_name, 'servers', lambda item: isinstance(item, dict) and 'address' in item, recursive=True)
+    return get_items(prov, server_name, 'servers', lambda item: isinstance(item, dict) and 'address' in item)
 
 
-def get_items(prov, item_name, item_key, test_func, recursive=False):
+def get_items(prov, item_name, item_key, test_func):
     if not hasattr(prov, item_key):
         raise ConfigurationError('The %s collection was not found in the provyfile file.' % item_key)
 
@@ -97,9 +93,6 @@ def get_items(prov, item_name, item_key, test_func, recursive=False):
 
     for item_part in item_name.split('.'):
         items = items[item_part]
-
-    if not recursive:
-        return items
 
     found_items = []
     recurse_items(items, test_func, found_items)
