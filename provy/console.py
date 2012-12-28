@@ -15,6 +15,7 @@ from os.path import exists, abspath, splitext
 from optparse import OptionParser
 
 from provy.core import run
+from provy.core.utils import provyfile_path_from
 
 
 class Messages(object):
@@ -57,18 +58,12 @@ def __get_provy_file_path(provyfile_name):
 
 
 def main():
+    sys.path.insert(0, os.curdir)
+
     extra_options = __get_extra_options()
     (options, args) = __get_arguments()
 
-    sys.path.insert(0, os.curdir)
-    if args:
-        provyfile_name = args[0]
-    else:
-        provyfile_name = 'provyfile.py'
-
-    provyfile_path = __get_provy_file_path(provyfile_name)
-    if not provyfile_path:
-        provyfile_path = __get_provy_file_path('provy_file.py')
+    provyfile_path = provyfile_path_from(args)
 
     if options.server is None and provyfile_path:
         # TODO: Improve this code to 'find' the set of servers defined in the

@@ -5,14 +5,14 @@ from os.path import sep, abspath, dirname, join
 
 from fabric.context_managers import settings as _settings
 
-from provy.core.utils import import_module, AskFor
+from provy.core.utils import import_module, AskFor, provyfile_module_from
 from provy.core.errors import ConfigurationError
 from jinja2 import FileSystemLoader, ChoiceLoader
 
 
 def run(provfile_path, server_name, password, extra_options):
-    module_path = provfile_path.replace(sep, '.')
-    prov = import_module(module_path)
+    module_name = provyfile_module_from(provfile_path)
+    prov = import_module(module_name)
     servers = get_servers_for(prov, server_name)
 
     for server in servers:

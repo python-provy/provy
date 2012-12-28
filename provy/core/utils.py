@@ -29,7 +29,7 @@ def provyfile_module_from(path):
 def import_module(module_name):
     module = __import__(module_name)
     if '.' in module_name:
-        return reduce(getattr, module_name.split()[1:], module)
+        return reduce(getattr, module_name.split('.')[1:], module)
     return module
 
 
