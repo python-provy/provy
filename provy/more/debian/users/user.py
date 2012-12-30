@@ -38,7 +38,7 @@ class UserRole(Role):
                         # do something
         </pre>
         '''
-        return group_name in self.execute("cat /etc/group", stdout=False)
+        return group_name in self.execute("cat /etc/group | cut -d ':' -f 1", stdout=False, sudo=True)
 
     def user_exists(self, username):
         '''
