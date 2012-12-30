@@ -31,3 +31,10 @@ class UserRoleTest(ProvyTestCase):
 
             self.assertTrue(self.role.group_exists('daemon'))
             execute.assert_called_with("cat /etc/group | cut -d ':' -f 1", stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_group_doesnt_exist(self):
+        with self.execute_mock() as execute:
+            execute.return_value = example_groups
+
+            self.assertFalse(self.role.group_exists('iis'))
