@@ -1,16 +1,11 @@
-from contextlib import contextmanager
-import getpass
 import os
-import sys
-from unittest import skip
-import tempfile
 
-from mock import MagicMock, patch, call
+from mock import patch
 from nose.tools import istest
 
 from provy.core.runner import run
 import provy.core.utils
-from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
+from tests.unit.tools.helpers import ProvyTestCase
 from tests.functional.fixtures.provyfile import (
     provisions,
     cleanups,

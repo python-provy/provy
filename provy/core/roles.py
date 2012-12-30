@@ -5,17 +5,13 @@
 Module responsible for the base Role and its operations.
 '''
 
-import codecs
 from contextlib import contextmanager
-import zlib
 import os
-from os.path import exists, join, split, dirname, isabs
+from os.path import exists, split, dirname, isabs
 from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 
 import fabric.api
-from fabric.api import run, put, settings, hide
-from fabric.api import sudo as fab_sudo
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 

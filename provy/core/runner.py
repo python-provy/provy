@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from os.path import sep, abspath, dirname, join
+from os.path import abspath, dirname, join
 
 from fabric.context_managers import settings as _settings
 

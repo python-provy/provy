@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from pyvows import Vows, expect
+from pyvows import Vows
 
-from provy.core.roles import Role
 
 class MockedRole(object):
 
