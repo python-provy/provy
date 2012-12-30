@@ -29,6 +29,9 @@ man
 lp
 mail
 """
+example_groups_for_user = """
+foo : foo adm cdrom sudo dip plugdev lpadmin sambashare
+"""
 
 
 class UserRoleTest(ProvyTestCase):
@@ -80,3 +83,33 @@ class UserRoleTest(ProvyTestCase):
 
             self.assertFalse(self.role.user_exists('roo'))
             self.assertFalse(self.role.user_exists('roots'))
+
+    @istest
+    def checks_that_a_user_is_in_a_certain_group(self):
+        with self.execute_mock() as execute:
+            execute.return_value = example_groups_for_user
+
+            self.assertTrue(self.role.user_in_group('foo', 'sudo'))
+            execute.assert_called_with("groups foo", stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_user_is_not_in_a_certain_group(self):
+        with self.execute_mock() as execute:
+            execute.return_value = example_groups_for_user
+
+            self.assertFalse(self.role.user_in_group('foo', 'root'))
+
+    @istest
+    def checks_that_a_user_is_in_a_certain_group_by_exact_name(self):
+        with self.execute_mock() as execute:
+            execute.return_value = example_groups_for_user
+
+            self.assertFalse(self.role.user_in_group('foo', 'sud'))
+            self.assertFalse(self.role.user_in_group('foo', 'sudoer'))
+
+    @istest
+    def cannot_check_user_in_groups_if_username_doesnt_exist(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'groups: foo: User unexistant'
+
+            self.assertRaises(ValueError, self.role.user_in_group, 'foo', 'bar')

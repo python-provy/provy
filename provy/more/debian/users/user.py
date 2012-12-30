@@ -85,7 +85,12 @@ class UserRole(Role):
         </pre>
         '''
 
-        return group_name in self.execute('groups %s' % username, sudo=True, stdout=False)
+        raw_groups = self.execute('groups %s' % username, sudo=True, stdout=False).strip()
+        if not raw_groups.startswith(username):
+            raise ValueError("User '%s' doesn't exist" % username)
+        groups_string = raw_groups.replace('%s : ' % username, '')
+        groups = groups_string.split()
+        return group_name in groups
 
     def ensure_group(self, group_name):
         '''
