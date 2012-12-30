@@ -38,9 +38,13 @@ class UserRole(Role):
                         # do something
         </pre>
         '''
-        groups = self.execute("cat /etc/group | cut -d ':' -f 1", stdout=False, sudo=True)
-        groups = groups.strip().split('\n')
-        return group_name in groups
+        values = self.__first_values_from('group')
+        return group_name in values
+
+    def __first_values_from(self, basename):
+        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=False, sudo=True)
+        values = values.strip().split('\n')
+        return values
 
     def user_exists(self, username):
         '''
@@ -59,7 +63,8 @@ class UserRole(Role):
                         # do something
         </pre>
         '''
-        return username in self.execute("cat /etc/passwd", stdout=False)
+        values = self.__first_values_from('passwd')
+        return username in values
 
     def user_in_group(self, username, group_name):
         '''
