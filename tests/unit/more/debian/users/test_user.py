@@ -38,3 +38,11 @@ class UserRoleTest(ProvyTestCase):
             execute.return_value = example_groups
 
             self.assertFalse(self.role.group_exists('iis'))
+
+    @istest
+    def checks_group_by_exact_name(self):
+        with self.execute_mock() as execute:
+            execute.return_value = example_groups
+
+            self.assertFalse(self.role.group_exists('roo'))
+            self.assertFalse(self.role.group_exists('roots'))
