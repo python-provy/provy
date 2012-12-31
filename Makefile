@@ -8,4 +8,5 @@ test:
 	@env PYTHONHASHSEED=random PYTHONPATH=. nosetests --with-coverage --cover-package=provy --cover-erase --with-yanc --with-xtraceback tests/
 
 build: test
-	flake8 . | grep -v 'line too long'
+	@echo Running syntax check...
+	@flake8 . --ignore=E501
