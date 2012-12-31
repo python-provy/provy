@@ -42,3 +42,10 @@ class UFWRoleTest(ProvyTestCase):
             self.role.allow(8000)
 
             execute.assert_any_call('ufw allow 8000', stdout=False, sudo=True)
+
+    @istest
+    def allows_a_certain_port_by_number_and_protocol(self):
+        with self.execute_mock() as execute:
+            self.role.allow(8000, protocol='tcp')
+
+            execute.assert_any_call('ufw allow 8000/tcp', stdout=False, sudo=True)
