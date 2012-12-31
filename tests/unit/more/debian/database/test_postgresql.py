@@ -27,7 +27,6 @@ class PostgreSQLRoleTestCase(ProvyTestCase):
 
     @contextmanager
     def execution(self, return_value, query):
-        count = self.execution_count
         self.execution_results.append(return_value)
         with patch('provy.core.roles.Role.execute', self.execute):
             yield

@@ -58,11 +58,11 @@ class PipRoleTestCase(ProvyTestCase):
 
 class PipRoleTest(PipRoleTestCase):
     def setUp(self):
-        self.role = PipRole(prov=None, context={'user': 'johndoe',})
+        self.role = PipRole(prov=None, context={'user': 'johndoe'})
 
     @istest
     def extracts_package_name_as_data_from_input(self):
-        self.assertEqual(self.role.extract_package_data_from_input('django'), {'name': 'django',})
+        self.assertEqual(self.role.extract_package_data_from_input('django'), {'name': 'django'})
 
     @istest
     def extracts_package_name_version_and_equal_to_as_data_from_input(self):
@@ -161,6 +161,7 @@ class PipRoleTest(PipRoleTestCase):
     @istest
     def gets_none_as_version_if_remote_doesnt_have_it_installed(self):
         test_case = self
+
         @contextmanager
         def fake_settings(self, warn_only):
             test_case.assertTrue(warn_only)
@@ -172,6 +173,7 @@ class PipRoleTest(PipRoleTestCase):
     @istest
     def gets_version_if_remote_has_it_installed(self):
         test_case = self
+
         @contextmanager
         def fake_settings(self, warn_only):
             test_case.assertTrue(warn_only)
@@ -252,4 +254,3 @@ class PipRoleTest(PipRoleTestCase):
 
         self.assertTrue(self.role.use_sudo)
         self.assertEqual(self.role.user, None)
-
