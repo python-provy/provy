@@ -8,7 +8,6 @@ Roles in this namespace are meant to provision packages installed via the gem pa
 from fabric.api import settings
 
 from provy.core import Role
-from provy.more.debian.package.aptitude import AptitudeRole
 from provy.more.debian.programming.ruby import RubyRole
 
 
@@ -71,7 +70,7 @@ class GemRole(Role):
         </pre>
         '''
         with settings(warn_only=True):
-            package_string = self.execute("gem list --local | tr '[A-Z]' '[a-z]' | grep %s%s" % 
+            package_string = self.execute("gem list --local | tr '[A-Z]' '[a-z]' | grep %s%s" %
                     (package_name, version and '(%s)' % version or ''),  stdout=False, sudo=self.use_sudo)
             return package_name in package_string
 

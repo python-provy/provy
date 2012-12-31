@@ -10,7 +10,6 @@ from fabric.api import settings
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
-import re
 import xmlrpclib
 
 

@@ -8,8 +8,6 @@ Roles in this namespace are meant to provision packages installed via the Yum pa
 from os.path import join
 from datetime import datetime, timedelta
 
-from fabric.api import settings
-
 from provy.core import Role
 
 

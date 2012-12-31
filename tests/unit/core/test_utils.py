@@ -1,14 +1,10 @@
-from contextlib import contextmanager
 import os
-import sys
-from unittest import skip
-import tempfile
 
-from mock import MagicMock, patch, call
+from mock import patch
 from nose.tools import istest
 
 from provy.core.utils import provyfile_path_from, provyfile_module_from
-from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
+from tests.unit.tools.helpers import ProvyTestCase
 
 
 class UtilsTest(ProvyTestCase):

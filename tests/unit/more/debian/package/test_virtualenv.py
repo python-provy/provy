@@ -1,6 +1,5 @@
 from contextlib import contextmanager
 import os
-import sys
 
 from mock import MagicMock, patch, call
 from nose.tools import istest

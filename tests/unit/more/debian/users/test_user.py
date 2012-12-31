@@ -1,6 +1,3 @@
-from contextlib import contextmanager
-
-from mock import MagicMock, patch, call
 from nose.tools import istest
 
 from provy.more.debian import UserRole

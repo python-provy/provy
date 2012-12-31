@@ -1,6 +1,5 @@
 from contextlib import contextmanager
 import os
-import sys
 import tempfile
 
 from jinja2 import ChoiceLoader, FileSystemLoader
