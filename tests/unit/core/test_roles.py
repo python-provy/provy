@@ -354,15 +354,6 @@ class RoleTest(ProvyTestCase):
             change_path_owner.assert_called_with('/some/dir', 'foo')
 
     @istest
-    def doesnt_create_directory_if_it_already_exists(self):
-        with self.execute_mock() as execute, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
-            remote_exists_dir.return_value = True
-
-            self.role.ensure_dir('/some/dir')
-
-            self.assertFalse(execute.called)
-
-    @istest
     def gets_object_mode_from_remote_file(self):
         with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
             remote_exists.return_value = True
@@ -712,7 +703,7 @@ class RoleTest(ProvyTestCase):
             self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
 
     @istest
-    def really_updates_file_without_owner(self):
+    def really_updates_file_with_owner(self):
         to_file = '/etc/foo.conf'
         local_temp_path = '/tmp/template-to-update'
         sudo = 'is it sudo?'
