@@ -3,6 +3,31 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class UFWRole(Role):
+    '''
+    This role provides ufw utilities for Debian distributions.
+    There are two important behaviors to notice:
+    Right after ufw is installed, this role allows TCP and UDP (in and out) connections to port 22, so that provy can still continue to provision the server through SSH.
+    Right before exiting the "with using(UFWRole)" block, it enables ufw, which blocks all other ports and protocols, so that the server is secure by default.
+    So, when using this role, remember to allow all the ports with protocols that you need, otherwise you might not be able to connect to the services you provision later on.
+    <em>Properties</em>
+    block_on_finish - if False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+    from provy.core import Role
+    from provy.more.debian import UFWRole
+
+    class MySampleRole(Role):
+        def provision(self):
+
+            # this example allows only incoming HTTP connections
+            with self.using(UFWRole) as ufw:
+                ufw.allow('http')
+
+            # this example blocks SSH outgoing connections
+            with self.using(UFWRole) as ufw:
+                ufw.reject(22, direction="out") # here we used a number, but could be "ssh" as well
+    </pre>
+    '''
 
     def provision(self):
         '''
@@ -34,7 +59,7 @@ class UFWRole(Role):
 
         class MySampleRole(Role):
             def provision(self):
-                with self.using(UFWRole) as iptables:
+                with self.using(UFWRole) as ufw:
                     self.schedule_cleanup() # no need to call this explicitly
 
         </pre>
