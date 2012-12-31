@@ -26,7 +26,7 @@ class IPTablesRole(Role):
             # this example allows any incoming connections, but block SSH outgoing connections
             with self.using(IPTablesRole) as iptables:
                 iptables.block_on_finish = False
-                iptables.deny(22, direction="out") # here we used a number, but could be "ssh" as well
+                iptables.reject(22, direction="out") # here we used a number, but could be "ssh" as well
 
             # this example allows established sessions in interface eth0
             with self.using(IPTablesRole) as iptables:
@@ -114,7 +114,7 @@ class IPTablesRole(Role):
         '''
         super(IPTablesRole, self).schedule_cleanup()
         if self.block_on_finish:
-            self.deny()
+            self.reject()
         self.execute("iptables-save > /etc/iptables.rules", stdout=False, sudo=True)
 
     def __change_rule(self, policy, port, direction, protocol, interface, match=None, **options):
@@ -148,15 +148,15 @@ class IPTablesRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(IPTablesRole) as iptables:
-                    self.allow(port=11211, direction="out", protocol="udp") # allow UDP connections to an external Memcached server.
+                    iptables.allow(port=11211, direction="out", protocol="udp") # allow UDP connections to an external Memcached server.
 
         </pre>
         '''
         self.__change_rule("ACCEPT", port, direction, protocol, interface, match, **options)
 
-    def deny(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
+    def reject(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
         '''
-        Denies connections to be made to or from the server, responding with a "connection refused" packet.
+        Rejects connections to be made to or from the server, responding with a "connection refused" packet.
         <em>Parameters</em>
         port - Port to be used. Defaults to None, which means all ports will be denied.
         direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
@@ -172,7 +172,7 @@ class IPTablesRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(IPTablesRole) as iptables:
-                    self.deny(port=11211, direction="out", protocol="udp") # deny UDP connections to an external Memcached server.
+                    iptables.reject(port=11211, direction="out", protocol="udp") # reject UDP connections to an external Memcached server.
 
         </pre>
         '''
@@ -196,7 +196,7 @@ class IPTablesRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(IPTablesRole) as iptables:
-                    self.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
+                    iptables.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
 
         </pre>
         '''

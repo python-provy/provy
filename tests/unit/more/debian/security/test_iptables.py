@@ -123,37 +123,37 @@ class IPTablesRoleTest(ProvyTestCase):
             execute.assert_called_with('iptables -A INPUT -j ACCEPT -p tcp -m state --state ESTABLISHED,RELATED', stdout=False, sudo=True)
 
     @istest
-    def denies_incoming_connections_in_all_ports_and_protocols(self):
+    def rejects_incoming_connections_in_all_ports_and_protocols(self):
         with self.execute_mock() as execute:
-            self.role.deny()
+            self.role.reject()
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p all', stdout=False, sudo=True)
 
     @istest
-    def denies_tcp_connections_in_all_ports(self):
+    def rejects_tcp_connections_in_all_ports(self):
         with self.execute_mock() as execute:
-            self.role.deny(protocol="tcp")
+            self.role.reject(protocol="tcp")
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p tcp', stdout=False, sudo=True)
 
     @istest
-    def denies_tcp_connections_in_a_specific_port(self):
+    def rejects_tcp_connections_in_a_specific_port(self):
         with self.execute_mock() as execute:
-            self.role.deny(port=80, protocol="tcp")
+            self.role.reject(port=80, protocol="tcp")
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p tcp --dport 80', stdout=False, sudo=True)
 
     @istest
-    def denies_outgoing_connections(self):
+    def rejects_outgoing_connections(self):
         with self.execute_mock() as execute:
-            self.role.deny(direction="out")
+            self.role.reject(direction="out")
 
             execute.assert_called_with('iptables -A OUTPUT -j REJECT -p all', stdout=False, sudo=True)
 
     @istest
-    def denies_incoming_connections_in_all_ports_with_a_match_filter(self):
+    def rejects_incoming_connections_in_all_ports_with_a_match_filter(self):
         with self.execute_mock() as execute:
-            self.role.deny(match="state", state="ESTABLISHED,RELATED")
+            self.role.reject(match="state", state="ESTABLISHED,RELATED")
 
             execute.assert_called_with('iptables -A INPUT -j REJECT -p all -m state --state ESTABLISHED,RELATED', stdout=False, sudo=True)
 
