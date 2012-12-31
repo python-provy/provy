@@ -7,6 +7,7 @@ Roles in this namespace are meant to provide hosts management operations for cen
 
 from provy.more.linux.networking.hosts import HostsRole as Hosts
 
+
 class HostsRole(Hosts):
     '''
     This role provides hosts file management utilities for centos distributions.
@@ -24,4 +25,3 @@ class HostsRole(Hosts):
 
     def ensure_host(self, host_name, ip):
         super(HostsRole, self).ensure_host(host_name, ip)
-
