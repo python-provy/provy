@@ -177,8 +177,15 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             self.assertTrue(self.role.ensure_database("bar"))
 
     @istest
-    def installs_necessary_packages_to_provision(self):
-        with self.using_stub(AptitudeRole) as mock_aptitude:
+    def installs_necessary_packages_to_provision_to_ubuntu(self):
+        with self.using_stub(AptitudeRole) as mock_aptitude, self.provisioning_to('ubuntu'):
             self.role.provision()
             install_calls = mock_aptitude.ensure_package_installed.mock_calls
             self.assertEqual(install_calls, [call('postgresql'), call('postgresql-server-dev-9.1')])
+
+    @istest
+    def installs_necessary_packages_to_provision_to_debian(self):
+        with self.using_stub(AptitudeRole) as mock_aptitude, self.provisioning_to('debian'):
+            self.role.provision()
+            install_calls = mock_aptitude.ensure_package_installed.mock_calls
+            self.assertEqual(install_calls, [call('postgresql'), call('postgresql-server-dev-8.4')])
