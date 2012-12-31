@@ -71,11 +71,7 @@ def main():
         print "\nInfo: Provy is running using the 'test' set of servers.\n"
         options.server = 'test'
 
-    if not provyfile_path:
-        print "The file %s could not be found!" % provyfile_name
-        sys.exit(1)
     run(provyfile_path, options.server, options.password, extra_options)
-    sys.exit(0)
 
 if __name__ == '__main__':
     main()
