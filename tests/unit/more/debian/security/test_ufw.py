@@ -28,3 +28,17 @@ class UFWRoleTest(ProvyTestCase):
             self.role.schedule_cleanup()
 
             execute.assert_any_call("ufw enable", stdout=False, sudo=True)
+
+    @istest
+    def allows_a_certain_port_by_application_name(self):
+        with self.execute_mock() as execute:
+            self.role.allow('http')
+
+            execute.assert_any_call('ufw allow http', stdout=False, sudo=True)
+
+    @istest
+    def allows_a_certain_port_by_number(self):
+        with self.execute_mock() as execute:
+            self.role.allow(8000)
+
+            execute.assert_any_call('ufw allow 8000', stdout=False, sudo=True)

@@ -41,3 +41,6 @@ class UFWRole(Role):
         '''
         super(UFWRole, self).schedule_cleanup()
         self.execute("ufw enable", stdout=False, sudo=True)
+
+    def allow(self, port):
+        self.execute('ufw allow %s' % port, stdout=False, sudo=True)
