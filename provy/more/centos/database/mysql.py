@@ -10,6 +10,7 @@ import re
 from provy.core import Role
 from provy.more.centos.package.yum import YumRole
 
+
 class MySQLRole(Role):
     '''
     This role provides MySQL database management utilities for CentOS distributions.

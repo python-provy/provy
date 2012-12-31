@@ -73,7 +73,7 @@ class RabbitMqRole(Role):
 
         # Start rabbitmq at startup, TODO: add chkconfig role
         self.execute('chkconfig --add rabbitmq-server', stdout=False,
-                      sudo=True)
+                     sudo=True)
         self.execute('chkconfig rabbitmq-server on', stdout=False, sudo=True)
 
         # Make sure rabbit is running:

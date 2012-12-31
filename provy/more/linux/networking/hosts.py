@@ -7,6 +7,7 @@ Roles in this namespace are meant to provide hosts management operations.
 
 from provy.core import Role
 
+
 class HostsRole(Role):
     '''
     This role provides hosts file management utilities.
@@ -24,4 +25,3 @@ class HostsRole(Role):
 
     def ensure_host(self, host_name, ip):
         self.ensure_line('%s        %s' % (ip, host_name), '/etc/hosts', sudo=True)
-

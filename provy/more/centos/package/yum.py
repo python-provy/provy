@@ -216,8 +216,8 @@ class YumRole(Role):
         </pre>
         '''
         package = self.execute(
-                'rpm -qa %s' % package_name, stdout=False, sudo=True,
-            )
+            'rpm -qa %s' % package_name, stdout=False, sudo=True,
+        )
         return bool(package)
 
     def ensure_package_installed(self, package_name):
