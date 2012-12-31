@@ -52,10 +52,64 @@ class UFWRole(Role):
         self.execute(command, stdout=False, sudo=True)
 
     def allow(self, port_or_query, protocol=None, direction=None):
+        '''
+        Allows connections to be made to or from the server.
+        <em>Parameters</em>
+        port_or_query - Port to be used, or a full query specification. If you use a full query, there's no sense in providing the other arguments.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server) or "out" (connections coming from the server to the outside).
+        protocol - Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import UFWRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UFWRole) as ufw:
+                    ufw.allow(11211, protocol="udp", direction="out") # allow UDP connections to an external Memcached server.
+
+        </pre>
+        '''
         self.__change('allow', direction, port_or_query, protocol)
 
-    def deny(self, port_or_query, protocol=None, direction=None):
+    def drop(self, port_or_query, protocol=None, direction=None):
+        '''
+        Drop connections to be made to or from the server, without responding anything to the client (drop packets on the ground).
+        <em>Parameters</em>
+        port_or_query - Port to be used, or a full query specification. If you use a full query, there's no sense in providing the other arguments.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server) or "out" (connections coming from the server to the outside).
+        protocol - Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import UFWRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UFWRole) as ufw:
+                    ufw.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
+
+        </pre>
+        '''
         self.__change('deny', direction, port_or_query, protocol)
 
     def reject(self, port_or_query, protocol=None, direction=None):
+        '''
+        Rejects connections to be made to or from the server, responding with a "connection refused" packet.
+        <em>Parameters</em>
+        port_or_query - Port to be used, or a full query specification. If you use a full query, there's no sense in providing the other arguments.
+        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server) or "out" (connections coming from the server to the outside).
+        protocol - Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import UFWRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UFWRole) as ufw:
+                    ufw.reject(port=11211, direction="out", protocol="udp") # reject UDP connections to an external Memcached server.
+
+        </pre>
+        '''
         self.__change('reject', direction, port_or_query, protocol)

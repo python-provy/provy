@@ -65,9 +65,9 @@ class UFWRoleTest(ProvyTestCase):
             execute.assert_called_with('ufw allow in 8000/tcp', stdout=False, sudo=True)
 
     @istest
-    def denies_a_certain_port_by_number_and_protocol_and_direction(self):
+    def drops_a_certain_port_by_number_and_protocol_and_direction(self):
         with self.execute_mock() as execute:
-            self.role.deny(8000, protocol='tcp', direction='in')
+            self.role.drop(8000, protocol='tcp', direction='in')
 
             execute.assert_called_with('ufw deny in 8000/tcp', stdout=False, sudo=True)
 
