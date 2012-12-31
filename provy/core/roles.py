@@ -476,7 +476,6 @@ class Role(object):
         '''
         self.change_path_mode(path, mode, recursive=recursive)
 
-
     def change_file_mode(self, path, mode):
         '''
         Deprecated. Please use change_path_mode instead.
@@ -563,7 +562,6 @@ class Role(object):
             self.log('%s removed!' % path)
             return True
         return False
-
 
     def remove_file(self, path, sudo=False):
         '''
@@ -917,7 +915,6 @@ class Role(object):
         '''
         raw_distro_info = self.execute('lsb_release -a')
         distro_info_lines = raw_distro_info.split('\n')
-        distro_info_dict = {}
         distro_info = DistroInfo()
 
         for line in distro_info_lines:

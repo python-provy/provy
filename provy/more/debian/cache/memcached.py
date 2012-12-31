@@ -45,19 +45,19 @@ class MemcachedRole(Role):
             role.ensure_package_installed('libmemcached-dev')
 
     def ensure_conf(self,
-            owner='root',
-            log_folder='/var/log/memcached',
-            verbose_level=0,
-            memory_in_mb=64,
-            host='127.0.0.1',
-            port=11211,
-            user='nobody',
-            simultaneous_connections=1024,
-            lock_down=False,
-            error_when_memory_exhausted=False,
-            maximize_core_file_limit=False,
-            conf_path='/etc/memcached.conf'
-        ):
+                    owner='root',
+                    log_folder='/var/log/memcached',
+                    verbose_level=0,
+                    memory_in_mb=64,
+                    host='127.0.0.1',
+                    port=11211,
+                    user='nobody',
+                    simultaneous_connections=1024,
+                    lock_down=False,
+                    error_when_memory_exhausted=False,
+                    maximize_core_file_limit=False,
+                    conf_path='/etc/memcached.conf'
+                    ):
         '''
         Ensures that Memcached's configuration file at the specified path is up-to-date.
         <em>Parameters</em>

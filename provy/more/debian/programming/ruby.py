@@ -10,6 +10,7 @@ from fabric.api import settings
 from provy.core import Role
 from provy.more.debian import AptitudeRole
 
+
 class RubyRole(Role):
     '''
     This role provides Ruby utilities for Debian distributions.
@@ -66,9 +67,8 @@ class RubyRole(Role):
                 self.remove_dir('/tmp/%s' % ruby_file, sudo=True)
 
                 self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' %
-                        (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
+                             (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
 
                 self.__symlink_from_local()
 
                 self.log('ruby %sp%d installed!' % (self.version, self.patch))
-

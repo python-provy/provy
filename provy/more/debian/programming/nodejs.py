@@ -12,6 +12,7 @@ from fabric.api import cd, settings
 from provy.core import Role
 from provy.more.debian import AptitudeRole
 
+
 class NodeJsRole(Role):
     '''
     This role provides Node.JS utilities for Debian and Ubuntu distributions.
