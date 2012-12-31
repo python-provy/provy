@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
 '''
 Roles in this namespace are meant to configure either Web Servers (apache, nginx) or Web App Servers (tornado, django, rails) in Debian distributions.

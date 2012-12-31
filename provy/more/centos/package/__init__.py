@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
 '''
 Roles in this namespace are meant to enable users to install packages using package managers such as Yum or Pip in CentOS distributions.

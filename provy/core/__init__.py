@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
 '''
 provy's core classes. The modules in this namespace are the ones that run provy.
