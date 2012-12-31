@@ -1,9 +1,7 @@
-from contextlib import contextmanager
-
-from mock import MagicMock, patch, call, ANY
+from mock import patch
 from nose.tools import istest
 
-from provy.more.debian import AptitudeRole, PipRole, SupervisorRole
+from provy.more.debian import PipRole, SupervisorRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
