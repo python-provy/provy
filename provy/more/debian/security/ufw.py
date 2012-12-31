@@ -23,3 +23,21 @@ class UFWRole(Role):
             aptitude.ensure_package_installed('ufw')
 
         self.execute('ufw allow ssh', stdout=False, sudo=True)
+
+    def schedule_cleanup(self):
+        '''
+        Apart from the core cleanup, this one also enables the firewall.
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import UFWRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(UFWRole) as iptables:
+                    self.schedule_cleanup() # no need to call this explicitly
+
+        </pre>
+        '''
+        super(UFWRole, self).schedule_cleanup()
+        self.execute("ufw enable", stdout=False, sudo=True)

@@ -21,3 +21,10 @@ class UFWRoleTest(ProvyTestCase):
             self.role.provision()
 
             execute.assert_any_call('ufw allow ssh', stdout=False, sudo=True)
+
+    @istest
+    def enables_when_finishing_provisioning(self):
+        with self.execute_mock() as execute:
+            self.role.schedule_cleanup()
+
+            execute.assert_any_call("ufw enable", stdout=False, sudo=True)
