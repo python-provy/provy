@@ -151,6 +151,7 @@ class RoleTest(ProvyTestCase):
     @istest
     def provisions_role(self):
         role_instance = MagicMock()
+
         def StubRole(prov, context):
             return role_instance
 
@@ -161,6 +162,7 @@ class RoleTest(ProvyTestCase):
     @istest
     def schedules_cleanup_when_provisioning(self):
         role_instance = MagicMock()
+
         def StubRole(prov, context):
             return role_instance
 
@@ -364,7 +366,7 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def cannot_get_mode_if_file_doesnt_exist(self):
-        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
+        with self.execute_mock(), self.mock_role_method('remote_exists') as remote_exists, self.mock_role_method('remote_exists_dir') as remote_exists_dir:
             remote_exists.return_value = False
             remote_exists_dir.return_value = False
 
@@ -585,7 +587,7 @@ class RoleTest(ProvyTestCase):
     @istest
     def renders_a_template_based_on_absolute_path(self):
         template_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
-        options = {'foo': 'FOO!',}
+        options = {'foo': 'FOO!'}
 
         content = self.role.render(template_file, options)
 
@@ -596,7 +598,7 @@ class RoleTest(ProvyTestCase):
         template_dir = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures')
         self.role.context['loader'] = FileSystemLoader(template_dir)
         template_file = 'some_template.txt'
-        options = {'foo': 'FOO!',}
+        options = {'foo': 'FOO!'}
 
         content = self.role.render(template_file, options)
 
@@ -674,7 +676,7 @@ class RoleTest(ProvyTestCase):
     def builds_update_data(self):
         from_file = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures', 'some_template.txt')
         to_file = '/etc/foo.conf'
-        options = {'foo': 'FOO!',}
+        options = {'foo': 'FOO!'}
         local_temp_path = '/tmp/template-to-update'
         md5_local = 'some local md5'
         md5_remote = 'some remote md5'
@@ -807,11 +809,6 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def checks_that_a_file_doesnt_have_a_certain_line_when_file_doesnt_exist(self):
-        content = """
-        some content
-        127.0.0.1    localhost
-        some other content
-        """
         file_path = '/some/path'
         line = '192.168.0.1 my-gateway'
 
@@ -833,7 +830,7 @@ class RoleTest(ProvyTestCase):
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
-        return {'used_roles': {},}
+        return {'used_roles': {}}
 
     @istest
     def returns_role_instance_for_with_block(self):
@@ -855,7 +852,7 @@ class UsingRoleTest(ProvyTestCase):
             def provision(self):
                 sentinel()
 
-        with UsingRole(DummyRole, None, self.any_context()) as role:
+        with UsingRole(DummyRole, None, self.any_context()):
             self.assertTrue(sentinel.called)
 
     @istest
@@ -866,7 +863,7 @@ class UsingRoleTest(ProvyTestCase):
             def schedule_cleanup(self):
                 sentinel()
 
-        with UsingRole(DummyRole, None, self.any_context()) as role:
+        with UsingRole(DummyRole, None, self.any_context()):
             self.assertFalse(sentinel.called)
         self.assertTrue(sentinel.called)
 
@@ -881,5 +878,5 @@ class UsingRoleTest(ProvyTestCase):
 
         using = UsingRole(DummyRole, None, context)
 
-        with using as role:
+        with using:
             self.assertEqual(using.role_instance, instance)
