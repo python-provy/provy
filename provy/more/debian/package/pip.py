@@ -59,7 +59,7 @@ class PipRole(Role):
         package_constraint = None
         input_line = input_line.strip()
         package_info = {
-            "name" : input_line
+            "name": input_line
         }
 
         if input_line.startswith("-e") and "#egg=" in input_line:

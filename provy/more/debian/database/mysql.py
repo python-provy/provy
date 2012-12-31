@@ -10,6 +10,7 @@ import re
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
+
 class MySQLRole(Role):
     '''
     This role provides MySQL database management utilities for Debian distributions.

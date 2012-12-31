@@ -10,6 +10,7 @@ from provy.core import Role
 
 from provy.more.debian.programming.nodejs import NodeJsRole
 
+
 class NPMRole(Role):
     '''
     This role provides package management operations with NPM within Debian distributions.

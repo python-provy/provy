@@ -71,7 +71,8 @@ class GemRole(Role):
         '''
         with settings(warn_only=True):
             package_string = self.execute("gem list --local | tr '[A-Z]' '[a-z]' | grep %s%s" %
-                    (package_name, version and '(%s)' % version or ''),  stdout=False, sudo=self.use_sudo)
+                                          (package_name, version and '(%s)' % version or ''),
+                                          stdout=False, sudo=self.use_sudo)
             return package_name in package_string
 
     def ensure_package_installed(self, package_name, version=None):

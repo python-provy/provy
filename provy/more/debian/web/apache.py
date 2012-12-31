@@ -187,4 +187,3 @@ class ApacheRole(Role):
 
         self.execute('service apache2 restart', sudo=True)
         self.must_restart = False
-

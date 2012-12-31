@@ -9,6 +9,7 @@ from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 from provy.more.debian.package.gem import GemRole
 
+
 class RailsRole(Role):
     '''
     This role provides Rails application utilities for Debian distributions.
