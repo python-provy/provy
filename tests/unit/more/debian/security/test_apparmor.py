@@ -1,3 +1,4 @@
+from mock import call
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, AppArmorRole
@@ -15,3 +16,13 @@ class AppArmorRoleTest(ProvyTestCase):
 
             aptitude.ensure_package_installed.assert_any_call('apparmor-profiles')
             aptitude.ensure_package_installed.assert_any_call('apparmor-utils')
+
+    @istest
+    def enables_a_certain_profile(self):
+        with self.execute_mock() as execute:
+            self.role.enable_profile('some.profile')
+
+            self.assertEqual(execute.mock_calls, [
+                call('rm -f /etc/apparmor.d/disable/some.profile', stdout=False, sudo=True),
+                call('apparmor_parser -r /etc/apparmor.d/some.profile', stdout=False, sudo=True),
+            ])
