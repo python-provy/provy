@@ -65,7 +65,7 @@ class UFWRole(Role):
         </pre>
         '''
         super(UFWRole, self).schedule_cleanup()
-        self.execute("ufw enable", stdout=False, sudo=True)
+        self.execute("ufw --force enable", stdout=False, sudo=True)
 
     def __change(self, action_name, direction, port_or_query, protocol):
         command = 'ufw %s ' % action_name

@@ -27,7 +27,7 @@ class UFWRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             self.role.schedule_cleanup()
 
-            execute.assert_any_call("ufw enable", stdout=False, sudo=True)
+            execute.assert_any_call("ufw --force enable", stdout=False, sudo=True)
 
     @istest
     def allows_a_certain_port_by_application_name(self):
