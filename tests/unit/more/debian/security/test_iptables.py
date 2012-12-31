@@ -7,18 +7,18 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class IPTablesRoleTest(ProvyTestCase):
     def setUp(self):
-        self.role = IPTablesRole(prov=None, context={'cleanup': [],})
+        self.role = IPTablesRole(prov=None, context={'cleanup': []})
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
+        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock():
             self.role.provision()
 
             aptitude.ensure_package_installed.assert_any_call('iptables')
 
     @istest
     def allows_ssh_connection_during_provisioning(self):
-        with self.using_stub(AptitudeRole) as aptitude, self.execute_mock() as execute:
+        with self.using_stub(AptitudeRole), self.execute_mock() as execute:
             self.role.provision()
 
             execute.assert_any_call('iptables -A INPUT -j ACCEPT -p tcp --dport ssh', stdout=False, sudo=True)

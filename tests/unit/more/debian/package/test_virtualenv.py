@@ -10,7 +10,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class VirtualenvRoleTest(ProvyTestCase):
     def setUp(self):
-        self.role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+        self.role = VirtualenvRole(prov=None, context={'user': 'johndoe'})
 
     @contextmanager
     def env_exists(self, env_name):
@@ -19,13 +19,13 @@ class VirtualenvRoleTest(ProvyTestCase):
 
     @istest
     def refers_to_specific_subdir_at_user_home(self):
-        role = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+        role = VirtualenvRole(prov=None, context={'user': 'johndoe'})
 
         self.assertEqual(role.base_directory, '/home/johndoe/.virtualenvs')
 
     @istest
     def refers_to_specific_subdir_at_root_home(self):
-        role = VirtualenvRole(prov=None, context={'user': 'root',})
+        role = VirtualenvRole(prov=None, context={'user': 'root'})
 
         self.assertEqual(role.base_directory, '/root/.virtualenvs')
 
@@ -46,7 +46,7 @@ class VirtualenvRoleTest(ProvyTestCase):
     @istest
     def creates_a_virtual_environment_with_system_site_packages(self):
         with self.execute_mock() as execute:
-            env_dir = self.role.create_env('foo_env', system_site_packages=True)
+            self.role.create_env('foo_env', system_site_packages=True)
             execute.assert_called_with('virtualenv --system-site-packages /home/johndoe/.virtualenvs/foo_env', user='johndoe')
 
     @istest
@@ -77,7 +77,7 @@ class VirtualenvRoleTest(ProvyTestCase):
             execute('called after prefix')
 
         with patch('provy.core.roles.Role.execute', execute), patch('fabric.api.prefix', prefix), self.env_exists('fancylib') as env_exists:
-            venv = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+            venv = VirtualenvRole(prov=None, context={'user': 'johndoe'})
             env_exists.return_value = False
 
             with venv('fancylib'):
@@ -111,7 +111,7 @@ class VirtualenvRoleTest(ProvyTestCase):
             execute('called after prefix')
 
         with patch('provy.core.roles.Role.execute', execute), patch('fabric.api.prefix', prefix), self.env_exists('fancylib') as env_exists:
-            venv = VirtualenvRole(prov=None, context={'user': 'johndoe',})
+            venv = VirtualenvRole(prov=None, context={'user': 'johndoe'})
             env_exists.return_value = True
 
             with venv('fancylib'):
