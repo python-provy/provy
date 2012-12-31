@@ -34,18 +34,25 @@ class UFWRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             self.role.allow('http')
 
-            execute.assert_any_call('ufw allow http', stdout=False, sudo=True)
+            execute.assert_called_with('ufw allow http', stdout=False, sudo=True)
 
     @istest
     def allows_a_certain_port_by_number(self):
         with self.execute_mock() as execute:
             self.role.allow(8000)
 
-            execute.assert_any_call('ufw allow 8000', stdout=False, sudo=True)
+            execute.assert_called_with('ufw allow 8000', stdout=False, sudo=True)
 
     @istest
     def allows_a_certain_port_by_number_and_protocol(self):
         with self.execute_mock() as execute:
             self.role.allow(8000, protocol='tcp')
 
-            execute.assert_any_call('ufw allow 8000/tcp', stdout=False, sudo=True)
+            execute.assert_called_with('ufw allow 8000/tcp', stdout=False, sudo=True)
+
+    @istest
+    def allows_a_certain_port_by_number_and_direction(self):
+        with self.execute_mock() as execute:
+            self.role.allow(8000, direction='in')
+
+            execute.assert_called_with('ufw allow in 8000', stdout=False, sudo=True)
