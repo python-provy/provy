@@ -42,11 +42,20 @@ class UFWRole(Role):
         super(UFWRole, self).schedule_cleanup()
         self.execute("ufw enable", stdout=False, sudo=True)
 
-    def allow(self, port, protocol=None, direction=None):
-        command = 'ufw allow '
+    def __change(self, action_name, direction, port, protocol):
+        command = 'ufw %s ' % action_name
         if direction is not None:
             command += '%s ' % direction
         command += str(port)
         if protocol is not None:
             command += '/%s' % protocol
         self.execute(command, stdout=False, sudo=True)
+
+    def allow(self, port, protocol=None, direction=None):
+        self.__change('allow', direction, port, protocol)
+
+    def deny(self, port, protocol=None, direction=None):
+        self.__change('deny', direction, port, protocol)
+
+    def reject(self, port, protocol=None, direction=None):
+        self.__change('reject', direction, port, protocol)

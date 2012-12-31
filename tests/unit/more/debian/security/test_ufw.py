@@ -56,3 +56,24 @@ class UFWRoleTest(ProvyTestCase):
             self.role.allow(8000, direction='in')
 
             execute.assert_called_with('ufw allow in 8000', stdout=False, sudo=True)
+
+    @istest
+    def allows_a_certain_port_by_number_and_protocol_and_direction(self):
+        with self.execute_mock() as execute:
+            self.role.allow(8000, protocol='tcp', direction='in')
+
+            execute.assert_called_with('ufw allow in 8000/tcp', stdout=False, sudo=True)
+
+    @istest
+    def denies_a_certain_port_by_number_and_protocol_and_direction(self):
+        with self.execute_mock() as execute:
+            self.role.deny(8000, protocol='tcp', direction='in')
+
+            execute.assert_called_with('ufw deny in 8000/tcp', stdout=False, sudo=True)
+
+    @istest
+    def rejects_a_certain_port_by_number_and_protocol_and_direction(self):
+        with self.execute_mock() as execute:
+            self.role.reject(8000, protocol='tcp', direction='in')
+
+            execute.assert_called_with('ufw reject in 8000/tcp', stdout=False, sudo=True)
