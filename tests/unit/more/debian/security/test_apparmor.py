@@ -26,3 +26,13 @@ class AppArmorRoleTest(ProvyTestCase):
                 call('rm -f /etc/apparmor.d/disable/some.profile', stdout=False, sudo=True),
                 call('apparmor_parser -r /etc/apparmor.d/some.profile', stdout=False, sudo=True),
             ])
+
+    @istest
+    def disables_a_certain_profile(self):
+        with self.execute_mock() as execute:
+            self.role.disable_profile('some.profile')
+
+            self.assertEqual(execute.mock_calls, [
+                call('ln -s /etc/apparmor.d/some.profile /etc/apparmor.d/disable/', stdout=False, sudo=True),
+                call('apparmor_parser -R /etc/apparmor.d/some.profile', stdout=False, sudo=True),
+            ])
