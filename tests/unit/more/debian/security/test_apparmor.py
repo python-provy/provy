@@ -36,3 +36,10 @@ class AppArmorRoleTest(ProvyTestCase):
                 call('ln -s /etc/apparmor.d/some.profile /etc/apparmor.d/disable/', stdout=False, sudo=True),
                 call('apparmor_parser -R /etc/apparmor.d/some.profile', stdout=False, sudo=True),
             ])
+
+    @istest
+    def puts_executables_to_complain_mode(self):
+        with self.execute_mock() as execute:
+            self.role.complain('/some/bin1', '/some/bin2')
+
+            execute.assert_called_with('aa-complain /some/bin1 /some/bin2', stdout=False, sudo=True)
