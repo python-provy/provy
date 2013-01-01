@@ -20,7 +20,7 @@ class AppArmorRoleTest(ProvyTestCase):
     @istest
     def enables_a_certain_profile(self):
         with self.execute_mock() as execute:
-            self.role.enable_profile('some.profile')
+            self.role.enable('some.profile')
 
             self.assertEqual(execute.mock_calls, [
                 call('rm -f /etc/apparmor.d/disable/some.profile', stdout=False, sudo=True),
@@ -30,7 +30,7 @@ class AppArmorRoleTest(ProvyTestCase):
     @istest
     def disables_a_certain_profile(self):
         with self.execute_mock() as execute:
-            self.role.disable_profile('some.profile')
+            self.role.disable('some.profile')
 
             self.assertEqual(execute.mock_calls, [
                 call('ln -s /etc/apparmor.d/some.profile /etc/apparmor.d/disable/', stdout=False, sudo=True),
