@@ -8,3 +8,4 @@ Roles in this namespace are meant to configure security features in Debian distr
 from provy.more.debian.security.iptables import IPTablesRole
 from provy.more.debian.security.ufw import UFWRole
 from provy.more.debian.security.apparmor import AppArmorRole
+from provy.more.debian.security.selinux import SELinuxRole
