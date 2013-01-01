@@ -8,10 +8,6 @@ class AppArmorRole(Role):
             aptitude.ensure_package_installed('apparmor-profiles')
             aptitude.ensure_package_installed('apparmor-utils')
 
-    def enable(self, profile):
-        self.execute('rm -f /etc/apparmor.d/disable/%s' % profile, stdout=False, sudo=True)
-        self.execute('apparmor_parser -r /etc/apparmor.d/%s' % profile, stdout=False, sudo=True)
-
     def __execute_batch(self, command, executables):
         for executable in executables:
             command += ' %s' % executable
