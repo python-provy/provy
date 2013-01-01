@@ -28,14 +28,11 @@ class AppArmorRoleTest(ProvyTestCase):
             ])
 
     @istest
-    def disables_a_certain_profile(self):
+    def disables_executables(self):
         with self.execute_mock() as execute:
-            self.role.disable('some.profile')
+            self.role.disable('/some/bin1', '/some/bin2')
 
-            self.assertEqual(execute.mock_calls, [
-                call('ln -s /etc/apparmor.d/some.profile /etc/apparmor.d/disable/', stdout=False, sudo=True),
-                call('apparmor_parser -R /etc/apparmor.d/some.profile', stdout=False, sudo=True),
-            ])
+            execute.assert_called_with('aa-disable /some/bin1 /some/bin2', stdout=False, sudo=True)
 
     @istest
     def puts_executables_to_complain_mode(self):

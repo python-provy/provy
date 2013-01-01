@@ -12,14 +12,13 @@ class AppArmorRole(Role):
         self.execute('rm -f /etc/apparmor.d/disable/%s' % profile, stdout=False, sudo=True)
         self.execute('apparmor_parser -r /etc/apparmor.d/%s' % profile, stdout=False, sudo=True)
 
-    def disable(self, profile):
-        self.execute('ln -s /etc/apparmor.d/%s /etc/apparmor.d/disable/' % profile, stdout=False, sudo=True)
-        self.execute('apparmor_parser -R /etc/apparmor.d/%s' % profile, stdout=False, sudo=True)
-
     def __execute_batch(self, command, executables):
         for executable in executables:
             command += ' %s' % executable
         self.execute(command, stdout=False, sudo=True)
+
+    def disable(self, *executables):
+        self.__execute_batch('aa-disable', executables)
 
     def complain(self, *executables):
         self.__execute_batch('aa-complain', executables)
