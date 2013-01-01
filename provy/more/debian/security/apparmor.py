@@ -16,8 +16,13 @@ class AppArmorRole(Role):
         self.execute('ln -s /etc/apparmor.d/%s /etc/apparmor.d/disable/' % profile, stdout=False, sudo=True)
         self.execute('apparmor_parser -R /etc/apparmor.d/%s' % profile, stdout=False, sudo=True)
 
-    def complain(self, *executables):
-        command = 'aa-complain'
+    def __execute_batch(self, command, executables):
         for executable in executables:
             command += ' %s' % executable
         self.execute(command, stdout=False, sudo=True)
+
+    def complain(self, *executables):
+        self.__execute_batch('aa-complain', executables)
+
+    def enforce(self, *executables):
+        self.__execute_batch('aa-enforce', executables)

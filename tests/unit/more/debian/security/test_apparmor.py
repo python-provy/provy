@@ -43,3 +43,10 @@ class AppArmorRoleTest(ProvyTestCase):
             self.role.complain('/some/bin1', '/some/bin2')
 
             execute.assert_called_with('aa-complain /some/bin1 /some/bin2', stdout=False, sudo=True)
+
+    @istest
+    def puts_executables_to_enforce_mode(self):
+        with self.execute_mock() as execute:
+            self.role.enforce('/some/bin1', '/some/bin2')
+
+            execute.assert_called_with('aa-enforce /some/bin1 /some/bin2', stdout=False, sudo=True)
