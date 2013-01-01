@@ -1,0 +1,45 @@
+#! /bin/sh
+set -e
+
+PREREQ="framebuffer console_setup"
+
+prereqs () {
+        echo "$PREREQ"
+}
+
+case $1 in
+        prereqs)
+                prereqs
+                exit 0
+                ;;
+esac
+
+. /scripts/functions
+
+# Mount the selinux directory in both the ramdisk's root as well as in
+# the real root directory.
+#mkdir -p /selinux
+mkdir -p ${rootmnt}/selinux
+
+# Temporarily pivot to the real root directory, loading the policy
+# from that disk.  Normally this process will occur by init, but kinit
+# is not compiled against libselinux.  Therefore use load_policy to
+# perform the same initialization.
+set +e
+chroot ${rootmnt} /sbin/load_policy -i
+RET=$?
+
+if [ $RET -eq 3 ]; then
+    panic "SELinux policy load failed and enforcing mode requested, halting now"
+    kill -INT 1
+elif [ $RET -ne 0 ]; then
+    log_warning_msg "SELinux policy load failed, continuing"
+else
+    log_success_msg "SELinux policy was loaded"
+fi
+
+# This is unnecessary and confuses the selinux-basic init script
+#mount -t selinuxfs none /selinux || \
+#    log_warning_msg "Unable to mount /selinux"
+
+exit 0
