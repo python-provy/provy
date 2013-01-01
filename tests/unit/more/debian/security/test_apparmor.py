@@ -43,3 +43,10 @@ class AppArmorRoleTest(ProvyTestCase):
             self.role.audit('/some/bin1', '/some/bin2')
 
             execute.assert_called_with('aa-audit /some/bin1 /some/bin2', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_profile_for_an_executable(self):
+        with self.execute_mock() as execute:
+            self.role.create('/some/bin')
+
+            execute.assert_called_with('aa-easyprof /some/bin', stdout=False, sudo=True)

@@ -24,3 +24,8 @@ class AppArmorRole(Role):
 
     def audit(self, *executables):
         self.__execute_batch('aa-audit', executables)
+
+    def create(self, executable):
+        command = 'aa-easyprof'
+        command += ' %s' % executable
+        self.execute(command, stdout=False, sudo=True)
