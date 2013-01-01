@@ -25,7 +25,7 @@ class AppArmorRole(Role):
     def audit(self, *executables):
         self.__execute_batch('aa-audit', executables)
 
-    def create(self, executable, template=None, policy_groups=None, abstractions=None):
+    def create(self, executable, template=None, policy_groups=None, abstractions=None, read=[], read_and_write=[]):
         command = 'aa-easyprof'
         if template is not None:
             command += ' -t %s' % template
@@ -35,5 +35,9 @@ class AppArmorRole(Role):
         if abstractions is not None:
             abstr = ','.join(abstractions)
             command += ' -a %s' % abstr
+        for path in read:
+            command += ' -r %s' % path
+        for path in read_and_write:
+            command += ' -w %s' % path
         command += ' %s' % executable
         self.execute(command, stdout=False, sudo=True)

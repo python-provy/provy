@@ -71,3 +71,17 @@ class AppArmorRoleTest(ProvyTestCase):
             self.role.create('/some/bin', abstractions=['python', 'apache2-common'])
 
             execute.assert_called_with('aa-easyprof -a python,apache2-common /some/bin', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_profile_with_read_permissions(self):
+        with self.execute_mock() as execute:
+            self.role.create('/some/bin', read=['/var/log/somebin.log', '/srv/somebin/'])
+
+            execute.assert_called_with('aa-easyprof -r /var/log/somebin.log -r /srv/somebin/ /some/bin', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_profile_with_read_and_write_permissions(self):
+        with self.execute_mock() as execute:
+            self.role.create('/some/bin', read_and_write=['/var/log/somebin.log', '/srv/somebin/'])
+
+            execute.assert_called_with('aa-easyprof -w /var/log/somebin.log -w /srv/somebin/ /some/bin', stdout=False, sudo=True)
