@@ -57,3 +57,10 @@ class AppArmorRoleTest(ProvyTestCase):
             self.role.create('/some/bin', template='another-template')
 
             execute.assert_called_with('aa-easyprof -t another-template /some/bin', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_profile_with_policy_groups(self):
+        with self.execute_mock() as execute:
+            self.role.create('/some/bin', policy_groups=['networking', 'user-application'])
+
+            execute.assert_called_with('aa-easyprof -p networking,user-application /some/bin', stdout=False, sudo=True)
