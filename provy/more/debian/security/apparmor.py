@@ -21,3 +21,6 @@ class AppArmorRole(Role):
 
     def enforce(self, *executables):
         self.__execute_batch('aa-enforce', executables)
+
+    def audit(self, *executables):
+        self.__execute_batch('aa-audit', executables)
