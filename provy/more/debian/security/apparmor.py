@@ -103,6 +103,27 @@ class AppArmorRole(Role):
         self.__execute_batch('aa-audit', executables)
 
     def create(self, executable, template=None, policy_groups=None, abstractions=None, read=[], read_and_write=[]):
+        '''
+        Creates a profile for an executable. Please refer to the "aa-easyprof" manual pages for more documentation.
+        <em>Parameters</em>
+        executable - the executable to be referenced by the profile being created.
+        template - if provided, will be used instead of the "default" one. Defaults to None.
+        policy_groups - if an iterable is provided, use its items as the policy groups. Defaults to None.
+        abstractions - if an iterable is provided, use its items as the abstractions. Defaults to None.
+        read - if provided, paths to be readable by the executable. Defaults to [] (empty list).
+        read_and_write - if provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to [] (empty list).
+        <em>Sample usage</em>
+        <pre class="sh_python">
+        from provy.core import Role
+        from provy.more.debian import AppArmorRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AppArmorRole) as apparmor:
+                    apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'], read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
+
+        </pre>
+        '''
         command = 'aa-easyprof'
         if template is not None:
             command += ' -t %s' % template
