@@ -15,6 +15,8 @@ class SELinuxRole(Role):
 
         self.execute('selinux-activate', stdout=False, sudo=True)
 
+        self.log('''SELinux provisioned. Don't forget to reboot the server twice after provisioning (see http://wiki.debian.org/SELinux/Setup ).''')
+
     def __complete_for_distro(self):
         distro_info = self.get_distro_info()
         if distro_info.distributor_id.lower() == 'ubuntu':
