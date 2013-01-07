@@ -22,3 +22,5 @@ class SELinuxRole(Role):
             aptitude.ensure_package_installed('selinux-basics')
             aptitude.ensure_package_installed('selinux-policy-default')
         aptitude.ensure_package_installed('selinux-utils')
+        aptitude.ensure_package_installed('auditd')
+        aptitude.ensure_package_installed('audispd-plugins')

@@ -18,6 +18,8 @@ class SELinuxRoleTest(ProvyTestCase):
                 call('selinux-basics'),
                 call('selinux-policy-default'),
                 call('selinux-utils'),
+                call('auditd'),
+                call('audispd-plugins'),
             ]
             self.assertEqual(aptitude.ensure_package_installed.mock_calls, expected_packages)
             expected_calls = [
@@ -33,6 +35,8 @@ class SELinuxRoleTest(ProvyTestCase):
             expected_packages = [
                 call('selinux'),
                 call('selinux-utils'),
+                call('auditd'),
+                call('audispd-plugins'),
             ]
             self.assertEqual(aptitude.ensure_package_installed.mock_calls, expected_packages)
             expected_calls = [
