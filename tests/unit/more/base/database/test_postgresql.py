@@ -15,29 +15,29 @@ class PostgreSQLRoleTestCase(ProvyTestCase):
         self.execution_count = -1
         self.assertion_count = -1
 
-    def successful_execution(self, query):
-        return self.execution(True, query)
+    def successful_execution(self, query, user='postgres'):
+        return self.execution(True, query, user)
 
-    def failed_execution(self, query):
-        return self.execution(False, query)
+    def failed_execution(self, query, user='postgres'):
+        return self.execution(False, query, user)
 
     def return_execution_result(self, *args, **kwargs):
         self.execution_count += 1
         return self.execution_results[self.execution_count]
 
     @contextmanager
-    def execution(self, return_value, query):
+    def execution(self, return_value, query, user='postgres'):
         count = self.execution_count
         self.execution_results.append(return_value)
         with patch('provy.core.roles.Role.execute', self.execute):
             yield
-            self.assert_executed(query)
+            self.assert_executed(query, user)
 
-    def assert_executed(self, query):
+    def assert_executed(self, query, user):
         name, e_args, e_kwargs = self.execute.mock_calls[self.assertion_count]
         self.assertion_count -= 1
         self.assertEqual(e_args[0], query)
-        self.assertEqual(e_kwargs['user'], 'postgres')
+        self.assertEqual(e_kwargs.get('user'), user)
 
 
 class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
