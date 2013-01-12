@@ -101,7 +101,7 @@
                 <p>We'll draw from this concept the part of preparing and
                 equipping.</p>
                 <p><em>provy</em> is a infrastructure provisioning automation tool.
-                It's main goal is making it easy to create highly-scalable
+                Its main goal is making it easy to create highly-scalable
                 architectures with simple scripts.</p>
                 <p><em>provy</em> stands on the shoulder of giants! <a
                     href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a> for the networking part and <a
@@ -154,7 +154,7 @@
 
             <p><em>provy</em> is <a
                 href="http://en.wikipedia.org/wiki/Free_and_open_source_software">FOSS</a>
-            and you can find it's source code at <a href="https://github.com/heynemann/provy">its github page</a>.</p>
+            and you can find its source code at <a href="https://github.com/heynemann/provy">its github page</a>.</p>
 
             <a name="getting-started"></a>
             <h2 class="title">Getting started</h2>
@@ -309,7 +309,7 @@
             <p><em>AskFor</em> takes two arguments: <em>key</em> and <em>question</em>. The <em>key</em> argument is needed to allow passing the argument when running provy (more on that in the next section). The <em>question</em> is used when <em>provy</em> asks the user running it for the parameter.</p>
             <p><em>AskFor</em> is really useful for sensitive data such as passwords. You don't want to expose this data in your provyfile in plain text. You just use an <em>AskFor</em> parameter for it and supply the information at runtime. Let's look at a sample of AskFor usage.</p>
             <script src="https://gist.github.com/1061953.js?file=askfor.py"></script>
-            <p>This parameter can be supplied twofold: if you don't specify it in the console when calling <em>provy</em>, you will be asked for it. If you need to specify it in the console, just use it's key like this:</p>
+            <p>This parameter can be supplied twofold: if you don't specify it in the console when calling <em>provy</em>, you will be asked for it. If you need to specify it in the console, just use its key like this:</p>
             <pre>
                 <code>
         provy -s server -p password mysql-db-password=somepass
@@ -378,7 +378,7 @@
                 is a directory called <em>files</em> in the same path as <em>provyfile.py</em>.</p>
             <p>Any files you place inside this directory may be used as templates to be uploaded to the server
             being provisioned. Since <em>provy</em> is built on top of <a
-                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use it's <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
+                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use its <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
             <p>The other place you can put files is in a <em>templates</em> directory inside Role apps. The supervisor role uses this approach, if you want to take a look at an example. If you do place files in the <em>templates</em> directory, do not forget to call the <em>register_template_loader</em> method passing in the full namespace of your app (more details in the provy.more section below).</p>
             <p>We used custom files in the <em>Getting Started</em> section to provide the needed configuration files for <a href="http://www.nginx.org">nginx</a>.</p>
             <a name="core-and-more"></a>
