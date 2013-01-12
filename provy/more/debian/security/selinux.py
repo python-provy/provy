@@ -13,7 +13,7 @@ class SELinuxRole(Role):
         if not is_ubuntu:
             self.execute('selinux-activate', stdout=False, sudo=True)
 
-        self.log('''SELinux provisioned. Don't forget to reboot the server twice after provisioning (see http://wiki.debian.org/SELinux/Setup ).''')
+        self.log('''SELinux provisioned. Don't forget to reboot the server if it didn't have SELinux already installed and activated.''')
 
     def __install_packages(self, is_ubuntu, aptitude):
         if is_ubuntu:
