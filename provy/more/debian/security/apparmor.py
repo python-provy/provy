@@ -22,8 +22,8 @@ class AppArmorRole(Role):
             aptitude.ensure_package_installed('apparmor-utils')
 
     def __execute_batch(self, command, executables):
-        for executable in executables:
-            command += ' %s' % executable
+        arguments = ' '.join(executables)
+        command += ' %s' % arguments
         self.execute(command, stdout=False, sudo=True)
 
     def disable(self, *executables):
