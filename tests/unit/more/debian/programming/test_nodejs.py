@@ -43,53 +43,25 @@ class NodeJsRoleTest(ProvyTestCase):
 
     @istest
     def checks_that_node_is_already_installed(self):
-        test_case = self
-
-        @contextmanager
-        def settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+        with self.execute_mock() as execute, self.warn_only():
             execute.return_value = 'v0.8.10'
             self.assertTrue(self.role.is_already_installed())
 
     @istest
     def checks_that_node_is_not_installed_yet_by_output_string(self):
-        test_case = self
-
-        @contextmanager
-        def settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+        with self.execute_mock() as execute, self.warn_only():
             execute.return_value = 'command not found'
             self.assertFalse(self.role.is_already_installed())
 
     @istest
     def checks_that_node_is_not_installed_yet_by_stranger_output_string(self):
-        test_case = self
-
-        @contextmanager
-        def settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+        with self.execute_mock() as execute, self.warn_only():
             execute.return_value = 'verbose error: command not found'
             self.assertFalse(self.role.is_already_installed())
 
     @istest
     def checks_that_node_is_not_installed_yet_by_output_as_none(self):
-        test_case = self
-
-        @contextmanager
-        def settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+        with self.execute_mock() as execute, self.warn_only():
             execute.return_value = None
             self.assertFalse(self.role.is_already_installed())
 

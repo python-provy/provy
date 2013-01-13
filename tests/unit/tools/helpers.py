@@ -57,3 +57,15 @@ class ProvyTestCase(TestCase):
                 distro_info = self.debian_info()
             get_distro_info.return_value = distro_info
             yield
+
+    @contextmanager
+    def warn_only(self):
+        test_case = self
+
+        @contextmanager
+        def settings(warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with patch('fabric.api.settings', settings):
+            yield

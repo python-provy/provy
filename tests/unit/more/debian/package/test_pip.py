@@ -160,26 +160,12 @@ class PipRoleTest(PipRoleTestCase):
 
     @istest
     def gets_none_as_version_if_remote_doesnt_have_it_installed(self):
-        test_case = self
-
-        @contextmanager
-        def fake_settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with patch('fabric.api.settings', fake_settings), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning=''):
+        with self.warn_only(), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning=''):
             self.assertIsNone(self.role.get_package_remote_version('django'))
 
     @istest
     def gets_version_if_remote_has_it_installed(self):
-        test_case = self
-
-        @contextmanager
-        def fake_settings(self, warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with patch('fabric.api.settings', fake_settings), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning='django==1.2.3'):
+        with self.warn_only(), self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning='django==1.2.3'):
             self.assertEqual(self.role.get_package_remote_version('django'), '1.2.3')
 
     @istest

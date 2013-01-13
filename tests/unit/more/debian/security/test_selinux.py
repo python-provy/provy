@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 from mock import call, DEFAULT, patch
 from nose.tools import istest
 
@@ -78,14 +76,7 @@ class SELinuxRoleTest(ProvyTestCase):
 
     @istest
     def puts_environment_in_enforce_mode(self):
-        test_case = self
-
-        @contextmanager
-        def settings(warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock(), self.mock_role_method('ensure_line'), patch('fabric.api.settings', settings):
+        with self.execute_mock(), self.mock_role_method('ensure_line'), self.warn_only():
             self.role.enforce()
 
             self.role.execute.assert_called_with('setenforce 1', stdout=False, sudo=True)
@@ -93,14 +84,7 @@ class SELinuxRoleTest(ProvyTestCase):
 
     @istest
     def ensures_that_a_login_mapping_exists(self):
-        test_case = self
-
-        @contextmanager
-        def settings(warn_only):
-            test_case.assertTrue(warn_only)
-            yield
-
-        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+        with self.execute_mock() as execute, self.warn_only():
             self.role.ensure_login_mapping('foo')
 
             execute.assert_called_with('semanage login -a foo', stdout=False, sudo=True)
