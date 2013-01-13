@@ -1,3 +1,5 @@
+import fabric.api
+
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
@@ -33,3 +35,9 @@ class SELinuxRole(Role):
     def activate(self):
         if not self.__distro_is_ubuntu():
             self.execute('selinux-activate', stdout=False, sudo=True)
+        self.enforce()
+
+    def enforce(self):
+        with fabric.api.settings(warn_only=True):
+            self.execute('setenforce 1', stdout=False, sudo=True)
+            self.ensure_line('SELINUX=enforcing', '/etc/selinux/config', sudo=True)

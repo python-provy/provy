@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from mock import call, DEFAULT, patch
 from nose.tools import istest
 
@@ -46,19 +48,36 @@ class SELinuxRoleTest(ProvyTestCase):
 
     @istest
     def activates_on_debian(self):
-        with self.execute_mock() as execute, self.provisioning_to('debian'):
+        with self.execute_mock() as execute, self.provisioning_to('debian'), patch.object(self.role, 'enforce'):
             self.role.activate()
 
             expected_calls = [
                 call('selinux-activate', stdout=False, sudo=True),
             ]
             self.assertEqual(execute.mock_calls, expected_calls)
+            self.role.enforce.assert_called_with()
 
     @istest
     def activates_on_ubuntu(self):
-        with self.execute_mock() as execute, self.provisioning_to('ubuntu'):
+        with self.execute_mock() as execute, self.provisioning_to('ubuntu'), patch.object(self.role, 'enforce'):
             self.role.activate()
 
             expected_calls = [
             ]
             self.assertEqual(execute.mock_calls, expected_calls)
+            self.role.enforce.assert_called_with()
+
+    @istest
+    def puts_environment_in_enforce_mode(self):
+        test_case = self
+
+        @contextmanager
+        def settings(warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock(), self.mock_role_method('ensure_line'), patch('fabric.api.settings', settings):
+            self.role.enforce()
+
+            self.role.execute.assert_called_with('setenforce 1', stdout=False, sudo=True)
+            self.role.ensure_line.assert_called_with('SELINUX=enforcing', '/etc/selinux/config', sudo=True)
