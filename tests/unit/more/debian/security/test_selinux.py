@@ -5,15 +5,6 @@ from provy.more.debian import AptitudeRole, SELinuxRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
-LOGIN_MAPPINGS = '''
-%ssh                      user_u                    SystemLow
-__default__               unconfined_u              SystemLow-SystemHigh
-root                      unconfined_u              SystemLow-SystemHigh
-system_u                  system_u                  SystemLow-SystemHigh
-vagrant                   user_u                    SystemLow
-'''
-
-
 class SELinuxRoleTest(ProvyTestCase):
     def setUp(self):
         self.role = SELinuxRole(prov=None, context={'cleanup': []})
