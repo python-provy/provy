@@ -35,7 +35,11 @@ class SELinuxRole(Role):
     def activate(self):
         if not self.__distro_is_ubuntu():
             self.execute('selinux-activate', stdout=False, sudo=True)
+        self.__confine_generic_users()
         self.enforce()
+
+    def __confine_generic_users(self):
+        self.execute("semanage login -m -s 'user_u' -r s0 __default__", stdout=False, sudo=True)
 
     def enforce(self):
         with fabric.api.settings(warn_only=True):

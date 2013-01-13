@@ -51,6 +51,7 @@ class SELinuxRoleTest(ProvyTestCase):
 
             expected_calls = [
                 call('selinux-activate', stdout=False, sudo=True),
+                call("semanage login -m -s 'user_u' -r s0 __default__", stdout=False, sudo=True),
             ]
             self.assertEqual(execute.mock_calls, expected_calls)
             self.role.enforce.assert_called_with()
@@ -61,6 +62,7 @@ class SELinuxRoleTest(ProvyTestCase):
             self.role.activate()
 
             expected_calls = [
+                call("semanage login -m -s 'user_u' -r s0 __default__", stdout=False, sudo=True),
             ]
             self.assertEqual(execute.mock_calls, expected_calls)
             self.role.enforce.assert_called_with()
