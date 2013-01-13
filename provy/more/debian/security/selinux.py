@@ -3,24 +3,33 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 
 class SELinuxRole(Role):
+    def __init__(self, prov, context):
+        super(SELinuxRole, self).__init__(prov, context)
+        self.__is_ubuntu = None
+
+    def __distro_is_ubuntu(self):
+        if self.__is_ubuntu is None:
+            distro_info = self.get_distro_info()
+            self.__is_ubuntu = distro_info.distributor_id.lower() == 'ubuntu'
+        return self.__is_ubuntu
+
     def provision(self):
-        distro_info = self.get_distro_info()
-        is_ubuntu = distro_info.distributor_id.lower() == 'ubuntu'
-
-        with self.using(AptitudeRole) as aptitude:
-            self.__install_packages(is_ubuntu, aptitude)
-
-        if not is_ubuntu:
-            self.execute('selinux-activate', stdout=False, sudo=True)
+        self.install_packages()
+        self.activate()
 
         self.log('''SELinux provisioned. Don't forget to reboot the server if it didn't have SELinux already installed and activated.''')
 
-    def __install_packages(self, is_ubuntu, aptitude):
-        if is_ubuntu:
-            aptitude.ensure_package_installed('selinux')
-        else:
-            aptitude.ensure_package_installed('selinux-basics')
-            aptitude.ensure_package_installed('selinux-policy-default')
-        aptitude.ensure_package_installed('selinux-utils')
-        aptitude.ensure_package_installed('auditd')
-        aptitude.ensure_package_installed('audispd-plugins')
+    def install_packages(self):
+        with self.using(AptitudeRole) as aptitude:
+            if self.__distro_is_ubuntu():
+                aptitude.ensure_package_installed('selinux')
+            else:
+                aptitude.ensure_package_installed('selinux-basics')
+                aptitude.ensure_package_installed('selinux-policy-default')
+            aptitude.ensure_package_installed('selinux-utils')
+            aptitude.ensure_package_installed('auditd')
+            aptitude.ensure_package_installed('audispd-plugins')
+
+    def activate(self):
+        if not self.__distro_is_ubuntu():
+            self.execute('selinux-activate', stdout=False, sudo=True)

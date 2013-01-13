@@ -42,3 +42,49 @@ class SELinuxRoleTest(ProvyTestCase):
             expected_calls = [
             ]
             self.assertEqual(execute.mock_calls, expected_calls)
+
+    @istest
+    def installs_packages_in_debian(self):
+        with self.using_stub(AptitudeRole) as aptitude, self.provisioning_to('debian'):
+            self.role.install_packages()
+
+            expected_packages = [
+                call('selinux-basics'),
+                call('selinux-policy-default'),
+                call('selinux-utils'),
+                call('auditd'),
+                call('audispd-plugins'),
+            ]
+            self.assertEqual(aptitude.ensure_package_installed.mock_calls, expected_packages)
+
+    @istest
+    def installs_packages_in_ubuntu(self):
+        with self.using_stub(AptitudeRole) as aptitude, self.provisioning_to('ubuntu'):
+            self.role.install_packages()
+
+            expected_packages = [
+                call('selinux'),
+                call('selinux-utils'),
+                call('auditd'),
+                call('audispd-plugins'),
+            ]
+            self.assertEqual(aptitude.ensure_package_installed.mock_calls, expected_packages)
+
+    @istest
+    def activates_on_debian(self):
+        with self.execute_mock() as execute, self.provisioning_to('debian'):
+            self.role.activate()
+
+            expected_calls = [
+                call('selinux-activate', stdout=False, sudo=True),
+            ]
+            self.assertEqual(execute.mock_calls, expected_calls)
+
+    @istest
+    def activates_on_ubuntu(self):
+        with self.execute_mock() as execute, self.provisioning_to('ubuntu'):
+            self.role.activate()
+
+            expected_calls = [
+            ]
+            self.assertEqual(execute.mock_calls, expected_calls)
