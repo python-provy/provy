@@ -1,6 +1,10 @@
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
+'''
+Roles in this namespace are meant to provide UncomplicatedFireWall management utilities for Debian distributions.
+'''
+
 
 class UFWRole(Role):
     '''

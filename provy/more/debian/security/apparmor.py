@@ -1,8 +1,31 @@
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
+'''
+Roles in this namespace are meant to provide AppArmor management utilities for Debian distributions.
+'''
+
 
 class AppArmorRole(Role):
+    '''
+    This role provides AppArmor utilities for Debian distributions.
+    If you're provisioning a Debian Wheezy server or older, it's highly recommended you use SELinuxRole instead of this one.
+    <em>Sample usage</em>
+    <pre class="sh_python">
+    from provy.core import Role
+    from provy.more.debian import AppArmorRole
+
+    class MySampleRole(Role):
+        def provision(self):
+
+            with self.using(AppArmorRole) as apparmor:
+                apparmor.disable("/bin/ping", "/sbin/dhclient")
+
+            with self.using(AppArmorRole) as apparmor:
+                apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'], read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
+    </pre>
+    '''
+
     def provision(self):
         '''
         Installs AppArmor profiles and utilities.

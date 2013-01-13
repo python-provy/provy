@@ -1,6 +1,10 @@
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
+'''
+Roles in this namespace are meant to provide iptables management utilities for Debian distributions.
+'''
+
 
 class IPTablesRole(Role):
     '''
