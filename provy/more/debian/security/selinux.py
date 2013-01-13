@@ -45,3 +45,7 @@ class SELinuxRole(Role):
     def ensure_login_mapping(self, user_or_group):
         with fabric.api.settings(warn_only=True):
             self.execute('semanage login -a %s' % user_or_group, stdout=False, sudo=True)
+
+    def map_login(self, user_or_group, selinux_user):
+        self.ensure_login_mapping(user_or_group)
+        self.execute('semanage login -m -s %s %s' % (selinux_user, user_or_group), stdout=False, sudo=True)

@@ -79,3 +79,11 @@ class SELinuxRoleTest(ProvyTestCase):
             self.role.ensure_login_mapping('foo')
 
             execute.assert_called_with('semanage login -a foo', stdout=False, sudo=True)
+
+    @istest
+    def maps_a_login_to_an_selinux_user(self):
+        with self.execute_mock() as execute, patch.object(self.role, 'ensure_login_mapping'):
+            self.role.map_login('foo', 'staff_u')
+
+            self.role.ensure_login_mapping.assert_called_with('foo')
+            execute.assert_called_with('semanage login -m -s staff_u foo', stdout=False, sudo=True)
