@@ -7,6 +7,15 @@ from provy.more.debian import AptitudeRole, SELinuxRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
+LOGIN_MAPPINGS = '''
+%ssh                      user_u                    SystemLow
+__default__               unconfined_u              SystemLow-SystemHigh
+root                      unconfined_u              SystemLow-SystemHigh
+system_u                  system_u                  SystemLow-SystemHigh
+vagrant                   user_u                    SystemLow
+'''
+
+
 class SELinuxRoleTest(ProvyTestCase):
     def setUp(self):
         self.role = SELinuxRole(prov=None, context={'cleanup': []})
@@ -81,3 +90,17 @@ class SELinuxRoleTest(ProvyTestCase):
 
             self.role.execute.assert_called_with('setenforce 1', stdout=False, sudo=True)
             self.role.ensure_line.assert_called_with('SELINUX=enforcing', '/etc/selinux/config', sudo=True)
+
+    @istest
+    def ensures_that_a_login_mapping_exists(self):
+        test_case = self
+
+        @contextmanager
+        def settings(warn_only):
+            test_case.assertTrue(warn_only)
+            yield
+
+        with self.execute_mock() as execute, patch('fabric.api.settings', settings):
+            self.role.ensure_login_mapping('foo')
+
+            execute.assert_called_with('semanage login -a foo', stdout=False, sudo=True)

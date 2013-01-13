@@ -41,3 +41,7 @@ class SELinuxRole(Role):
         with fabric.api.settings(warn_only=True):
             self.execute('setenforce 1', stdout=False, sudo=True)
             self.ensure_line('SELINUX=enforcing', '/etc/selinux/config', sudo=True)
+
+    def ensure_login_mapping(self, user_or_group):
+        with fabric.api.settings(warn_only=True):
+            self.execute('semanage login -a %s' % user_or_group, stdout=False, sudo=True)
