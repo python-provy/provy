@@ -629,6 +629,27 @@ class RoleTest(ProvyTestCase):
             self.role._force_update_file.assert_called_with(to_file, sudo, self.update_data.local_temp_path, owner)
 
     @istest
+    def updates_file_with_sudo_when_user_is_passed_but_sudo_not(self):
+        to_file = '/etc/foo.conf'
+        owner = 'foo'
+
+        with self.mock_update_data(), self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'), self.mock_role_method('remote_exists'):
+            self.role.remote_exists.return_value = False
+
+            self.assertTrue(self.role.update_file('some template', to_file, options='some options', owner=owner))
+            self.role.put_file.assert_called_with(self.update_data.local_temp_path, to_file, True)
+
+    @istest
+    def doesnt_use_sudo_implicitly_if_owner_not_passed(self):
+        to_file = '/etc/foo.conf'
+
+        with self.mock_update_data(), self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'), self.mock_role_method('remote_exists'):
+            self.role.remote_exists.return_value = False
+
+            self.assertTrue(self.role.update_file('some template', to_file, options='some options'))
+            self.role.put_file.assert_called_with(self.update_data.local_temp_path, to_file, False)
+
+    @istest
     def updates_file_when_remote_exists_but_is_different(self):
         to_file = '/etc/foo.conf'
         sudo = 'is it sudo?'

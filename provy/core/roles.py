@@ -663,7 +663,7 @@ class Role(object):
         '''
         fabric.api.put(from_file, to_file, use_sudo=sudo)
 
-    def update_file(self, from_file, to_file, owner=None, options={}, sudo=False):
+    def update_file(self, from_file, to_file, owner=None, options={}, sudo=None):
         '''
         One of the most used methods in provy. This method renders a template, then if the contents differ from the remote server (or the file does not exist at the remote server), it sends the results there.
         Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
@@ -728,6 +728,11 @@ class Role(object):
         return md5.strip()
 
     def _force_update_file(self, to_file, sudo, local_temp_path, owner):
+        if sudo is None and owner is not None:
+            sudo = True
+        elif sudo is None and owner is None:
+            sudo = False
+
         self.put_file(local_temp_path, to_file, sudo)
 
         if owner:
