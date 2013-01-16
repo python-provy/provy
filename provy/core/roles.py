@@ -67,7 +67,7 @@ class Role(object):
         Jinja2 will look inside a folder called 'templates' in the specified module.
         It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
         <em>Parameters</em>
-        package_name - full name of the module that jinja2 will try to import.
+        package_name - Full name of the module that jinja2 will try to import.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -122,6 +122,8 @@ class Role(object):
         '''
         Provisions a role inside your role. This method is the way to call other roles if you don't need to call any methods other than provision.
         provision_role keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
+        <em>Parameters</em>
+        role - The role to be provisioned. Needs to be a provy.core.Role subclass.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -180,9 +182,10 @@ class Role(object):
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
         <em>Parameters</em>
-        stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
-        sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
-        user - Defaults to None. If specified, will be the user with which the command will be executed.
+        command - The command to be executed.
+        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        user - If specified, will be the user with which the command will be executed. Defaults to None.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -205,9 +208,10 @@ class Role(object):
         '''
         Allows you to perform any shell action in the local machine. It is an abstraction over the fabric.api.local method.
         <em>Parameters</em>
-        stdout - Defaults to True. If you specify this argument as False, the standard output of the command execution will not be displayed in the console.
-        sudo - Defaults to False. Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided.
-        user - Defaults to None. If specified, will be the user with which the command will be executed.
+        command - The command to be executed.
+        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        user - If specified, will be the user with which the command will be executed. Defaults to None.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -231,7 +235,10 @@ class Role(object):
     def execute_python(self, command, stdout=True, sudo=False):
         '''
         Just an abstraction over execute. This method executes the python code that is passed with python -c.
-        It has the same arguments as execute.
+        <em>Parameters</em>
+        command - The Python command to be executed.
+        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -239,7 +246,7 @@ class Role(object):
         class MySampleRole(Role):
             def provision(self):
                 self.python_execute('import os; print os.curdir',
-                                        stdout=False, sudo=True)
+                                    stdout=False, sudo=True)
         </pre>
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
@@ -261,6 +268,8 @@ class Role(object):
     def local_exists(self, file_path):
         '''
         Returns True if the file exists locally.
+        <em>Parameters</em>
+        file_path - The path to check.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -276,6 +285,8 @@ class Role(object):
     def remote_exists(self, file_path):
         '''
         Returns True if the file exists in the remote server.
+        <em>Parameters</em>
+        file_path - The path to check.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -291,6 +302,8 @@ class Role(object):
     def remote_exists_dir(self, file_path):
         '''
         Returns True if the directory exists in the remote server.
+        <em>Parameters</em>
+        file_path - The path to check.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -765,7 +778,7 @@ class Role(object):
         Returns the contents of a remote file.
         <em>Parameters</em>
         path - File path on the remote server.
-        sudo - Indicates whether the file should be read by a super-user.
+        sudo - Indicates whether the file should be read by a super-user. Defaults to True.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -785,7 +798,7 @@ class Role(object):
         The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
         <em>Parameters</em>
         template_file - Template file path in the local system.
-        options - options to be passed to the template.
+        options - Options to be passed to the template, as a dictionary. Defaults to empty dict.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -810,7 +823,7 @@ class Role(object):
         Returns True if the given process is running (listed in the process listing), False otherwise.
         <em>Parameters</em>
         process - Regular expression string that specifies the process name.
-        sudo - Indicates if the process listing should be done by the super-user.
+        sudo - Indicates if the process listing should be done by the super-user. Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -827,8 +840,8 @@ class Role(object):
         '''
         Returns True if the given line of text is present in the given file. Returns False otherwise (even if the file does not exist).
         <em>Parameters</em>
-        line - line of text to verify in the given file.
-        file_path - complete path of the remote file.
+        line - Line of text to verify in the given file.
+        file_path - Complete path of the remote file.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -852,10 +865,10 @@ class Role(object):
         '''
         Ensures that the given line exists in the given file_path. Adds it if it doesn't exist, and creates the file if it doesn't exist.
         <em>Parameters</em>
-        line - line of text to verify in the given file.
-        file_path - complete path of the remote file.
-        owner - the user that owns the file. Defaults to None (the context user is used in this case).
-        sudo - execute as sudo? Defaults to False.
+        line - Line of text to verify in the given file.
+        file_path - Complete path of the remote file.
+        owner - The user that owns the file. Defaults to None (the context user is used in this case).
+        sudo - Execute as sudo? Defaults to False.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
