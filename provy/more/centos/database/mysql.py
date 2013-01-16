@@ -123,6 +123,7 @@ class MySQLRole(Role):
         Returns True if the given user exists for the given location in mysql server.
         <em>Parameters</em>
         username - Name of the user to be verified.
+        login_from - Locations that this user can login from. Defaults to '%' (anywhere).
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -203,7 +204,7 @@ class MySQLRole(Role):
         Returns all grants for the given user at the given location.
         <em>Parameters</em>
         username - User to verify.
-        login_from - Location to verify.
+        login_from - Locations that this user can login from. Defaults to '%' (anywhere).
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -227,7 +228,7 @@ class MySQLRole(Role):
         privileges - Privileges that are being verified.
         on - Database object that the user holds privileges on.
         username - User to verify.
-        login_from - Location to verify.
+        login_from - Locations that this user can login from.
         with_grant_option - Indicates if we are verifying against grant option.
         <em>Sample usage</em>
         <pre class="sh_python">

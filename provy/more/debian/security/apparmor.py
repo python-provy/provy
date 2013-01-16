@@ -53,7 +53,7 @@ class AppArmorRole(Role):
         '''
         Disables executables in AppArmor, removing them from confinement - that is, they will not be under vigilance anymore -.
         <em>Parameters</em>
-        *executables - the executables to change.
+        *executables - The executables to change.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -72,7 +72,7 @@ class AppArmorRole(Role):
         '''
         Puts the executables to complain mode - the policies are not enforced, but when they're broken, the action gets logged -.
         <em>Parameters</em>
-        *executables - the executables to change.
+        *executables - The executables to change.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -91,7 +91,7 @@ class AppArmorRole(Role):
         '''
         Puts the executables to enforce mode - the policies are enforced, but only break attempts will be logged -.
         <em>Parameters</em>
-        *executables - the executables to change.
+        *executables - The executables to change.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -110,7 +110,7 @@ class AppArmorRole(Role):
         '''
         Puts the executables to audit mode - the policies are enforced, and all actions (legal and ilegal ones) will be logged -.
         <em>Parameters</em>
-        *executables - the executables to change.
+        *executables - The executables to change.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -129,12 +129,12 @@ class AppArmorRole(Role):
         '''
         Creates a profile for an executable. Please refer to the "aa-easyprof" manual pages for more documentation.
         <em>Parameters</em>
-        executable - the executable to be referenced by the profile being created.
-        template - if provided, will be used instead of the "default" one. Defaults to None.
-        policy_groups - if an iterable is provided, use its items as the policy groups. Defaults to None.
-        abstractions - if an iterable is provided, use its items as the abstractions. Defaults to None.
-        read - if provided, paths to be readable by the executable. Defaults to [] (empty list).
-        read_and_write - if provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to [] (empty list).
+        executable - The executable to be referenced by the profile being created.
+        template - If provided, will be used instead of the "default" one. Defaults to None.
+        policy_groups - If an iterable is provided, use its items as the policy groups. Defaults to None.
+        abstractions - If an iterable is provided, use its items as the abstractions. Defaults to None.
+        read - If provided, paths to be readable by the executable. Defaults to [] (empty list).
+        read_and_write - If provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to [] (empty list).
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

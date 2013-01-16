@@ -146,7 +146,7 @@ class DjangoRole(Role):
         '''
         Enters a with block with a Site variable that allows you to configure a django website.
         <em>Parameters</em>
-        name - name of the website.
+        name - Name of the website.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

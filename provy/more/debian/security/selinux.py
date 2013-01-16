@@ -127,7 +127,7 @@ class SELinuxRole(Role):
         '''
         Makes sure that a mapping exists for a login user to an SELinux user (if creating one now, sets it to the "user_u" SELinux user).
         <em>Parameters</em>
-        user_or_group - the user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -149,8 +149,8 @@ class SELinuxRole(Role):
         Maps a login user to an SELinux user.
         If the login user has no mapping yet, the role creates one.
         <em>Parameters</em>
-        user_or_group - the user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
-        selinux_user - the SELinux user to be referenced.
+        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        selinux_user - The SELinux user to be referenced.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -171,8 +171,8 @@ class SELinuxRole(Role):
         Maps a login user to one or more SELinux roles.
         If the login user has no mapping yet, the role creates one.
         <em>Parameters</em>
-        user_or_group - the user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
-        selinux_roles - an iterable (tuple, list etc) with the roles to be referenced.
+        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        selinux_roles - An iterable (tuple, list etc) with the roles to be referenced.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

@@ -68,6 +68,8 @@ class ApacheRole(Role):
     def ensure_mod(self, mod):
         '''
         Installs the module package and enables it in Apache.
+        <em>Parameters</em>
+        mod - Name of the module to enable.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

@@ -14,7 +14,7 @@ class UFWRole(Role):
     Right before exiting the "with using(UFWRole)" block, it enables ufw, which blocks all other ports and protocols, so that the server is secure by default.
     So, when using this role, remember to allow all the ports with protocols that you need, otherwise you might not be able to connect to the services you provision later on.
     <em>Properties</em>
-    block_on_finish - if False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
+    block_on_finish - If False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role

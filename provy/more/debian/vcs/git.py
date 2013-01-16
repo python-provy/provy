@@ -50,7 +50,7 @@ class GitRole(Role):
         <em>Parameters</em>
         repo - Git repository url.
         path - Path to create the local repository.
-        owner - User that owns the repository directory.
+        owner - User that owns the repository directory. Defaults to None, using the current one in the remote server.
         branch - If specified, the given branch will be checked-out, otherwise it stays in the master branch.
         sudo - If False, won't sudo when creating the repository. Defaults to True.
         <em>Sample usage</em>

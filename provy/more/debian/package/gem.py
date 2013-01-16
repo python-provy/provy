@@ -57,6 +57,7 @@ class GemRole(Role):
         Returns True if the given package is installed via gem in the remote server, False otherwise.
         <em>Parameters</em>
         package_name - Name of the package to verify.
+        version - Version to check for. Defaults to None, which makes it check for any version.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

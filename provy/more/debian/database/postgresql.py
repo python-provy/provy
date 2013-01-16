@@ -54,11 +54,11 @@ class PostgreSQLRole(Role):
         '''
         Creates a user for the database.
         <em>Parameters</em>
-        username - name of the user to be created.
-        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password. Defaults to True.
-        is_superuser - if True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
-        can_create_databases - if True, gives database creation privilege to the user. Defaults to False.
-        can_create_roles - if True, gives this user privilege to create other users. Defaults to False.
+        username - Name of the user to be created.
+        ask_password - If False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password. Defaults to True.
+        is_superuser - If True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
+        can_create_databases - If True, gives database creation privilege to the user. Defaults to False.
+        can_create_roles - If True, gives this user privilege to create other users. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -84,7 +84,7 @@ class PostgreSQLRole(Role):
         '''
         Drops a user from the database.
         <em>Parameters</em>
-        username - name of the user to be dropped.
+        username - Name of the user to be dropped.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -99,7 +99,7 @@ class PostgreSQLRole(Role):
         '''
         Checks if a user exists in the database.
         <em>Parameters</em>
-        username - name of the user to be checked.
+        username - Name of the user to be checked.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -115,10 +115,10 @@ class PostgreSQLRole(Role):
         Ensures that a user exists in the database. If it doesn't, create it.
         <em>Parameters</em>
         username - name of the user to be checked/created.
-        ask_password - if False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
-        is_superuser - if True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
-        can_create_databases - if True, gives database creation privilege to the user. Defaults to False.
-        can_create_roles - if True, gives this user privilege to create other users. Defaults to False.
+        ask_password - If False, doesn't ask for the user password now. Defaults to True, which makes the role prompt for the password.
+        is_superuser - If True, creates as a superuser and ignores can_create_databases and can_create_roles arguments (as they would be implicit). Defaults to False.
+        can_create_databases - If True, gives database creation privilege to the user. Defaults to False.
+        can_create_roles - If True, gives this user privilege to create other users. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -136,8 +136,8 @@ class PostgreSQLRole(Role):
         '''
         Creates a database.
         <em>Parameters</em>
-        database - name of the database to be created.
-        owner - the database owner. If not provided, will be the Postgres default.
+        database - Name of the database to be created.
+        owner - The database owner. If not provided, will be the Postgres default.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -153,7 +153,7 @@ class PostgreSQLRole(Role):
         '''
         Drops a database.
         <em>Parameters</em>
-        database - name of the database to be dropped.
+        database - Name of the database to be dropped.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -168,7 +168,7 @@ class PostgreSQLRole(Role):
         '''
         Checks if a database exists.
         <em>Parameters</em>
-        database - name of the database to be checked.
+        database - Name of the database to be checked.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -183,8 +183,8 @@ class PostgreSQLRole(Role):
         '''
         Ensures that a database exists. If it doesn't, create it.
         <em>Parameters</em>
-        database - name of the database to be checked/created.
-        owner - the database owner. If not provided, will be the Postgres default.
+        database - Name of the database to be checked/created.
+        owner - The database owner. If not provided, will be the Postgres default.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):

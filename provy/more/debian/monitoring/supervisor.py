@@ -122,7 +122,7 @@ class SupervisorRole(Role):
         '''
         Creates a supervisord /etc/init.d script that points to the specified config file path.
         <em>Parameters</em>
-        config_file_path - path to the supervisord.conf at the server.
+        config_file_path - Path to the supervisord.conf at the server.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -171,8 +171,8 @@ class SupervisorRole(Role):
         '''
         Configures supervisor by creating a supervisord.conf file at the specified location.
         <em>Parameters</em>
-        config_file_directory - directory to create the supervisord.conf file at the server.
-        log_folder - path where log files will be created by supervisor. Defaults to /var/log (if you use the default, make sure your user has access).
+        config_file_directory - Directory to create the supervisord.conf file at the server.
+        log_folder - Path where log files will be created by supervisor. Defaults to /var/log (if you use the default, make sure your user has access).
         log_file_max_mb - Maximum size of log file in megabytes. Defaults to 50.
         log_file_backups - Number of log backups that supervisor keeps. Defaults to 10.
         log_level - Level of logging for supervisor. Defaults to 'info'.
@@ -225,7 +225,7 @@ class SupervisorRole(Role):
         '''
         Enters a with block with a Program variable that allows you to configure a program entry in supervisord.conf.
         <em>Parameters</em>
-        name - name of the program being supervised.
+        name - Name of the program being supervised.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

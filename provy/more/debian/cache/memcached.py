@@ -61,7 +61,7 @@ class MemcachedRole(Role):
         '''
         Ensures that Memcached's configuration file at the specified path is up-to-date.
         <em>Parameters</em>
-        owner - owner of the config file. Defaults to root.
+        owner - Owner of the config file. Defaults to root.
         log_folder - Log memcached's output. Defaults to /var/log/memcached.
         verbose_level - 0 for no verbosity, 1 for verbose, 2 for extra-verbose. Defaults to 0.
         memory_in_mb - Start with a cap of 64 megs of memory. It's reasonable, and the daemon default. Note that the daemon will grow to this size, but does not start out holding this much memory.

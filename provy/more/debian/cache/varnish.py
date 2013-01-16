@@ -53,7 +53,7 @@ class VarnishRole(Role):
         template - The name of the VCL template file.
         varnish_vcl_path - The path that the VCL file will be in the remote server. Defaults to /etc/varnish/default.vcl.
         options - Dictionary of options to pass to the VCL template file. Extends context.
-        owner - Owner of the VCL file at the remote server.
+        owner - Owner of the VCL file at the remote server. Defaults to None.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -78,7 +78,7 @@ class VarnishRole(Role):
         template - The name of the VCL template file.
         varnish_conf_path - The path that the configuration file will be in the remote server. Defaults to /etc/default/varnish.
         options - Dictionary of options to pass to the configuration template file. Extends context.
-        owner - Owner of the configuration file at the remote server.
+        owner - Owner of the configuration file at the remote server. Defaults to None.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

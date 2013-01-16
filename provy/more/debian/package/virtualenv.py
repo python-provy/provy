@@ -17,8 +17,8 @@ class VirtualenvRole(Role):
     When using the object as a context manager (that is, using a "with" block) it will make sure that the virtual environment is created and that the commands that run inside it run within this same virtual environment (which affects, for example, the python and pip commands).
     If the virtual environment already exists, it just bypasses the creation procedure.
     <em>Context manager parameters</em>
-    env_name - name of the virtual environment to be created and to keep activated when running commands inside the context manager.
-    system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
+    env_name - Name of the virtual environment to be created and to keep activated when running commands inside the context manager.
+    system_site_packages - If True, will include system-wide site-packages in the virtual environment. Defaults to False.
     <em>Properties</em>
     base_directory - directory where the virtual environment subdirectory will be put at. For example, if you set it as "/home/johndoe/my_envs", and use venv("some_env"), it will create a virtual environment at "/home/johndoe/my_envs/some_env". Defaults to $HOME/.virtualenvs .
     user - the user with which the virtual environment should be created. Defaults to the context user.
@@ -58,6 +58,8 @@ class VirtualenvRole(Role):
         '''
         Gets the virtual environment directory for a given environment name.
         Please note that this doesn't check if the env actually exists.
+        <em>Parameters</em>
+        env_name - Name of the virtual environment to be used to create a directory string.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -105,8 +107,8 @@ class VirtualenvRole(Role):
         '''
         Creates a virtual environment.
         <em>Parameters</em>
-        env_name - name of the virtual environment to be created.
-        system_site_packages - if True, will include system-wide site-packages in the virtual environment. Defaults to False.
+        env_name - Name of the virtual environment to be created.
+        system_site_packages - If True, will include system-wide site-packages in the virtual environment. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

@@ -14,7 +14,7 @@ class IPTablesRole(Role):
     Right before exiting the "with using(IPTablesRole)" block, it blocks all other ports and protocols, so that the server is secure by default.
     So, when using this role, remember to allow all the ports with protocols that you need, otherwise you might not be able to connect to the services you provision later on.
     <em>Properties</em>
-    block_on_finish - if False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
+    block_on_finish - If False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
@@ -143,7 +143,7 @@ class IPTablesRole(Role):
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
         interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
         match - Match filter. Defaults to None.
-        **options - arbitrary options that will be used in conjunction to the match filters.
+        **options - Arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -167,7 +167,7 @@ class IPTablesRole(Role):
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
         interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
         match - Match filter. Defaults to None.
-        **options - arbitrary options that will be used in conjunction to the match filters.
+        **options - Arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -191,7 +191,7 @@ class IPTablesRole(Role):
         protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
         interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
         match - Match filter. Defaults to None.
-        **options - arbitrary options that will be used in conjunction to the match filters.
+        **options - Arbitrary options that will be used in conjunction to the match filters.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

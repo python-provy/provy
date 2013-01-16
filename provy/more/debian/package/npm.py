@@ -51,7 +51,7 @@ class NPMRole(Role):
         <em>Sample usage</em>
         <em>Parameters</em>
         package_name - Name of the package to verify
-        version - Version to verify
+        version - Version to check for. Defaults to None, which makes it check for any version.
         <pre class="sh_python">
         from provy.core import Role
         from provy.more.debian import NPMRole
@@ -74,7 +74,7 @@ class NPMRole(Role):
         Ensures that the given package in the given version is installed via NPM.
         <em>Parameters</em>
         package_name - Name of the package to install
-        version - version to install (or upgrade/downgrade to)
+        version - Version to install (or upgrade/downgrade to)
         stdout - Indicates whether install progress should be shown to stdout. Defaults to False.
         sudo - Indicates whether the package should be installed with the super user. Defaults to True.
         <em>Sample usage</em>

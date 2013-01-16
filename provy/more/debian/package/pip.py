@@ -19,8 +19,8 @@ class PipRole(Role):
     By default, all commands executed with this role will be executed with sudo, unless you set a different user (refer to the "set_user" method below).
     You can also change the class parameters below in the class directly to have a global effect (use carefully!).
     <em>Class/object properties</em>
-    use_sudo - if False, the packages will be installed as normal user. Defaults to True.
-    user - user through which the packages will be installed. Defaults to None, which means that, using together with the default use_sudo, will install packages globally.
+    use_sudo - If False, the packages will be installed as normal user. Defaults to True.
+    user - User through which the packages will be installed. Defaults to None, which means that, using together with the default use_sudo, will install packages globally.
     <em>Sample usage</em>
     <pre class="sh_python">
     from provy.core import Role
@@ -85,6 +85,7 @@ class PipRole(Role):
         Returns True if the given package is installed via pip in the remote server, False otherwise.
         <em>Parameters</em>
         package_name - Name of the package to verify.
+        version - Version to check for. Defaults to None, which makes it check for any version.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -231,7 +232,7 @@ class PipRole(Role):
         '''
         Makes sure the requirements file provided is installed.
         <em>Parameters</em>
-        requeriments_file_name - path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
+        requeriments_file_name - Path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
