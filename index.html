@@ -101,7 +101,7 @@
                 <p>We'll draw from this concept the part of preparing and
                 equipping.</p>
                 <p><em>provy</em> is a infrastructure provisioning automation tool.
-                It's main goal is making it easy to create highly-scalable
+                Its main goal is making it easy to create highly-scalable
                 architectures with simple scripts.</p>
                 <p><em>provy</em> stands on the shoulder of giants! <a
                     href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a> for the networking part and <a
@@ -110,7 +110,7 @@
 
                 <p>A very simple, yet working example of a valid <em>provyfile.py</em>:</p>
             </div>
-            <script src="https://gist.github.com/1061912.js?file=simples-provyfile.py"></script>
+            <script src="https://gist.github.com/4541830.js?file=simples-provyfile.py"></script>
 
             <a name="installing"></a>
             <h2 class="title">Installing provy</h2>
@@ -154,7 +154,7 @@
 
             <p><em>provy</em> is <a
                 href="http://en.wikipedia.org/wiki/Free_and_open_source_software">FOSS</a>
-            and you can find it's source code at <a href="https://github.com/heynemann/provy">its github page</a>.</p>
+            and you can find its source code at <a href="https://github.com/heynemann/provy">its github page</a>.</p>
 
             <a name="getting-started"></a>
             <h2 class="title">Getting started</h2>
@@ -179,13 +179,13 @@
 
             <p>Create a file called <em>website.py</em> at some
             directory with this contents:</p>
-            <script src="https://gist.github.com/1061912.js?file=website.py"></script>
+            <script src="https://gist.github.com/4541830.js?file=website.py"></script>
 
             <p>Yes, it is not a very involved example, but
             <em>Hello World</em> suffices for our purposes. This python
             application takes a port as command-line argument and can
             be run with:</p>
-            <script src="https://gist.github.com/1061912.js?file=running"></script>
+            <script src="https://gist.github.com/4541830.js?file=running"></script>
 
             <h3>The servers</h3>
             <p>Ok, now that we have a functioning application,
@@ -196,16 +196,18 @@
             of this tutorial.</p>
             <p>First make sure you have the <em>base</em> box installed. If you
             don't, use:</p>
-            <script src="https://gist.github.com/1061912.js?file=vagrant-command"></script>
+            <script src="https://gist.github.com/4541830.js?file=vagrant-command"></script>
 
             <p>In the same directory that we created the website.py
             file, type:</p>
-            <script src="https://gist.github.com/1061912.js?file=vagrant-init"></script>
+            <script src="https://gist.github.com/4541830.js?file=vagrant-init"></script>
             <p>This will create a file called VagrantFile. This is the file
             that configures our <a href="http://vagrantup.com/">Vagrant</a>
             instances. Open it up in your editor of choice and change it to
             read:</p>
+
             <script src="https://gist.github.com/4505288.js?file=VagrantFile"></script>
+
             <p>Ok, now when we run vagrant we'll have two servers up:
             33.33.33.33 and 33.33.33.34. The first one will be our front-end
                server and the latter our back-end server.</p>
@@ -218,7 +220,7 @@
             <p>The first thing we'll do in this file is importing the <em>provy</em>
             classes we'll use. We'll also define <em>FrontEnd</em> and
             <em>BackEnd</em> roles and assign them to our two vagrant servers.</p>
-            <script src="https://gist.github.com/1061912.js?file=provyfile.py"></script>
+            <script src="https://gist.github.com/4541830.js?file=provyfile.py"></script>
 
             <p>Even though our script does not actually provision anything yet,
             let's stop to see some interesting points of it.</p>
@@ -233,14 +235,14 @@
             what roles does it have.</p>
 
             <p>We can run this script (even if it won't do anything) with:</p>
-            <script src="https://gist.github.com/1061912.js?file=running-provy-file"></script>
+            <script src="https://gist.github.com/4541830.js?file=running-provy-file"></script>
 
             <h3>Provisioning the back-end server</h3>
             <p>Let's start working in our back-end server, since our front-end
             server depends on it to run.</p>
             <p>First we'll make sure we are running our app under our own user
             and not root:</p>
-            <script src="https://gist.github.com/1061912.js?file=provyfile2.py"></script>
+            <script src="https://gist.github.com/4541830.js?file=provyfile2.py"></script>
 
             <p>Then we'll need to copy the <em>website.py</em> file to the
             server. <em>provy</em> can easily copy files to the servers, as
@@ -248,6 +250,7 @@
             named <em>files</em> in the same directory as <em>provyfile.py</em>.</p>
 
             <p>Now we can easily copy it to the <em>/home/frontend</em> directory:</p>
+
             <script src="https://gist.github.com/4505288.js?file=provyfile3.py"></script>
 
             <p>The <em>update_file</em> method tells provy to compare the
@@ -257,6 +260,7 @@
             <p>Next we must make sure <a
                 href="http://tornadoweb.org">Tornado</a> is installed.
             <em>provy</em> already comes with a role that does that:</p>
+
             <script src="https://gist.github.com/4547217.js?file=provyfile4.py"></script>
 
             <p>Now all we have to do is instruct supervisor to run four
@@ -271,15 +275,17 @@
             and our website's site. Following what <a
                 href="http://tornadoweb.org">Tornado</a>'s documentation
             instructs, these are good templates:</p>
-            <script src="https://gist.github.com/1061953.js?file=nginx.conf"></script>
-            <script src="https://gist.github.com/1061953.js?file=website"></script>
+            <script src="https://gist.github.com/4541881.js?file=nginx.conf"></script>
+            <script src="https://gist.github.com/4541881.js?file=website"></script>
 
             <p>Save them as <em>files/nginx.conf</em> and
             <em>files/website</em>, respectively.</p>
 
             <p>Now all that's left is making sure that <em>provy</em>
             configures our front-end server:</p>
+
             <script src="https://gist.github.com/4547217.js?file=provyfile6.py"></script>
+
             <p>See how we passed the user name as an option to the
             <em>nginx.conf</em> template? <em>provy</em> allows this kind of
             template interaction in many places. For more information, check the
@@ -288,7 +294,7 @@
             <h3>Running and verifying it works</h3>
             <p>We can now fire our brand new infrastructure and check that the
             website is working:</p>
-            <script src="https://gist.github.com/1061953.js?file=running%20the%20website"></script>
+            <script src="https://gist.github.com/4541881.js?file=running%20the%20website"></script>
             <p>After these 3 commands finished running (it might take a long
             time depending on your connection speed), you should see <em>Hello
             World</em> as the result of the curl command.</p>
@@ -308,8 +314,8 @@
             <p>Last but not least, you describe your servers and how they relate to roles. This brings us to the <em>AskFor</em> parameter (<em>provy.core.AskFor</em>). This class allows you to specify that a given option for a given server should be filled at runtime, either by passing in the command line or by asking the user doing the provisioning.</p>
             <p><em>AskFor</em> takes two arguments: <em>key</em> and <em>question</em>. The <em>key</em> argument is needed to allow passing the argument when running provy (more on that in the next section). The <em>question</em> is used when <em>provy</em> asks the user running it for the parameter.</p>
             <p><em>AskFor</em> is really useful for sensitive data such as passwords. You don't want to expose this data in your provyfile in plain text. You just use an <em>AskFor</em> parameter for it and supply the information at runtime. Let's look at a sample of AskFor usage.</p>
-            <script src="https://gist.github.com/1061953.js?file=askfor.py"></script>
-            <p>This parameter can be supplied twofold: if you don't specify it in the console when calling <em>provy</em>, you will be asked for it. If you need to specify it in the console, just use it's key like this:</p>
+            <script src="https://gist.github.com/4541881.js?file=askfor.py"></script>
+            <p>This parameter can be supplied twofold: if you don't specify it in the console when calling <em>provy</em>, you will be asked for it. If you need to specify it in the console, just use its key like this:</p>
             <pre>
                 <code>
         provy -s server -p password mysql-db-password=somepass
@@ -324,7 +330,7 @@
             <p>The console runner supports some options. For more information
             you can use the --help command. You should see output like the
             following:</p>
-            <script src="https://gist.github.com/1061953.js?file=provy-help"></script>
+            <script src="https://gist.github.com/4541881.js?file=provy-help"></script>
             <p>The option you are most likely to use is the <em>server</em>
             option. It tells <em>provy</em> what servers you want provisioned.</p>
             <p>As we saw in the <a href="#runtime-arguments">provyfile and Runtime Arguments</a> section, we can also supply <em>AskFor</em> arguments when running <em>provy</em>.</p>
@@ -349,13 +355,13 @@
             <p>As you may have noticed, <em>provy</em> provides a special
             syntax for using other roles in your role. Say we need to use the
             <em>AptitudeRole</em> in our role. This is how we'd do it:</p>
-            <script src="https://gist.github.com/1061953.js?file=using-roles.py"></script>
+            <script src="https://gist.github.com/4541881.js?file=using-roles.py"></script>
             <p>The <em>using</em> method of the Role class is a special way of
             using other roles. The reason for using it is that it maintains
             context and the <em>provy</em> lifecycle (more on both later).</p>
             <p>If you just want to provision another role in your role, you can
             use:</p>
-            <script src="https://gist.github.com/1061953.js?file=using-roles-2.py"></script>
+            <script src="https://gist.github.com/4541881.js?file=using-roles-2.py"></script>
             <p>The <em>provision_role</em> method does exactly the same as the
             <em>using</em> method, except it does not enter a with block. This
             should be used when you don't wnat to call anything in the role,
@@ -378,7 +384,7 @@
                 is a directory called <em>files</em> in the same path as <em>provyfile.py</em>.</p>
             <p>Any files you place inside this directory may be used as templates to be uploaded to the server
             being provisioned. Since <em>provy</em> is built on top of <a
-                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use it's <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
+                href="http://fabfile.org" title="Fabric is a Python library and command-line tool for streamlining the use of SSH for application deployment or systems administration tasks">fabric</a>, you can use its <em>put</em> method as well to put any file or folder to the server. It's advised to use the bundled methods that come with provy, though, as those are <a href="http://en.wikipedia.org/wiki/Idempotence">idempotent</a>.</p>
             <p>The other place you can put files is in a <em>templates</em> directory inside Role apps. The supervisor role uses this approach, if you want to take a look at an example. If you do place files in the <em>templates</em> directory, do not forget to call the <em>register_template_loader</em> method passing in the full namespace of your app (more details in the provy.more section below).</p>
             <p>We used custom files in the <em>Getting Started</em> section to provide the needed configuration files for <a href="http://www.nginx.org">nginx</a>.</p>
             <a name="core-and-more"></a>
