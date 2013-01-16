@@ -49,7 +49,7 @@ class YumRole(Role):
         '''
         Ensures that the specified gpg key is imported into rpm.
         <em>Parameters</em>
-        url - Url of the gpg key file.
+        url - URL of the gpg key file.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -68,7 +68,7 @@ class YumRole(Role):
         '''
         Ensures that the specified repository is in yum's list of repositories.
         <em>Parameters</em>
-        source_string - repository string
+        source_string - Repository string
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -87,7 +87,7 @@ class YumRole(Role):
         '''
         Ensures that the specified repository is in yum's list of repositories.
         <em>Parameters</em>
-        source_string - repository string
+        source_string - Repository string
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

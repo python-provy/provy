@@ -111,10 +111,10 @@ class UserRole(Role):
         username - Name of the user.
         identified_by - Password that the user will use to login to the remote server. If set to None, the user will not have a password.
         user_id - UID of the user. Defaults to None and is optional.
-        home_folder - Defaults to /home/&lt;username&gt;. Specifies the user's home folder.
-        default_script - Defaults to /bin/sh. Sets the user's default script, the one that will execute commands per default when logging in.
-        group - Defaults to the name of the user. Group that this user belongs to. If the group does not exist it is created prior to user creation.
-        is_admin - If set to True the user is added to the 'admin' user group as well.
+        home_folder - Specifies the user's home folder. Defaults to /home/&lt;username&gt;.
+        default_script - Sets the user's default script, the one that will execute commands per default when logging in. Defaults to /bin/sh.
+        group - Group that this user belongs to. If the group does not exist it is created prior to user creation. Defaults to the name of the user.
+        is_admin - If set to True the user is added to the 'admin' user group as well. Defaults to False.
         <em>Sample usage</em>
         <pre class="sh_python">
         from provy.core import Role

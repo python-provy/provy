@@ -100,7 +100,7 @@ class MySQLRole(Role):
         '''
         Returns all the available hosts that this user can login from.
         <em>Parameters</em>
-        username - name of the user to be verified.
+        username - Name of the user to be verified.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -122,7 +122,7 @@ class MySQLRole(Role):
         '''
         Returns True if the given user exists for the given location in mysql server.
         <em>Parameters</em>
-        username - name of the user to be verified.
+        username - Name of the user to be verified.
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):
@@ -138,9 +138,9 @@ class MySQLRole(Role):
         '''
         Ensure the given user is created in the database and can login from the specified location.
         <em>Parameters</em>
-        username - name of the user to be created.
-        identified_by - password that the user will use to login to mysql server.
-        login_from - locations that this user can login from. Defaults to '%' (anywhere).
+        username - Name of the user to be created.
+        identified_by - Password that the user will use to login to mysql server.
+        login_from - Locations that this user can login from. Defaults to '%' (anywhere).
         <em>Sample usage</em>
         <pre class="sh_python">
             class MySampleRole(Role):

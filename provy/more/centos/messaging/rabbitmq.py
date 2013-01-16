@@ -102,8 +102,8 @@ class RabbitMqRole(Role):
         Ensure the given user is created in the database and can authenticate
         with rabbitmq
         <em>Parameters</em>
-        username - name of the user to be created.
-        password - password that the user will use to authenticate to rabbitmq
+        username - Name of the user to be created.
+        password - Password that the user will use to authenticate to rabbitmq
         <em>Sample usage</em>
         <pre class="sh_python">
         class MySampleRole(Role):
@@ -127,7 +127,7 @@ class RabbitMqRole(Role):
         '''
         Delete user from rabbitmq if exists
         <em>Parameters</em>
-        user - name of user to be deleted
+        user - Name of user to be deleted
         <em>Sample usage</em>
         <pre class="sh_python">
         class MySampleRole(Role):
@@ -170,7 +170,7 @@ class RabbitMqRole(Role):
         '''
         Ensure the given user has the given permissions on the specified vhost
         <em>Parameters</em>
-        vhost - virtual host name
+        vhost - Virtual host name
         username - User to ensure permissions
         perms - Permissions to assign to user (i.e.: '".*" ".*" ".*"')
         <em>Sample usage</em>
