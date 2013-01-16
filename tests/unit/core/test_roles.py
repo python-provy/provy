@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from contextlib import contextmanager
 import os
 import tempfile
@@ -605,7 +607,7 @@ class RoleTest(ProvyTestCase):
         self.assertIn('foo=FOO!', content)
 
     @istest
-    def writes_content_to_a_temp_file(self):
+    def writes_ascii_content_to_a_temp_file(self):
         content = 'some content'
 
         temp_file = self.role.write_to_temp_file(content)
@@ -614,6 +616,18 @@ class RoleTest(ProvyTestCase):
 
         with open(temp_file) as f:
             saved_content = f.read().strip()
+            self.assertEqual(saved_content, content)
+
+    @istest
+    def writes_utf8_content_to_a_temp_file(self):
+        content = u'Tarek Ziadé'
+
+        temp_file = self.role.write_to_temp_file(content)
+
+        self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
+
+        with open(temp_file) as f:
+            saved_content = f.read().decode('utf-8').strip()
             self.assertEqual(saved_content, content)
 
     @istest

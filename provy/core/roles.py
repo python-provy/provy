@@ -5,6 +5,7 @@
 Module responsible for the base Role and its operations.
 '''
 
+import codecs
 from contextlib import contextmanager
 import os
 from os.path import exists, split, dirname, isabs
@@ -768,7 +769,8 @@ class Role(object):
         '''
         local_temp_path = ''
         with NamedTemporaryFile(delete=False) as f:
-            f.write(text)
+            content = codecs.encode(text, 'utf-8')
+            f.write(content)
             local_temp_path = f.name
 
         return local_temp_path
