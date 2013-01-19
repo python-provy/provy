@@ -10,33 +10,7 @@ from provy.core import Role
 
 
 class BasePostgreSQLRole(Role):
-    '''
-    This role provides PostgreSQL database management utilities.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PostgreSQLRole
-
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PostgreSQLRole) as role:
-                    role.ensure_user("john")
-                    role.ensure_database("foo", owner="john")
-
-    </pre>
-    '''
     def provision(self):
-        '''
-        Installs PostgreSQL and its dependencies. This method should be called
-        upon if overriden in base classes, or PostgreSQL won't work properly
-        in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(PostgreSQLRole) # no need to call this if using with block.
-        </pre>
-        '''
         raise NotImplementedError
 
     def _execute(self, command, stdout=True):
