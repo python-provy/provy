@@ -5,11 +5,11 @@
 Roles in this namespace are meant to provide PostgreSQL database management utilities for Debian distributions.
 '''
 
-from provy.more.base.database import postgresql
+from provy.more.base.database.postgresql import BasePostgreSQLRole
 from provy.more.debian.package.aptitude import AptitudeRole
 
 
-class PostgreSQLRole(postgresql.PostgreSQLRole):
+class PostgreSQLRole(BasePostgreSQLRole):
     '''
     This role provides PostgreSQL database management utilities for Debian distributions.
     <em>Sample usage</em>

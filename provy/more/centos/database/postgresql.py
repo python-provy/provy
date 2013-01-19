@@ -8,11 +8,11 @@ import re
 
 import fabric
 
-from provy.more.base.database import postgresql
+from provy.more.base.database import BasePostgreSQLRole
 from provy.more.centos.package.yum import YumRole
 
 
-class PostgreSQLRole(postgresql.PostgreSQLRole):
+class PostgreSQLRole(BasePostgreSQLRole):
     '''
     This role provides PostgreSQL database management utilities for CentOS distributions.
     <em>Sample usage</em>
@@ -47,7 +47,7 @@ class PostgreSQLRole(postgresql.PostgreSQLRole):
         self._run_on_startup()
 
     def _execute(self, *args, **kwargs):
-        with fabric.api.cd('/var/lib/pgsql') as test:
+        with fabric.api.cd('/var/lib/pgsql'):
             return super(PostgreSQLRole, self)._execute(*args, **kwargs)
 
     def _is_db_initialized(self):

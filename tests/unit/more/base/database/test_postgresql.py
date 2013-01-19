@@ -3,13 +3,13 @@ from contextlib import contextmanager
 from mock import MagicMock, patch
 from nose.tools import istest
 
-from provy.more.base import PostgreSQLRole
+from provy.more.base import BasePostgreSQLRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
 class PostgreSQLRoleTestCase(ProvyTestCase):
     def setUp(self):
-        self.role = PostgreSQLRole(prov=None, context={})
+        self.role = BasePostgreSQLRole(prov=None, context={})
         self.execute = MagicMock(side_effect=self.return_execution_result)
         self.execution_results = []
         self.execution_count = -1
@@ -27,7 +27,6 @@ class PostgreSQLRoleTestCase(ProvyTestCase):
 
     @contextmanager
     def execution(self, return_value, query, user='postgres'):
-        count = self.execution_count
         self.execution_results.append(return_value)
         with patch('provy.core.roles.Role.execute', self.execute):
             yield

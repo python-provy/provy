@@ -9,7 +9,7 @@ utilities.
 from provy.core import Role
 
 
-class PostgreSQLRole(Role):
+class BasePostgreSQLRole(Role):
     '''
     This role provides PostgreSQL database management utilities.
     <em>Sample usage</em>
