@@ -6,7 +6,7 @@ Roles in this namespace are meant to provide PostgreSQL database management util
 '''
 import re
 
-from fabric.context_managers import settings, cd
+import fabric
 
 from provy.more.base.database import postgresql
 from provy.more.centos.package.yum import YumRole
@@ -47,7 +47,7 @@ class PostgreSQLRole(postgresql.PostgreSQLRole):
         self._run_on_startup()
 
     def _execute(self, *args, **kwargs):
-        with cd('/var/lib/pgsql') as test:
+        with fabric.api.cd('/var/lib/pgsql') as test:
             return super(PostgreSQLRole, self)._execute(*args, **kwargs)
 
     def _is_db_initialized(self):
@@ -60,7 +60,7 @@ class PostgreSQLRole(postgresql.PostgreSQLRole):
         return True
 
     def _is_running(self):
-        with settings(warn_only=True):
+        with fabric.api.settings(warn_only=True):
             status = self.execute('service postgresql status', sudo=True, stdout=False)
             return 'running' in status
 

@@ -55,6 +55,15 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             self.assertFalse(self.role._run_on_startup())
 
     @istest
+    def change_directory_to_postgres_data_dir(self):
+        with patch('fabric.api.cd') as cd_mock, self.execute_mock() as execute:
+            self.role._execute('ls')
+            self.assertEqual(cd_mock.call_args, call('/var/lib/pgsql'))
+            self.assertEqual(
+                execute.call_args, call('ls', sudo=True, stdout=True, user='postgres')
+            )
+
+    @istest
     @patch.multiple(
         'provy.more.centos.postgresql.PostgreSQLRole', _run_on_startup=DEFAULT,
         _ensure_running=DEFAULT, _ensure_initialized=DEFAULT,
