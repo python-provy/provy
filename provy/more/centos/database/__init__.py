@@ -7,3 +7,4 @@ Roles in this namespace are meant to enable database management for database ser
 '''
 
 from provy.more.centos.database.mysql import MySQLRole
+from provy.more.centos.database.postgresql import PostgreSQLRole

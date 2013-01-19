@@ -12,3 +12,4 @@ from provy.more.centos.networking import *
 from provy.more.centos.vcs import *
 from provy.more.centos.messaging import *
 from provy.more.centos.utils import *
+from provy.more.centos.database import *
