@@ -43,14 +43,16 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             self.assertTrue(self.role._ensure_running())
 
     @istest
-    def verifies_if_will_boot_at_startup(self):
-        with self.execution('..postgresql..', 'chkconfig --list', None):
-            self.assertTrue(self.role._will_start_on_boot())
+    def ensures_postgres_on_startup(self):
+        with self.execution('......', 'chkconfig --list', None):
+            with self.execution('', 'chkconfig --add postgresql', None):
+                with self.execution('', 'chkconfig postgresql on', None):
+                    self.assertTrue(self.role._run_on_startup())
 
     @istest
-    def verifies_if_will_not_boot_at_startup(self):
-        with self.execution('......', 'chkconfig --list', None):
-            self.assertFalse(self.role._will_start_on_boot())
+    def ensures_postgres_not_on_startup(self):
+        with self.execution('..\r\npostgresql     \t0:off\t1:off\t2:on\t3:on\t4:on\t5:on\t6:off\r\n..', 'chkconfig --list', None):
+            self.assertFalse(self.role._run_on_startup())
 
     @istest
     @patch.multiple(

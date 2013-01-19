@@ -4,6 +4,8 @@
 '''
 Roles in this namespace are meant to provide PostgreSQL database management utilities for CentOS distributions.
 '''
+import re
+
 from fabric.context_managers import settings, cd
 
 from provy.more.base.database import postgresql
@@ -59,7 +61,7 @@ class PostgreSQLRole(postgresql.PostgreSQLRole):
 
     def _is_running(self):
         with settings(warn_only=True):
-            status = self.execute('service postgresql status', sudo=True)
+            status = self.execute('service postgresql status', sudo=True, stdout=False)
             return 'running' in status
 
     def _ensure_running(self):
@@ -69,9 +71,11 @@ class PostgreSQLRole(postgresql.PostgreSQLRole):
 
     def _will_start_on_boot(self):
         pkg_list = self.execute('chkconfig --list', sudo=True, stdout=False)
-        return 'postgresql' in pkg_list
+        return re.search(r'postgresql.*\t0:off\t1:off\t2:on\t3:on\t4:on\t5:on\t6:off', pkg_list)
 
     def _run_on_startup(self):
         if not self._will_start_on_boot():
             self.execute('chkconfig --add postgresql', sudo=True)
             self.execute('chkconfig postgresql on', sudo=True)
+            return True
+        return False
