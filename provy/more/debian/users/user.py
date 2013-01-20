@@ -42,8 +42,8 @@ class UserRole(Role):
         return group_name in values
 
     def __first_values_from(self, basename):
-        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=False, sudo=True)
-        values = values.strip().split('\n')
+        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=True, sudo=True)
+        values = values.strip().split()
         return values
 
     def user_exists(self, username):
@@ -110,7 +110,7 @@ class UserRole(Role):
         '''
         if not self.group_exists(group_name):
             self.log("Group %s not found! Creating..." % group_name)
-            self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
+            self.execute('groupadd %s' % group_name, stdout=True, sudo=True)
             self.log("Group %s created!" % group_name)
 
     def ensure_user_groups(self, username, groups=[]):
@@ -175,3 +175,13 @@ class UserRole(Role):
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
         self.context['owner'] = username
+
+
+def CreateUser(*largs, **kwargs):
+    """
+        Creates a role that creates a user on remote server.
+    """
+    class TempUserRole(UserRole):
+        def provision(self):
+            self.ensure_user(*largs, **kwargs)
+    return TempUserRole

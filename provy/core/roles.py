@@ -5,6 +5,8 @@
 Module responsible for the base Role and its operations.
 '''
 
+
+
 import codecs
 from contextlib import contextmanager
 import os
@@ -13,8 +15,11 @@ from datetime import datetime
 from tempfile import gettempdir, NamedTemporaryFile
 
 import fabric.api
+from fabric.api import settings
+from fabric.context_managers import hide
 from jinja2 import Environment, PackageLoader, FileSystemLoader
-
+import uuid
+import StringIO
 
 class UsingRole(object):
     '''ContextManager that allows using Roles in other Roles.'''
@@ -59,6 +64,8 @@ class Role(object):
             context['used_roles'] = {}
         if 'roles_in_context' not in context:
             context['roles_in_context'] = {}
+        self._paths_to_remove = set() #TODO: Anyone merging this: it holds list of paths that will be removed on self.cleanup()
+                # I feel this should be somewhere in context, but then it would be shared by all roles (which is bad).
         self.prov = prov
         self.context = context
 
@@ -97,6 +104,11 @@ class Role(object):
         </pre>
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
+
+    @property
+    def roles_in_context(self):
+        return self.context.get("roles_in_context", tuple([]))
+
 
     def schedule_cleanup(self):
         '''
@@ -166,7 +178,12 @@ class Role(object):
                 pass
         </pre>
         '''
-        pass
+        for path in self._paths_to_remove:
+            try:
+                self.remove_dir(path, True, True)
+            except Exception as e:
+                self.log("Couldn't clean path {}".format(path))
+
 
     @contextmanager
     def __showing_command_output(self, show=True):
@@ -178,7 +195,18 @@ class Role(object):
             ):
                 yield
 
-    def execute(self, command, stdout=True, sudo=False, user=None):
+    @contextmanager
+    def __cd(self, cd = None):
+        """
+            If cd is not none will use fabric.api.cd else this is a noop.
+        """
+        if cd is not None:
+            with fabric.api.cd(cd):
+                yield
+        else:
+            yield
+
+    def execute(self, command, stdout=True, sudo=False, user=None, cwd=None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
         It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
@@ -187,6 +215,8 @@ class Role(object):
         stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
         sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
         user - If specified, will be the user with which the command will be executed. Defaults to None.
+        cwd - If specified it will current working dir will be changed to
+            `cwd` protor to executing this command and restored after it.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -198,7 +228,8 @@ class Role(object):
         </pre>
         '''
         with self.__showing_command_output(stdout):
-            return self.__execute_command(command, sudo=sudo, user=user)
+            with self.__cd(cwd):
+                return self.__execute_command(command, sudo=sudo, user=user)
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
@@ -251,6 +282,27 @@ class Role(object):
         </pre>
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
+
+    def execute_python_script(self, script, stdout=True, sudo=False):
+        script_file = self.create_remote_temp_file("script", "py")
+        if isinstance(script, basestring):
+            script = StringIO.StringIO(script)
+
+        self.put_file(script, script, sudo)
+        try:
+            self.execute("python -f {}".format(script_file), str, sudo)
+        finally:
+            self.remove_file(script_file, sudo)
+
+    def remote_list_directory(self, path):
+        """
+            Lists contents of remote directory and returns them as a python list.
+        """
+        import  json #in case someone uses python 2.6
+        result = self.execute_python('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
+        contents = json.loads(result)
+        return contents
+
 
     def get_logged_user(self):
         '''
@@ -344,6 +396,33 @@ class Role(object):
         </pre>
         '''
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
+
+    def create_remote_temp_file(self, prefix = '', suffix = '',  cleanup = False):
+        """
+            Creates random unique file name, it is save to put write to this
+            file on remote server.
+        """
+        file_name = "{}/{}{}.{}".format(self.remote_temp_dir(), prefix, str(uuid.uuid4()), suffix)
+        if cleanup:
+            self._paths_to_remove.add(file_name)
+        return file_name
+
+    def create_remote_temp_dir(self, dirname = None, owner = None, chmod = None, cleanup=True):
+
+        if dirname is None:
+            dirname = str(uuid.uuid4())
+
+        dirname = "{}/{}".format(self.remote_temp_dir(), dirname)
+
+        self.ensure_dir(dirname, owner, owner is not None)
+
+        if chmod is not None:
+            self.change_dir_mode(dirname, chmod)
+
+        if cleanup:
+            self._paths_to_remove.add(dirname)
+
+        return dirname
 
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
@@ -577,7 +656,7 @@ class Role(object):
             return True
         return False
 
-    def remove_file(self, path, sudo=False):
+    def remove_file(self, path, sudo=False, stdout = True):
         '''
         Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
         <em>Parameters</em>
@@ -592,6 +671,7 @@ class Role(object):
                 self.remove_file('/tmp/my-file', sudo=True)
         </pre>
         '''
+
 
         if self.remote_exists(path):
             self.execute('rm -f %s' % path, stdout=False, sudo=sudo)
@@ -657,13 +737,14 @@ class Role(object):
             extended[key] = value
         return extended
 
-    def put_file(self, from_file, to_file, sudo=False):
+    def put_file(self, from_file, to_file, sudo=False, stdout=True):
         '''
         Puts a file to the remote server.
         <em>Parameters</em>
         from_file - Source file in the local system.
         to_file - Target path in the remote server.
         sudo - Indicates whether the file should be created by the super-user.
+        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
         <em>Sample Usage</em>
         <pre class="sh_python">
         from provy.core import Role
@@ -675,7 +756,8 @@ class Role(object):
                          sudo=True)
         </pre>
         '''
-        fabric.api.put(from_file, to_file, use_sudo=sudo)
+        with self.__showing_command_output(stdout):
+            fabric.api.put(from_file, to_file, use_sudo=sudo)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=None):
         '''
