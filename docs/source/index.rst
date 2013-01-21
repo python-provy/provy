@@ -3,8 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to provy's documentation!
-=================================
+=====
+provy
+=====
+**Python** provisioning made **easy**!
+
+About
+=====
+
+provy is an easy-to-use provisioning system in python.
+
+Turn that tedious task of provisioning the infrastructure of your website into a repeatable no-frills reliable process.
 
 Contents:
 
