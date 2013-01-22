@@ -12,6 +12,7 @@ import base64
 from provy.core import Role
 
 
+# This is a really dirty workaround, but it's the only way we can get Sphinx's autodoc to work inside ReadTheDocs
 if not os.environ.get('BYPASS_M2CRYPTO'):
     import M2Crypto.RSA
 
