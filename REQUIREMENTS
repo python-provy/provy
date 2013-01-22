@@ -5,7 +5,7 @@ jinja2
 -e bzr+http://bazaar.launchpad.net/~ubuntu-branches/ubuntu/precise/m2crypto/precise/#egg=M2Crypto
 nose
 mock
-coverage==3.6b1
+coverage
 yanc
 xtraceback
 configobj
