@@ -20,28 +20,30 @@ Create a file called *website.py* at some directory with this content::
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     import sys
     import tornado.ioloop
     import tornado.web
- 
+
     class MainHandler(tornado.web.RequestHandler):
         def get(self):
             self.write("Hello, world")
- 
+
     application = tornado.web.Application([
         (r"/", MainHandler),
     ])
- 
+
     if __name__ == "__main__":
         port = int(sys.argv[1])
         application.listen(port, '0.0.0.0')
         print ">> Website running at http://0.0.0.0:%d" % port
         tornado.ioloop.IOLoop.instance().start()
 
-Yes, it is not a very involved example, but *Hello World* suffices for our purposes. This python application takes a port as command-line argument and can be run with::
+Yes, it is not a very involved example, but *Hello World* suffices for our purposes. This python application takes a port as command-line argument and can be run with:
 
-    $ python website.py 8000 
+.. code-block:: bash
+
+    $ python website.py 8000
     >> Website running at http://0.0.0.0:8000
 
 The servers
@@ -51,31 +53,37 @@ Ok, now that we have a functioning application, let's deploy it to production.
 
 First, let's create a local "production" environment using `Vagrant <http://vagrantup.com/>`_. Using `Vagrant <http://vagrantup.com/>`_ is beyond the scope of this tutorial.
 
-First make sure you have the *base* box installed. If you don't, use::
+First make sure you have the *base* box installed. If you don't, use:
+
+.. code-block:: bash
 
     $ vagrant box add base http://files.vagrantup.com/lucid32.box
 
-In the same directory that we created the website.py file, type::
+In the same directory that we created the website.py file, type:
+
+.. code-block:: bash
 
     $ vagrant init
           create  Vagrantfile
 
-This will create a file called VagrantFile. This is the file that configures our `Vagrant <http://vagrantup.com/>`_ instances. Open it up in your editor of choice and change it to read::
+This will create a file called VagrantFile. This is the file that configures our `Vagrant <http://vagrantup.com/>`_ instances. Open it up in your editor of choice and change it to read:
+
+.. code-block:: ruby
 
     Vagrant::Config.run do |config|
- 
+
         config.vm.define :frontend do |inner_config|
             inner_config.vm.box = "base"
             inner_config.vm.forward_port(80, 8080)
             inner_config.vm.network(:hostonly, "33.33.33.33")
         end
- 
+
         config.vm.define :backend do |inner_config|
             inner_config.vm.box = "base"
             inner_config.vm.forward_port(80, 8081)
             inner_config.vm.network(:hostonly, "33.33.33.34")
         end
- 
+
     end
 
 Ok, now when we run vagrant we'll have two servers up: 33.33.33.33 and 33.33.33.34. The first one will be our front-end server and the latter our back-end server.
@@ -89,17 +97,17 @@ The first thing we'll do in this file is importing the *provy* classes we'll use
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     from provy.core import Role
- 
+
     class FrontEnd(Role):
         def provision(self):
             pass
- 
+
     class BackEnd(Role):
         def provision(self):
             pass
- 
+
     servers = {
         'test': {
             'frontend': {
@@ -125,14 +133,16 @@ You can see that our roles (*FrontEnd* and *BackEnd*) both inherit from *provy.R
 
 Another thing to notice is the *servers* dictionary. This is where we tell *provy* how to connect to each server and what roles does it have.
 
-We can run this script (even if it won't do anything) with::
+We can run this script (even if it won't do anything) with:
+
+.. code-block:: bash
 
     $ # will provision both servers
     $ provy -s test
- 
+
     $ # will provision only the frontend server
     $ provy -s test.frontend
- 
+
     $ # will provision only the backend server
     $ provy -s test.backend
 
@@ -145,19 +155,19 @@ First we'll make sure we are running our app under our own user and not root::
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     from provy.core import Role
     from provy.more.debian import UserRole
- 
+
     class FrontEnd(Role):
         def provision(self):
             pass
- 
+
     class BackEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('backend', identified_by='pass', is_admin=True)
- 
+
     servers = {
         'test': {
             'frontend': {
@@ -183,21 +193,21 @@ Now we can easily copy it to the */home/frontend* directory::
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     from provy.core import Role
     from provy.more.debian import UserRole
- 
+
     class FrontEnd(Role):
         def provision(self):
             pass
- 
+
     class BackEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('backend', identified_by='pass', is_admin=True)
- 
+
             self.update_file('website.py', '/home/backend/website.py', owner='backend', sudo=True)
- 
+
     servers = {
         'test': {
             'frontend': {
@@ -223,23 +233,23 @@ Next we must make sure `Tornado <http://tornadoweb.org/>`_ is installed. *provy*
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     from provy.core import Role
     from provy.more.debian import UserRole, TornadoRole
- 
+
     class FrontEnd(Role):
         def provision(self):
             pass
- 
+
     class BackEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('backend', identified_by='pass', is_admin=True)
- 
+
             self.update_file('website.py', '/home/backend/website.py', owner='backend', sudo=True)
- 
+
             self.provision_role(TornadoRole)
- 
+
     servers = {
         'test': {
             'frontend': {
@@ -263,40 +273,40 @@ Now all we have to do is instruct supervisor to run four instances of our app::
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
- 
+
     from provy.core import Role
     from provy.more.debian import UserRole, TornadoRole, SupervisorRole
- 
+
     class FrontEnd(Role):
         def provision(self):
             pass
- 
+
     class BackEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('backend', identified_by='pass', is_admin=True)
- 
+
             self.update_file('website.py', '/home/backend/website.py', owner='backend', sudo=True)
- 
+
             self.provision_role(TornadoRole)
- 
+
             # make sure we have a folder to store our logs
             self.ensure_dir('/home/backend/logs', owner='backend')
- 
+
             with self.using(SupervisorRole) as role:
                 role.config(
                     config_file_directory='/home/backend',
                     log_folder='/home/backend/logs/',
                     user='backend'
                 )
- 
+
                 with role.with_program('website') as program:
                     program.directory = '/home/backend'
                     program.command = 'python website.py 800%(process_num)s'
                     program.number_of_processes = 4
- 
+
                     program.log_folder = '/home/backend/logs'
- 
+
     servers = {
         'test': {
             'frontend': {
@@ -325,21 +335,21 @@ We have to provide template files for both *nginx.conf* and our website's site. 
 
     user {{ user }};
     worker_processes 1;
-     
+
     error_log /home/frontend/error.log;
     pid /home/frontend/nginx.pid;
-     
+
     events {
         worker_connections 1024;
         use epoll;
     }
-     
+
     http {
         include /etc/nginx/mime.types;
         default_type application/octet-stream;
-     
+
         access_log /home/frontend/nginx.access.log;
-     
+
         keepalive_timeout 65;
         proxy_read_timeout 200;
         sendfile on;
@@ -351,9 +361,9 @@ We have to provide template files for both *nginx.conf* and our website's site. 
         gzip_types text/plain text/css text/xml
                    application/x-javascript application/xml
                    application/atom+xml text/javascript;
-     
+
         proxy_next_upstream error;
-     
+
         include /etc/nginx/conf.d/*.conf;
         include /etc/nginx/sites-enabled/*;
     }
@@ -366,13 +376,13 @@ We have to provide template files for both *nginx.conf* and our website's site. 
         server 33.33.33.34:8002;
         server 33.33.33.34:8003;
     }
-     
+
     server {
         listen 8888;
         server_name  localhost 33.33.33.33;
-     
+
         access_log  /home/frontend/website.access.log;
-     
+
         location / {
             proxy_pass_header Server;
             proxy_set_header Host $http_host;
@@ -389,47 +399,47 @@ Now all that's left is making sure that *provy* configures our front-end server:
 
     #!/usr/bin/python
     # -*- coding: utf-8 -*-
-     
+
     from provy.core import Role
     from provy.more.debian import UserRole, TornadoRole, SupervisorRole, NginxRole
-     
+
     class FrontEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('frontend', identified_by='pass', is_admin=True)
-     
+
             with self.using(NginxRole) as role:
                 role.ensure_conf(conf_template='nginx.conf', options={'user': 'frontend'})
                 role.ensure_site_disabled('default')
                 role.create_site(site='website', template='website')
                 role.ensure_site_enabled('website')
-     
+
     class BackEnd(Role):
         def provision(self):
             with self.using(UserRole) as role:
                 role.ensure_user('backend', identified_by='pass', is_admin=True)
-     
+
             self.update_file('website.py', '/home/backend/website.py', owner='backend', sudo=True)
-     
+
             self.provision_role(TornadoRole)
-     
+
             # make sure we have a folder to store our logs
             self.ensure_dir('/home/backend/logs', owner='backend')
-     
+
             with self.using(SupervisorRole) as role:
                 role.config(
                     config_file_directory='/home/backend',
                     log_folder='/home/backend/logs/',
                     user='backend'
                 )
-     
+
                 with role.with_program('website') as program:
                     program.directory = '/home/backend'
                     program.command = 'python website.py 800%(process_num)s'
                     program.number_of_processes = 4
-     
+
                     program.log_folder = '/home/backend/logs'
-     
+
     servers = {
         'test': {
             'frontend': {
@@ -454,7 +464,9 @@ See how we passed the user name as an option to the *nginx.conf* template? *prov
 Running and verifying it works
 ------------------------------
 
-We can now fire our brand new infrastructure and check that the website is working::
+We can now fire our brand new infrastructure and check that the website is working:
+
+.. code-block:: bash
 
     $ vagrant up
     $ provy -s test
