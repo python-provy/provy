@@ -17,7 +17,10 @@ from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 
 class UsingRole(object):
-    '''ContextManager that allows using Roles in other Roles.'''
+    '''This is the contextmanager that allows using :py:class:`Roles <Role>` in other :py:class:`Roles <Role>`, in a nested manner.
+
+    Don't use this directly; Instead, use the base :py:class:`Role`'s :py:meth:`using <Role.using>` method.
+    '''
     def __init__(self, role, prov, context):
         self.role = role
         self.prov = prov
