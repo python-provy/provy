@@ -1,5 +1,3 @@
-import sys
-
 from mockhelper import Mock
 
 
