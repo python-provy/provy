@@ -39,7 +39,7 @@ It can be easily installed from source as well, like this::
     $ pip install fabric
     $ pip install jinja2
     $ pip install m2crypto
- 
+
     $ # now actually installing it
     $ git clone git@github.com:heynemann/provy.git
     $ python setup.py install
@@ -47,4 +47,4 @@ It can be easily installed from source as well, like this::
 
 As can be seen above, after being installed a *provy* command becomes available.
 
-provy is `FOSS <http://en.wikipedia.org/wiki/Free_and_open_source_software>`_ and you can find its source code at `its github page <https://github.com/heynemann/provy>`_.
+provy is `FOSS <http://en.wikipedia.org/wiki/Free_and_open_source_software>`_ and you can find its source code at `its github page <https://github.com/python-provy/provy>`_.

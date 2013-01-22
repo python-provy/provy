@@ -50,6 +50,10 @@ Documentation
 Contacts
 ========
 
+The place to create issues is `provy's github issues <https://github.com/python-provy/provy/issues>`_. The more information you send about an issue, the greater the chance it will get fixed fast.
+
+If you are not sure about something, have a doubt or feedback, or just want to ask for a feature, feel free to join `our mailing list <http://groups.google.com/group/provy>`_, or, if you're on FreeNode (IRC), you can join the chat #provy .
+
 License
 =======
 

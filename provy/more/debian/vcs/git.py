@@ -20,7 +20,7 @@ class GitRole(Role):
     class MySampleRole(Role):
         def provision(self):
             with self.using(GitRole) as role:
-                role.ensure_repository('git://github.com/heynemann/provy.git',
+                role.ensure_repository('git://github.com/python-provy/provy.git',
                                        '/home/user/provy',
                                        owner='user',
                                        branch='some-branch')
@@ -61,7 +61,7 @@ class GitRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 with self.using(GitRole) as role:
-                    role.ensure_repository('git://github.com/heynemann/provy.git',
+                    role.ensure_repository('git://github.com/python-provy/provy.git',
                                            '/home/user/provy',
                                            owner='user',
                                            branch='some-branch')
