@@ -3,4 +3,4 @@
 
 
 class ConfigurationError(RuntimeError):
-    pass
+    '''Raised when there's a configuration error in the provyfile.'''
