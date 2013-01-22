@@ -1,7 +1,7 @@
 Supported Operating Systems
 ===========================
 
-At this point, *provy* only supports Debian-based (`Debian <http://www.debian.org/>`_, `Ubuntu <http://www.ubuntu.com/>`_ etc) and `CentOS <http://www.centos.org/>`_ distros. If you think your distribution should be here, please consider :doc:`contributing`.
+At this point, *provy* only supports Debian-based (`Debian <http://www.debian.org/>`_, `Ubuntu <http://www.ubuntu.com/>`_ etc) and `CentOS <http://www.centos.org/>`_ distros. If you think your distribution should be here, please consider :doc:`contributing </contributing>`.
 
 This area details what features of *provy* are supported in each operating system.
 
@@ -22,4 +22,4 @@ CentOS distributions
 
 Currently support to user management, git repository management and packaging (via pip and yum) are supported.
 
-More supported features to come soon. If you think you can help improve this, please consider :doc:`contributing`.
+More supported features to come soon. If you think you can help improve this, please consider :doc:`contributing </contributing>`.

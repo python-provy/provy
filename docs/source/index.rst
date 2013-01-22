@@ -15,7 +15,6 @@ provy
    /what-are-roles
    /using-roles
    /custom-files
-   /core-more
    /roles-docs
    /supported-os
    /recipes
@@ -41,7 +40,6 @@ Documentation
 * :doc:`what-are-roles`
 * :doc:`using-roles`
 * :doc:`custom-files`
-* :doc:`core-more`
 * :doc:`roles-docs`
 * :doc:`supported-os`
 * :doc:`recipes`
