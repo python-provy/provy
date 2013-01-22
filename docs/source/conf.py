@@ -42,7 +42,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['M2Crypto', 'coverage', 'swig', 'paramiko']
+MOCK_MODULES = ['M2Crypto', 'coverage', 'swig', 'paramiko', 'Crypto']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
