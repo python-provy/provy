@@ -27,15 +27,6 @@ sys.path.insert(0, provy_dir)
 os.environ['BYPASS_M2CRYPTO'] = '1'
 
 
-#import sys
-#from mockhelper import Mock
-
-
-#MOCK_MODULES = ['coverage', 'swig', 'paramiko', 'Crypto']
-#for mod_name in MOCK_MODULES:
-    #sys.modules[mod_name] = Mock()
-
-
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
