@@ -11,4 +11,4 @@ Any files you place inside this directory may be used as templates to be uploade
 
 The other place you can put files is in a *templates* directory inside Role apps. The supervisor role uses this approach, if you want to take a look at an example. If you do place files in the *templates* directory, do not forget to call the *register_template_loader* method passing in the full namespace of your app (more details in the provy.more section below).
 
-We used custom files in the `Getting started`_ section to provide the needed configuration files for `nginx <http://www.nginx.org/>`_.
+We used custom files in the :doc:`getting-started` section to provide the needed configuration files for `nginx <http://www.nginx.org/>`_.

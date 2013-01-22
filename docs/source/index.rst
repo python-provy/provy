@@ -1,40 +1,80 @@
-.. include:: header.rst
+=====
+provy
+=====
+**Python** provisioning made **easy**!
 
-.. include:: about.rst
+.. toctree::
+   :maxdepth: 4
+   :hidden:
 
-.. include:: whats-provy.rst
+   /whats-provy
+   /installing
+   /getting-started
+   /provyfile
+   /running
+   /what-are-roles
+   /using-roles
+   /custom-files
+   /core-more
+   /roles-docs
+   /supported-os
+   /recipes
+   /whos-using
+   /ideas
+   /contributing
 
-.. include:: installing.rst
+About
+=====
 
-.. include:: getting-started.rst
+**provy** is an easy-to-use provisioning system in python.
 
-.. include:: provyfile.rst
+Turn that tedious task of provisioning the infrastructure of your website into a repeatable no-frills reliable process.
 
-.. include:: running.rst
+Documentation
+=============
 
-.. include:: what-are-roles.rst
+* :doc:`whats-provy`
+* :doc:`installing`
+* :doc:`getting-started`
+* :doc:`provyfile`
+* :doc:`running`
+* :doc:`what-are-roles`
+* :doc:`using-roles`
+* :doc:`custom-files`
+* :doc:`core-more`
+* :doc:`roles-docs`
+* :doc:`supported-os`
+* :doc:`recipes`
+* :doc:`whos-using`
+* :doc:`ideas`
+* :doc:`contributing`
 
-.. include:: using-roles.rst
+Contacts
+========
 
-.. include:: custom-files.rst
+License
+=======
 
-.. include:: core-more.rst
+*provy* is licensed under the `MIT License <http://opensource.org/licenses/MIT>`_
 
-.. include:: roles-docs.rst
+Copyright (c) 2011 Bernardo Heynemann
 
-.. include:: supported-os.rst
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
 
-.. include:: recipes.rst
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-.. include:: whos-using.rst
-
-.. include:: ideas.rst
-
-.. include:: contributing.rst
-
-.. include:: contacts.rst
-
-.. include:: license.rst
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 Indices and tables

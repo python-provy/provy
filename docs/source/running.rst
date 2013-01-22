@@ -1,7 +1,7 @@
 Running provy
 =============
 
-*provy* comes with a console runner. It's the same one we used in the `Getting started`_ tutorial.
+*provy* comes with a console runner. It's the same one we used in the :doc:`getting-started` tutorial.
 
 The console runner supports some options. For more information you can use the --help command. You should see output like the following::
 
@@ -20,6 +20,6 @@ The console runner supports some options. For more information you can use the -
 
 The option you are most likely to use is the *server* option. It tells *provy* what servers you want provisioned.
 
-As we saw in the `provyfile and Runtime Arguments`_ section, we can also supply *AskFor* arguments when running *provy*.
+As we saw in the :doc:`provyfile` section, we can also supply *AskFor* arguments when running *provy*.
 
 All arguments must take the form of key=value, with no spaces. The key must be exactly the same as the one in the *AskFor* definition, case-sensitive.

@@ -7,7 +7,7 @@ provyfile and Runtime Arguments
 
 This is the overall structure of a *provy* provisioning file. The first imports will be very similar among most your provyfile.py files. You'll always import Role and most of the time will use one of the other built-in roles.
 
-After the imports, come your *Role* Definitions. This is where you'll specify how you want your servers to be built. You can find more about how to build roles in the `What are roles?`_ and `Using Roles in my Roles`_ sections.
+After the imports, come your *Role* Definitions. This is where you'll specify how you want your servers to be built. You can find more about how to build roles in the :doc:`what-are-roles` and :doc:`using-roles` sections.
 
 Last but not least, you describe your servers and how they relate to roles. This brings us to the *AskFor* parameter (*provy.core.AskFor*). This class allows you to specify that a given option for a given server should be filled at runtime, either by passing in the command line or by asking the user doing the provisioning.
 
