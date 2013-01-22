@@ -23,6 +23,10 @@ provy_dir = os.path.abspath('../../')
 sys.path.insert(0, provy_dir)
 
 
+# Workaround to avoid M2Crypto loading when generating the docs
+os.environ['BYPASS_M2CRYPTO'] = '1'
+
+
 #import sys
 #from mockhelper import Mock
 
