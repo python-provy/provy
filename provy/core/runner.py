@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-'''This is the internal module responsible for running provy over the provyfile that was provided.
+'''
+This is the internal module responsible for running provy over the provyfile that was provided.
 
 It's recommended not to tinker with this module, as it might prevent your provyfile from working.
 '''
