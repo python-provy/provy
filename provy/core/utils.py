@@ -4,7 +4,7 @@
 '''
 Core utilities.
 
-Provides the :py:class:`AskFor` class, which is used to prompt for a password.
+Provides the :class:`AskFor` class, which is used to prompt for a password.
 '''
 
 from getpass import getpass
