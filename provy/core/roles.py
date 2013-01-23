@@ -47,16 +47,16 @@ class UsingRole(object):
 class Role(object):
     '''
     Base Role class. This is the class that is inherited by all provy's roles.
-    This class provides many utility methods for interacting with the remote server.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
 
-    class MySampleRole(Role):
-        def provision(self):
-            self.register_template_loader('my.full.namespace')
-            self.execute('ls /home/myuser', sudo=False, stdout=False)
-    </pre>
+    This class provides many utility methods for interacting with the remote server.
+    ::
+
+        from provy.core import Role
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.register_template_loader('my.full.namespace')
+                self.execute('ls /home/myuser', sudo=False, stdout=False)
     '''
     def __init__(self, prov, context):
         if 'used_roles' not in context:
@@ -68,19 +68,20 @@ class Role(object):
 
     def register_template_loader(self, package_name):
         '''
-        Register the <<package_name>> module as a valid source for templates in jinja2.
-        Jinja2 will look inside a folder called 'templates' in the specified module.
-        It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
-        <em>Parameters</em>
-        package_name - Full name of the module that jinja2 will try to import.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Register the ``package_name`` module as a valid source for templates in jinja2.
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.register_template_loader('my.full.namespace')
-        </pre>
+        Jinja2 will look inside a folder called *templates* in the specified module.
+
+        It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
+
+        :param package_name: Full name of the module that jinja2 will try to import.
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.register_template_loader('my.full.namespace')
         '''
         if package_name not in self.context['registered_loaders']:
             self.context['loader'].loaders.append(PackageLoader(package_name))
@@ -89,31 +90,31 @@ class Role(object):
     def log(self, msg):
         '''
         Logs a message to the console with the hour prepended.
-        <em>Parameters</em>
-        msg - Message to log.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.log('Hello World')
-        </pre>
+        :param msg: Message to log.
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.log('Hello World')
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
 
     def schedule_cleanup(self):
         '''
         Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
-        <strong>Warning</strong>: If you are using the proper ways of calling roles (provision_role, using) in your role, you do not need to call this method.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.schedule_cleanup()
-        </pre>
+        .. note:: If you are using the proper ways of calling roles (:meth:`provision_role`, :meth:`using`) in your role, you do not need to call this method.
+
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.schedule_cleanup()
         '''
         has_role = False
         for role in self.context['cleanup']:
@@ -126,17 +127,20 @@ class Role(object):
     def provision_role(self, role):
         '''
         Provisions a role inside your role. This method is the way to call other roles if you don't need to call any methods other than provision.
-        provision_role keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
-        <em>Parameters</em>
-        role - The role to be provisioned. Needs to be a provy.core.Role subclass.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(SomeOtherRole)
-        </pre>
+        ``provision_role`` keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
+
+        .. note:: There's no need to call this method, if you're using the :meth:`using` as a context manager.
+
+        :param role: The role to be provisioned.
+        :type role: :class:`Role`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(SomeOtherRole)
         '''
         instance = role(self.prov, self.context)
         instance.provision()
@@ -145,30 +149,30 @@ class Role(object):
     def provision(self):
         '''
         Base provision method. This is meant to be overriden and does not do anything.
-        The provision method of each Role is what provy calls on to provision servers.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                pass
-        </pre>
+        The ``provision`` method of each ``Role`` is what provy calls on to provision servers.
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    pass
         '''
         pass
 
     def cleanup(self):
         '''
         Base cleanup method. This is meant to be overriden and does not do anything.
-        The cleanup method is the method that provy calls after all Roles have been provisioned and is meant to allow Roles to perform any cleaning of resources or finish any pending operations.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def cleanup(self):
-                pass
-        </pre>
+        The ``cleanup`` method is the method that provy calls after all ``Roles`` have been provisioned and is meant to allow ``Roles`` to perform any cleaning of resources or finish any pending operations.
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def cleanup(self):
+                    pass
         '''
         pass
 
@@ -185,21 +189,31 @@ class Role(object):
     def execute(self, command, stdout=True, sudo=False, user=None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
-        It allows you to perform any shell action in the remote server. It is an abstraction over fabric run and sudo methods.
-        <em>Parameters</em>
-        command - The command to be executed.
-        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        user - If specified, will be the user with which the command will be executed. Defaults to None.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.execute('ls /', stdout=False, sudo=True)
-                self.execute('ls /', stdout=False, user='vip')
-        </pre>
+        It allows you to perform any shell action in the remote server.
+        It is an abstraction over `fabric <https://fabric.readthedocs.org/en/latest/>`_
+        `run <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.run>`_
+        and `sudo <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.sudo>`_ methods.
+
+        :param command: The command to be executed.
+        :type command: str
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        :type stdout: bool
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        :type sudo: bool
+        :param user: If specified, will be the user with which the command will be executed. Defaults to None.
+        :type user: str
+
+        :return: The execution result
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.execute('ls /', stdout=False, sudo=True)
+                    self.execute('ls /', stdout=False, user='vip')
         '''
         with self.__showing_command_output(stdout):
             return self.__execute_command(command, sudo=sudo, user=user)
