@@ -833,17 +833,20 @@ class Role(object):
     def write_to_temp_file(self, text):
         '''
         Writes some text to a temporary file and returns the file path.
-        <em>Parameters</em>
-        text - Text to be written to the temp file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                path = self.write_to_temp_file('some random text')
-                self.put_file(path, '/tmp/some-file')
-        </pre>
+        :param text: Text to be written to the temp file.
+        :type text: :class:`str`
+
+        :return: Temp file path.
+        :rtype: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    path = self.write_to_temp_file('some random text')
+                    self.put_file(path, '/tmp/some-file')
         '''
         local_temp_path = ''
         with NamedTemporaryFile(delete=False) as f:
@@ -856,17 +859,21 @@ class Role(object):
     def read_remote_file(self, path, sudo=True):
         '''
         Returns the contents of a remote file.
-        <em>Parameters</em>
-        path - File path on the remote server.
-        sudo - Indicates whether the file should be read by a super-user. Defaults to True.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                last_update = self.read_remote_file('/tmp/last-update')
-        </pre>
+        :param path: File path on the remote server.
+        :type path: :class:`str`
+        :param sudo: Indicates whether the file should be read by a super-user. Defaults to :data:`True`.
+        :type sudo: :class:`bool`
+
+        :return: The contents of the file.
+        :rtype: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    last_update = self.read_remote_file('/tmp/last-update')
         '''
         result = self.execute_python("import codecs; print codecs.open('%s', 'r', 'utf-8').read()" % path, stdout=False, sudo=sudo)
         return result
@@ -874,18 +881,25 @@ class Role(object):
     def render(self, template_file, options={}):
         '''
         Renders a template with the given options and returns the rendered text.
-        The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
-        The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
-        <em>Parameters</em>
-        template_file - Template file path in the local system.
-        options - Options to be passed to the template, as a dictionary. Defaults to empty dict.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                contents = self.render('my-template', { 'user': 'heynemann' })
+        The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
+
+        The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
+
+        :param template_file: Template file path in the local system.
+        :type template_file: :class:`str`
+        :param options: Options to be passed to the template, as a dictionary. Defaults to empty :class:`dict`.
+        :type options: :class:`dict`
+
+        :return: The contents of the file.
+        :rtype: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    contents = self.render('my-template', { 'user': 'heynemann' })
         '''
 
         if isabs(template_file):
@@ -900,36 +914,46 @@ class Role(object):
 
     def is_process_running(self, process, sudo=False):
         '''
-        Returns True if the given process is running (listed in the process listing), False otherwise.
-        <em>Parameters</em>
-        process - Regular expression string that specifies the process name.
-        sudo - Indicates if the process listing should be done by the super-user. Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Returns :data:`True` if the given process is running (listed in the process listing), :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.is_process_running('nginx', sudo=True):
-                    self.execute('pkill nginx', stdout=False, sudo=True)
+        :param process: Regular expression string that specifies the process name.
+        :type process: :class:`str`
+        :param sudo: Indicates if the process listing should be done by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+
+        :return: Whether the process is running or not.
+        :rtype: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.is_process_running('nginx', sudo=True):
+                        self.execute('pkill nginx', stdout=False, sudo=True)
         '''
         return_code = self.execute('ps aux | egrep %s | egrep -v egrep > /dev/null;echo $?' % process, stdout=False, sudo=sudo)
         return int(return_code) == 0
 
     def has_line(self, line, file_path):
         '''
-        Returns True if the given line of text is present in the given file. Returns False otherwise (even if the file does not exist).
-        <em>Parameters</em>
-        line - Line of text to verify in the given file.
-        file_path - Complete path of the remote file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Returns :data:`True` if the given line of text is present in the given file. Returns :data:`False` otherwise (even if the file does not exist).
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.has_line('127.0.0.1 localhost', '/etc/hosts'):
-                    pass
+        :param line: Line of text to verify in the given file.
+        :type line: :class:`str`
+        :param file_path: Complete path of the remote file.
+        :type file_path: :class:`str`
+
+        :return: Whether the line exists or not.
+        :rtype: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.has_line('127.0.0.1 localhost', '/etc/hosts'):
+                        pass
         '''
         if not self.remote_exists(file_path):
             return False
@@ -944,18 +968,22 @@ class Role(object):
     def ensure_line(self, line, file_path, owner=None, sudo=False):
         '''
         Ensures that the given line exists in the given file_path. Adds it if it doesn't exist, and creates the file if it doesn't exist.
-        <em>Parameters</em>
-        line - Line of text to verify in the given file.
-        file_path - Complete path of the remote file.
-        owner - The user that owns the file. Defaults to None (the context user is used in this case).
-        sudo - Execute as sudo? Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
+        :param line: Line of text to verify in the given file.
+        :type line: :class:`str`
+        :param file_path: Complete path of the remote file.
+        :type file_path: :class:`str`
+        :param owner: The user that owns the file. Defaults to :data:`None` (the context user is used in this case).
+        :type owner: :class:`str`
+        :param sudo: Indicates whether the file should be managed by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
         if not self.has_line(line, file_path):
             self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
@@ -964,52 +992,59 @@ class Role(object):
     def using(self, role):
         '''
         This method should be used when you want to use a different Role inside your own Role methods.
-        It returns a ContextManager object, so this is meant to go inside a <em>with</em> block.
-        <em>Parameters</em>
-        role - Role to be used.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_package_installed('nginx')
+        It returns a ContextManager object, so this is meant to go inside a `with` block.
+
+        :param role: Role to be used.
+        :type role: :class:`Role`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.ensure_package_installed('nginx')
         '''
         return UsingRole(role, self.prov, self.context)
 
     def get_distro_info(self):
         '''
-        Returns a DistroInfo with valuable information regarding the distribution of the server.
+        Returns a :class:`DistroInfo` with valuable information regarding the distribution of the server.
+
         In the backgrounds, what it does is to run
-        $ lsb_release -a
+
+        .. code-block:: sh
+
+            $ lsb_release -a
+
         in the server, so you might want to check which results are usual for your distribution.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        ::
 
-        class MySampleRole(Role):
-            def provision(self):
-                distro_info = self.role.get_distro_info()
+            from provy.core import Role
 
-                # Supposing the server is a Debian Squeeze, the following statements will probably be true:
-                distro_info.distributor_id == 'Debian'
-                distro_info.description == 'Debian GNU/Linux 6.0.5 (squeeze)'
-                distro_info.release == '6.0.5'
-                distro_info.codename == 'squeeze'
+            class MySampleRole(Role):
+                def provision(self):
+                    distro_info = self.role.get_distro_info()
 
-                # Supposing the server is a Ubuntu Precise Pangolin, the following statements will probably be true:
-                distro_info.distributor_id == 'Ubuntu'
-                distro_info.description == 'Ubuntu 12.04.1 LTS'
-                distro_info.release == '12.04'
-                distro_info.codename == 'precise'
+                    # Supposing the server is a Debian Squeeze, the following statements will probably be true:
+                    distro_info.distributor_id == 'Debian'
+                    distro_info.description == 'Debian GNU/Linux 6.0.5 (squeeze)'
+                    distro_info.release == '6.0.5'
+                    distro_info.codename == 'squeeze'
 
-                # Supposing the server is a CentOS, the following statements may be true:
-                distro_info.lsb_version == ':core-4.0-ia32:core-4.0-noarch:graphics-4.0-ia32:graphics-4.0-noarch:printing-4.0-ia32:printing-4.0-noarch'
-                distro_info.distributor_id == 'CentOS'
-                distro_info.description == 'CentOS release 5.8 (Final)'
-                distro_info.release == '5.8'
-                distro_info.codename == 'Final'
+                    # Supposing the server is a Ubuntu Precise Pangolin, the following statements will probably be true:
+                    distro_info.distributor_id == 'Ubuntu'
+                    distro_info.description == 'Ubuntu 12.04.1 LTS'
+                    distro_info.release == '12.04'
+                    distro_info.codename == 'precise'
+
+                    # Supposing the server is a CentOS, the following statements may be true:
+                    distro_info.lsb_version == ':core-4.0-ia32:core-4.0-noarch:graphics-4.0-ia32:graphics-4.0-noarch:printing-4.0-ia32:printing-4.0-noarch'
+                    distro_info.distributor_id == 'CentOS'
+                    distro_info.description == 'CentOS release 5.8 (Final)'
+                    distro_info.release == '5.8'
+                    distro_info.codename == 'Final'
         '''
         raw_distro_info = self.execute('lsb_release -a')
         distro_info_lines = raw_distro_info.split('\n')
@@ -1027,7 +1062,8 @@ class Role(object):
 class DistroInfo(object):
     '''
     Value object used to contain distribution information.
-    Refer to Role.get_distro_info() usage.
+
+    Refer to :meth:`Role.get_distro_info` usage.
     '''
     lsb_version = None
     distributor_id = None
