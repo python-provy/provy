@@ -392,18 +392,20 @@ class Role(object):
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
         Make sure the specified directory exists in the remote server.
-        <em>Parameters</em>
-        directory - Directory to be created if it does not exist.
-        owner - If specified, the directory will be created under this user, otherwise the currently logged user is the owner.
-        sudo - If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
-        </pre>
+        :param directory: Directory to be created if it does not exist.
+        :type directory: str
+        :param owner: If specified, the directory will be created under this user, otherwise the currently logged user is the owner.
+        :type owner: str
+        :param sudo: If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
+        :type sudo: bool
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.ensure_dir('/etc/my-path', owner='myuser', sudo=True)
         '''
         if owner:
             sudo = True
@@ -416,18 +418,21 @@ class Role(object):
 
     def change_dir_owner(self, directory, owner):
         '''
-        Deprecated. Please use change_path_owner instead.
-        <em>Parameters</em>
+        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead.
+
+        :param directory: Directory to change owner.
+        :type directory: str
+        :param owner: User that should own this directory.
+        :type owner: str
         directory - Directory to change owner.
         owner - User that should own this directory.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        ::
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_dir_owner(directory='/etc/my-path', owner='someuser')
-        </pre>
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_dir_owner(directory='/etc/my-path', owner='someuser')
         '''
         self.log('"change_dir_owner" is deprecated, please use "change_path_owner" instead.')
         self.change_path_owner(directory, owner)
