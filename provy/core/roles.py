@@ -276,8 +276,7 @@ class Role(object):
 
             class MySampleRole(Role):
                 def provision(self):
-                    self.python_execute('import os; print os.curdir',
-                                        stdout=False, sudo=True)
+                    self.python_execute('import os; print os.curdir', stdout=False, sudo=True)
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
@@ -418,14 +417,12 @@ class Role(object):
 
     def change_dir_owner(self, directory, owner):
         '''
-        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead.
+        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
 
         :param directory: Directory to change owner.
         :type directory: str
         :param owner: User that should own this directory.
         :type owner: str
-        directory - Directory to change owner.
-        owner - User that should own this directory.
         ::
 
             from provy.core import Role
@@ -439,19 +436,19 @@ class Role(object):
 
     def change_file_owner(self, path, owner):
         '''
-        Deprecated. Please use change_path_owner instead.
-        <em>Parameters</em>
-        path - Path of the file.
-        owner - User that should own this file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_file_owner(path='/etc/init.d/someapp',
-                                       owner='someuser')
-        </pre>
+        :param path: Path of the file.
+        :type path: str
+        :param owner: User that should own this file.
+        :type owner: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_file_owner(path='/etc/init.d/someapp', owner='someuser')
         '''
         self.log('"change_file_owner" is deprecated, please use "change_path_owner" instead.')
         self.change_path_owner(path, owner)
@@ -459,34 +456,40 @@ class Role(object):
     def change_path_owner(self, path, owner):
         '''
         Changes the owner of a given path. Please be advised that this method is recursive, so if the path is a directory, all contents of it will belong to the specified owner.
-        <em>Parameters</em>
-        path - Path to have its owner changed.
-        owner - User that should own this path.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_path_owner(path='/etc/my-path', owner='someuser')
-        </pre>
+        :param path: Path to have its owner changed.
+        :type path: str
+        :param owner: User that should own this path.
+        :type owner: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_path_owner(path='/etc/my-path', owner='someuser')
         '''
         self.execute('chown -R %s %s' % (owner, path), stdout=False, sudo=True)
 
     def get_object_mode(self, path):
         '''
-        Returns the mode of a given object. Raises IOError if the path doesn't exist.
-        <em>Parameters</em>
-        path - Path of the given object.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Returns the permission mode of a given object. Raises IOError if the path doesn't exist.
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.get_object_mode('/home/user/logs') == 644:
-                    # do something
-        </pre>
+        :param path: Path of the given object.
+        :type path: str
+
+        :return: The path permission mode
+        :rtype: int
+
+        :raise: :class:`IOError` if the path doesn't exist
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.get_object_mode('/home/user/logs') == 644:
+                        pass
         '''
         if not self.remote_exists(path) and not self.remote_exists_dir(path):
             raise IOError('The file at path %s does not exist' % path)
