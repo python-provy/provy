@@ -196,16 +196,16 @@ class Role(object):
         and `sudo <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.sudo>`_ methods.
 
         :param command: The command to be executed.
-        :type command: str
+        :type command: :class:`str`
         :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        :type stdout: bool
+        :type stdout: :class:`bool`
         :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        :type sudo: bool
+        :type sudo: :class:`bool`
         :param user: If specified, will be the user with which the command will be executed. Defaults to None.
-        :type user: str
+        :type user: :class:`str`
 
         :return: The execution result
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -225,19 +225,19 @@ class Role(object):
 
     def execute_local(self, command, stdout=True, sudo=False, user=None):
         '''
-        Allows you to perform any shell action in the local machine. It is an abstraction over the fabric.api.local method.
+        Allows you to perform any shell action in the local machine. It is an abstraction over the `fabric.api.local <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.local>`_ method.
 
         :param command: The command to be executed.
-        :type command: str
-        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        :type stdout: bool
-        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        :type sudo: bool
-        :param user: If specified, will be the user with which the command will be executed. Defaults to None.
-        :type user: str
+        :type command: :class:`str`
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :type stdout: :class:`bool`
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :type sudo: :class:`bool`
+        :param user: If specified, will be the user with which the command will be executed. Defaults to :class:`None`.
+        :type user: :class:`str`
 
         :return: The execution result
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -262,14 +262,14 @@ class Role(object):
         Just an abstraction over execute. This method executes the python code that is passed with python -c.
 
         :param command: The command to be executed.
-        :type command: str
-        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        :type stdout: bool
-        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        :type sudo: bool
+        :type command: :class:`str`
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :type stdout: :class:`bool`
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :type sudo: :class:`bool`
 
         :return: The execution result
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -285,7 +285,7 @@ class Role(object):
         Returns the currently logged user in the remote server.
 
         :return: The logged user
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -301,10 +301,10 @@ class Role(object):
         Returns True if the file exists locally.
 
         :param file_path: The path to check.
-        :type file_path: str
+        :type file_path: :class:`str`
 
         :return: Whether the file exists or not
-        :rtype: bool
+        :rtype: :class:`bool`
         ::
 
             from provy.core import Role
@@ -321,10 +321,10 @@ class Role(object):
         Returns True if the file exists in the remote server.
 
         :param file_path: The path to check.
-        :type file_path: str
+        :type file_path: :class:`str`
 
         :return: Whether the file exists or not
-        :rtype: bool
+        :rtype: :class:`bool`
         ::
 
             from provy.core import Role
@@ -341,10 +341,10 @@ class Role(object):
         Returns True if the directory exists in the remote server.
 
         :param file_path: The path to check.
-        :type file_path: str
+        :type file_path: :class:`str`
 
         :return: Whether the directory exists or not
-        :rtype: bool
+        :rtype: :class:`bool`
         ::
 
             from provy.core import Role
@@ -361,7 +361,7 @@ class Role(object):
         Returns the path of a temporary directory in the local machine.
 
         :return: The temp dir path
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -377,7 +377,7 @@ class Role(object):
         Returns the path of a temporary directory in the remote server.
 
         :return: The temp dir path
-        :rtype: str
+        :rtype: :class:`str`
         ::
 
             from provy.core import Role
@@ -393,11 +393,11 @@ class Role(object):
         Make sure the specified directory exists in the remote server.
 
         :param directory: Directory to be created if it does not exist.
-        :type directory: str
+        :type directory: :class:`str`
         :param owner: If specified, the directory will be created under this user, otherwise the currently logged user is the owner.
-        :type owner: str
+        :type owner: :class:`str`
         :param sudo: If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
-        :type sudo: bool
+        :type sudo: :class:`bool`
         ::
 
             from provy.core import Role
@@ -420,9 +420,9 @@ class Role(object):
         .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
 
         :param directory: Directory to change owner.
-        :type directory: str
+        :type directory: :class:`str`
         :param owner: User that should own this directory.
-        :type owner: str
+        :type owner: :class:`str`
         ::
 
             from provy.core import Role
@@ -439,9 +439,9 @@ class Role(object):
         .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
 
         :param path: Path of the file.
-        :type path: str
+        :type path: :class:`str`
         :param owner: User that should own this file.
-        :type owner: str
+        :type owner: :class:`str`
         ::
 
             from provy.core import Role
@@ -458,9 +458,9 @@ class Role(object):
         Changes the owner of a given path. Please be advised that this method is recursive, so if the path is a directory, all contents of it will belong to the specified owner.
 
         :param path: Path to have its owner changed.
-        :type path: str
+        :type path: :class:`str`
         :param owner: User that should own this path.
-        :type owner: str
+        :type owner: :class:`str`
         ::
 
             from provy.core import Role
@@ -476,10 +476,10 @@ class Role(object):
         Returns the permission mode of a given object. Raises IOError if the path doesn't exist.
 
         :param path: Path of the given object.
-        :type path: str
+        :type path: :class:`str`
 
         :return: The path permission mode
-        :rtype: int
+        :rtype: :class:`int`
 
         :raise: :class:`IOError` if the path doesn't exist
         ::
@@ -498,20 +498,20 @@ class Role(object):
     def change_path_mode(self, path, mode, recursive=False):
         '''
         Changes the mode of a given path.
-        <em>Parameters</em>
-        path - Path to have its mode changed.
-        mode - Mode to change to.
-        recursive - Indicates if the mode of the objects in the path should be changed recursively. Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_path_mode(directory='/home/user/logs',
-                                     mode=644,
-                                     recursive=True)
-        </pre>
+        :param path: Path to have its mode changed.
+        :type path: :class:`str`
+        :param mode: Mode to change to.
+        :type mode: :class:`int`
+        :param recursive: Indicates if the mode of the objects in the path should be changed recursively. Defaults to :class:`False`.
+        :type recursive: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_path_mode(directory='/home/user/logs', mode=644, recursive=True)
         '''
         options = ""
         if recursive:
@@ -524,55 +524,61 @@ class Role(object):
 
     def change_dir_mode(self, path, mode, recursive=False):
         '''
-        Deprecated. Please use change_path_mode instead.
-        <em>Parameters</em>
-        path - Path of the directory.
-        mode - Mode of the directory.
-        recursive - Indicates if the mode of the objects in the path should be changed recursively.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        .. warning:: Deprecated. Please use :meth:`change_path_mode` instead. (Will be removed in 0.7.0)
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_dir_mode(directory='/home/user/logs',
-                                     mode=644,
-                                     recursive=True)
-        </pre>
+        :param path: Path of the directory.
+        :type path: :class:`str`
+        :param mode: Mode of the directory.
+        :type mode: :class:`int`
+        :param recursive: Indicates if the mode of the objects in the path should be changed recursively. Defaults to :class:`False`.
+        :type recursive: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_dir_mode(directory='/home/user/logs',
+                                         mode=644,
+                                         recursive=True)
         '''
         self.change_path_mode(path, mode, recursive=recursive)
 
     def change_file_mode(self, path, mode):
         '''
-        Deprecated. Please use change_path_mode instead.
-        <em>Parameters</em>
-        path - Path of the file.
-        mode - Mode of the file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        .. warning:: Deprecated. Please use :meth:`change_path_mode` instead. (Will be removed in 0.7.0)
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.change_file_mode(path='/etc/init.d/someapp',
-                                      mode=777)
-        </pre>
+        :param path: Path of the file.
+        :type path: :class:`str`
+        :param mode: Mode of the file.
+        :type mode: :class:`int`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.change_file_mode(path='/etc/init.d/someapp',
+                                          mode=777)
         '''
         self.change_path_mode(path, mode)
 
     def md5_local(self, path):
         '''
-        Calculates an md5 hash for a given file in the local system. Returns None if file does not exist.
-        <em>Parameters</em>
-        path - Path of the local file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Calculates an md5 hash for a given file in the local system. Returns :class:`None` if file does not exist.
 
-        class MySampleRole(Role):
-            def provision(self):
-                hash = self.md5_local('/tmp/my-file')
-        </pre>
+        :param path: Path of the local file.
+        :type path: :class:`str`
+
+        :return: The hash generated, or :class:`None` if `path` doesn't exist.
+        :rtype: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    hash = self.md5_local('/tmp/my-file')
         '''
         if not self.local_exists(path):
             return None
@@ -582,17 +588,20 @@ class Role(object):
 
     def md5_remote(self, path):
         '''
-        Calculates an md5 hash for a given file in the remote server. Returns None if file does not exist.
-        <em>Parameters</em>
-        path - Path of the remote file.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Calculates an md5 hash for a given file in the remote system. Returns :class:`None` if file does not exist.
 
-        class MySampleRole(Role):
-            def provision(self):
-                hash = self.md5_remote('/tmp/my-file')
-        </pre>
+        :param path: Path of the remote file.
+        :type path: :class:`str`
+
+        :return: The hash generated, or None if `path` doesn't exist.
+        :rtype: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    hash = self.md5_remote('/tmp/my-file')
         '''
         if not self.remote_exists(path):
             return None
