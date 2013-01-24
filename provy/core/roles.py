@@ -671,38 +671,39 @@ class Role(object):
 
     def replace_file(self, from_file, to_file):
         '''
-        Deprecated. Please use put_file instead.
-        <em>Parameters</em>
-        from_file - Path in the local system.
-        to_file - Path in the remote system.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        .. warning:: Deprecated. Please use :meth:`put_file` instead. (Will be removed in 0.7.0)
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.replace_file('/tmp/my-file', '/tmp/my-file')
-        </pre>
+        :param from_file: Path in the local system.
+        :type from_file: :class:`str`
+        :param to_file: Path in the remote system.
+        :type to_file: :class:`str`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.replace_file('/tmp/my-file', '/tmp/my-file')
         '''
         self.put_file(from_file, to_file)
 
     def remote_symlink(self, from_file, to_file, sudo=False):
         '''
         Creates a symlink in the remote server.
-        <em>Parameters</em>
-        from_file - Symlink source.
-        to_file - Symlink target.
-        sudo - Indicates whether the symlink should be created by the super-user.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.remote_symlink('/home/user/my-app',
-                                    '/etc/init.d/my-app',
-                                    sudo=True)
-        </pre>
+        :param from_file: Symlink source.
+        :type from_file: :class:`str`
+        :param to_file: Symlink target.
+        :type to_file: :class:`str`
+        :param sudo: Indicates whether the symlink should be created by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.remote_symlink('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
         '''
         if not self.remote_exists(from_file):
             raise RuntimeError("The file to create a symlink from (%s) was not found!" % from_file)
@@ -730,49 +731,56 @@ class Role(object):
     def put_file(self, from_file, to_file, sudo=False):
         '''
         Puts a file to the remote server.
-        <em>Parameters</em>
-        from_file - Source file in the local system.
-        to_file - Target path in the remote server.
-        sudo - Indicates whether the file should be created by the super-user.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.put('/home/user/my-app',
-                         '/etc/init.d/my-app',
-                         sudo=True)
-        </pre>
+        :param from_file: Source file in the local system.
+        :type from_file: :class:`str`
+        :param to_file: Target path in the remote server.
+        :type to_file: :class:`str`
+        :param sudo: Indicates whether the file should be created by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.put_file('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
         '''
         fabric.api.put(from_file, to_file, use_sudo=sudo)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=None):
         '''
         One of the most used methods in provy. This method renders a template, then if the contents differ from the remote server (or the file does not exist at the remote server), it sends the results there.
-        Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
-        Returns True if the file was updated, False otherwise.
-        <em>Parameters</em>
-        from_file - Template file in the local system.
-        to_file - Target path in the remote server.
-        owner - Owner for the file in the remote server.
-        options - Dictionary of options that can be used in the template.
-        sudo - Indicates whether the file should be created by the super-user.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.update_file('/home/user/my-app',
-                                 '/etc/init.d/my-app',
-                                 owner='my-user',
-                                 {
-                                    'option_a': 1,
-                                    'option_b': 2
-                                 },
-                                 sudo=True)
-        </pre>
+        Again, combining the parameters sudo and owner you can have files that belong to an user that is not a super-user in places that only a super-user can reach.
+
+        Returns True if the file was updated, False otherwise.
+
+        :param from_file: Template file in the local system.
+        :type from_file: :class:`str`
+        :param to_file: Target path in the remote server.
+        :type to_file: :class:`str`
+        :param owner: Owner for the file in the remote server.
+        :type owner: :class:`str`
+        :param options: Dictionary of options that can be used in the template.
+        :type options: :class:`dict`
+        :param sudo: Indicates whether the file should be created by the super-user. Defaults to :data:`None`.
+        :type sudo: :class:`bool`
+
+        :return: Whether the file was updated or not.
+        :rtype: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.update_file('/home/user/my-app', '/etc/init.d/my-app', owner='my-user',
+                                     {
+                                        'option_a': 1,
+                                        'option_b': 2
+                                     },
+                                     sudo=True)
         '''
         update_data = None
         try:
