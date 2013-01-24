@@ -614,7 +614,7 @@ class Role(object):
 
     def remove_dir(self, path, sudo=False, recursive=False):
         '''
-        Removes a directory in the remote server. Returns :data:`True` in the event of the directory actually been removed. False otherwise.
+        Removes a directory in the remote server. Returns :data:`True` in the event of the directory actually been removed. :data:`False` otherwise.
 
         :param path: Path of the remote directory.
         :type path: :class:`str`
@@ -645,18 +645,22 @@ class Role(object):
 
     def remove_file(self, path, sudo=False):
         '''
-        Removes a file in the remote server. Returns True in the event of the file actually been removed. False otherwise.
-        <em>Parameters</em>
-        path - Path of the remote file.
-        sudo - Indicates whether the file should be removed by the super-user. Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Removes a file in the remote server. Returns :data:`True` in the event of the file actually been removed. :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.remove_file('/tmp/my-file', sudo=True)
-        </pre>
+        :param path: Path of the remote file.
+        :type path: :class:`str`
+        :param sudo: Indicates whether the file should be removed by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+
+        :return: Whether the file had to be removed or not.
+        :rtype: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.remove_file('/tmp/my-file', sudo=True)
         '''
 
         if self.remote_exists(path):
