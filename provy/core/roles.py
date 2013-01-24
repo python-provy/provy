@@ -226,20 +226,26 @@ class Role(object):
     def execute_local(self, command, stdout=True, sudo=False, user=None):
         '''
         Allows you to perform any shell action in the local machine. It is an abstraction over the fabric.api.local method.
-        <em>Parameters</em>
-        command - The command to be executed.
-        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        user - If specified, will be the user with which the command will be executed. Defaults to None.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.execute_local('ls /', stdout=False, sudo=True)
-                self.execute_local('ls /', stdout=False, user='vip')
-        </pre>
+        :param command: The command to be executed.
+        :type command: str
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        :type stdout: bool
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        :type sudo: bool
+        :param user: If specified, will be the user with which the command will be executed. Defaults to None.
+        :type user: str
+
+        :return: The execution result
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.execute_local('ls /', stdout=False, sudo=True)
+                    self.execute_local('ls /', stdout=False, user='vip')
         '''
         with self.__showing_command_output(stdout):
             return self.__execute_local_command(command, sudo=sudo, user=user)
@@ -254,112 +260,132 @@ class Role(object):
     def execute_python(self, command, stdout=True, sudo=False):
         '''
         Just an abstraction over execute. This method executes the python code that is passed with python -c.
-        <em>Parameters</em>
-        command - The Python command to be executed.
-        stdout - If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
-        sudo - Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.python_execute('import os; print os.curdir',
-                                    stdout=False, sudo=True)
-        </pre>
+        :param command: The command to be executed.
+        :type command: str
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        :type stdout: bool
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        :type sudo: bool
+
+        :return: The execution result
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.python_execute('import os; print os.curdir',
+                                        stdout=False, sudo=True)
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
     def get_logged_user(self):
         '''
         Returns the currently logged user in the remote server.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.context['my-user'] = self.get_logged_user()
-        </pre>
+        :return: The logged user
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.context['my-user'] = self.get_logged_user()
         '''
         return self.execute('whoami', stdout=False)
 
     def local_exists(self, file_path):
         '''
         Returns True if the file exists locally.
-        <em>Parameters</em>
-        file_path - The path to check.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.local_exists('/tmp/my-file'):
-                    # do something
-        </pre>
+        :param file_path: The path to check.
+        :type file_path: str
+
+        :return: Whether the file exists or not
+        :rtype: bool
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.local_exists('/tmp/my-file'):
+                        pass
         '''
         return exists(file_path)
 
     def remote_exists(self, file_path):
         '''
         Returns True if the file exists in the remote server.
-        <em>Parameters</em>
-        file_path - The path to check.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.remote_exists('/tmp/my-file'):
-                    # do something
-        </pre>
+        :param file_path: The path to check.
+        :type file_path: str
+
+        :return: Whether the file exists or not
+        :rtype: bool
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.remote_exists('/tmp/my-file'):
+                        pass
         '''
         return self.execute('test -f %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
 
     def remote_exists_dir(self, file_path):
         '''
         Returns True if the directory exists in the remote server.
-        <em>Parameters</em>
-        file_path - The path to check.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                if self.remote_exists_dir('/tmp'):
-                    # do something
-        </pre>
+        :param file_path: The path to check.
+        :type file_path: str
+
+        :return: Whether the directory exists or not
+        :rtype: bool
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    if self.remote_exists_dir('/tmp'):
+                        pass
         '''
         return self.execute('test -d %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
 
     def local_temp_dir(self):
         '''
         Returns the path of a temporary directory in the local machine.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.context['source_dir'] = self.local_temp_dir()
-        </pre>
+        :return: The temp dir path
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.context['source_dir'] = self.local_temp_dir()
         '''
         return gettempdir()
 
     def remote_temp_dir(self):
         '''
         Returns the path of a temporary directory in the remote server.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.context['target_dir'] = self.remote_temp_dir()
-        </pre>
+        :return: The temp dir path
+        :rtype: str
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.context['target_dir'] = self.remote_temp_dir()
         '''
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
