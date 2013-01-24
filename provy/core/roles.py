@@ -614,19 +614,24 @@ class Role(object):
 
     def remove_dir(self, path, sudo=False, recursive=False):
         '''
-        Removes a directory in the remote server. Returns True in the event of the directory actually been removed. False otherwise.
-        <em>Parameters</em>
-        path - Path of the remote directory.
-        sudo - Indicates whether the directory should be removed by the super-user. Defaults to False.
-        recursive - Indicates whether the directory should be removed recursively or not. Defaults to False.
-        <em>Sample Usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
+        Removes a directory in the remote server. Returns :data:`True` in the event of the directory actually been removed. False otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.remove_dir('/tmp/my-dir', sudo=True, recursive=True)
-        </pre>
+        :param path: Path of the remote directory.
+        :type path: :class:`str`
+        :param sudo: Indicates whether the directory should be removed by the super-user. Defaults to :data:`False`.
+        :type sudo: :class:`bool`
+        :param recursive: Indicates whether the directory should be removed recursively or not. Defaults to :data:`False`.
+        :type recursive: :class:`bool`
+
+        :return: Whether the directory had to be removed or not.
+        :rtype: :class:`bool`
+        ::
+
+            from provy.core import Role
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.remove_dir('/tmp/my-dir', sudo=True, recursive=True)
         '''
         if self.remote_exists_dir(path):
             if recursive:
