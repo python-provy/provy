@@ -25,7 +25,8 @@ class AppArmorRole(Role):
                     apparmor.disable("/bin/ping", "/sbin/dhclient")
 
                 with self.using(AppArmorRole) as apparmor:
-                    apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'], read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
+                    apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'],
+                                    read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
     '''
 
     def provision(self):
@@ -145,7 +146,8 @@ class AppArmorRole(Role):
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(AppArmorRole) as apparmor:
-                        apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'], read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
+                        apparmor.create("/usr/sbin/nginx", policy_groups=['networking', 'user-application'],
+                                        read=["/srv/my-site"], read_and_write=["/srv/my-site/uploads"])
         '''
         command = 'aa-easyprof'
         if template is not None:
