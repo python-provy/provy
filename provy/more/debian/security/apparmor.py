@@ -124,15 +124,15 @@ class AppArmorRole(Role):
 
         :param executable: The executable to be referenced by the profile being created.
         :type executable: :class:`str`
-        :param template: If provided, will be used instead of the "default" one. Defaults to None.
+        :param template: If provided, will be used instead of the "default" one. Defaults to :data:`None`.
         :type template: :class:`str`
-        :param policy_groups: If provided, use its items as the policy groups. Defaults to None.
+        :param policy_groups: If provided, use its items as the policy groups. Defaults to :data:`None`.
         :type policy_groups: :data:`iterable`
-        :param abstractions: If provided, use its items as the abstractions. Defaults to None.
+        :param abstractions: If provided, use its items as the abstractions. Defaults to :data:`None`.
         :type abstractions: :data:`iterable`
-        :param read: If provided, paths to be readable by the executable. Defaults to [] (empty list).
+        :param read: If provided, paths to be readable by the executable. Defaults to :data:`[]` (empty list).
         :type read: :data:`iterable`
-        :param read_and_write: If provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to [] (empty list).
+        :param read_and_write: If provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to :data:`[]` (empty list).
         :type read_and_write: :data:`iterable`
         ::
 

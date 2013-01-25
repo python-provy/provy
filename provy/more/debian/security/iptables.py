@@ -8,34 +8,40 @@ Roles in this namespace are meant to provide iptables management utilities for D
 
 class IPTablesRole(Role):
     '''
-    This role provides iptables utilities for Debian distributions.
-    There are two important behaviors to notice:
-    Right after iptables is installed, this role allows TCP incoming connections to port 22, so that provy can still continue to provision the server through SSH.
-    Right before exiting the "with using(IPTablesRole)" block, it blocks all other ports and protocols, so that the server is secure by default.
-    So, when using this role, remember to allow all the ports with protocols that you need, otherwise you might not be able to connect to the services you provision later on.
-    <em>Properties</em>
-    block_on_finish - If False, doesn't block other ports and protocols when finishing the usage of this role. Defaults to True.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import IPTablesRole
+    This role provides `iptables <http://www.netfilter.org/>`_ utilities for Debian distributions.
 
-    class MySampleRole(Role):
-        def provision(self):
+    .. note::
 
-            # this example allows only incoming HTTP connections
-            with self.using(IPTablesRole) as iptables:
-                iptables.allow('http')
+        There are two important behaviors to notice:
 
-            # this example allows any incoming connections, but block SSH outgoing connections
-            with self.using(IPTablesRole) as iptables:
-                iptables.block_on_finish = False
-                iptables.reject(22, direction="out") # here we used a number, but could be "ssh" as well
+        1. Right after iptables is installed, this role allows TCP incoming connections to port 22, so that provy can still continue to provision the server through SSH.
 
-            # this example allows established sessions in interface eth0
-            with self.using(IPTablesRole) as iptables:
-                iptables.allow(interface='eth0', match='state', state='ESTABLISHED,RELATED')
-    </pre>
+        2. Right before exiting the `with using(IPTablesRole)` block, it blocks all other ports and protocols, so that the server is secure by default.
+
+        So, when using this role, remember to allow all the ports with protocols that you need, otherwise you might not be able to connect to the services you provision later on.
+
+    :param block_on_finish: If :data:`False`, doesn't block other ports and protocols when finishing the usage of this role. Defaults to :data:`True`.
+    :type block_on_finish: :class:`bool`
+    ::
+
+        from provy.core import Role
+        from provy.more.debian import IPTablesRole
+
+        class MySampleRole(Role):
+            def provision(self):
+
+                # this example allows only incoming HTTP connections
+                with self.using(IPTablesRole) as iptables:
+                    iptables.allow('http')
+
+                # this example allows any incoming connections, but block SSH outgoing connections
+                with self.using(IPTablesRole) as iptables:
+                    iptables.block_on_finish = False
+                    iptables.reject(22, direction="out") # here we used a number, but could be "ssh" as well
+
+                # this example allows established sessions in interface eth0
+                with self.using(IPTablesRole) as iptables:
+                    iptables.allow(interface='eth0', match='state', state='ESTABLISHED,RELATED')
     '''
 
     DIRECTION_TO_CHAIN_MAP = {
@@ -51,17 +57,16 @@ class IPTablesRole(Role):
     def provision(self):
         '''
         Installs iptables and its dependencies, if they're not already installed (though this is usually the case).
-        Also, it adds an ACCEPT rule for SSH (TCP/22), so that provy can continue to provision the server, and the user doesn't get locked out of it.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(IPTablesRole) # no need to call this if using with block.
+        Also, it adds an `ACCEPT` rule for SSH (TCP/22), so that provy can continue to provision the server, and the user doesn't get locked out of it.
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(IPTablesRole) # no need to call this if using with block.
         '''
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('iptables')
@@ -69,52 +74,57 @@ class IPTablesRole(Role):
 
     def list_rules(self):
         '''
-        Lists the currently configured rules and returns them as a multiline string. Equivalent to running "iptables -L".
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
+        Lists the currently configured rules and returns them as a multiline string. Equivalent to running:
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    iptables.list_rules()
+        .. code-block:: sh
 
-        </pre>
+            $ sudo iptables -L
+
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        iptables.list_rules()
         '''
         return self.execute('iptables -L', stdout=True, sudo=True)
 
     def list_rules_with_commands(self):
         '''
-        Like IPTablesRole.list_rules(), but showing the rules as executable commands. Equivalent to running "iptables-save".
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
+        Like :meth:`list_rules`, but showing the rules as executable commands. Equivalent to running:
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    iptables.list_rules_with_commands()
+        .. code-block:: sh
 
-        </pre>
+            $ sudo iptables-save
+
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        iptables.list_rules_with_commands()
         '''
         return self.execute('iptables-save', stdout=True, sudo=True)
 
     def schedule_cleanup(self):
         '''
-        Apart from the core cleanup, this one also blocks other ports and protocols not allowed earlier ("catch-all" as the last rule) and saves the iptables rules to the iptables config file, so that it's not lost upon restart.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
+        Apart from the core cleanup, this one also blocks other ports and protocols not allowed earlier ("catch-all" as the last rule)
+        and saves the iptables rules to the iptables config file, so that it's not lost upon restart.
+        ::
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    self.schedule_cleanup() # no need to call this explicitly
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
 
-        </pre>
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        self.schedule_cleanup() # no need to call this explicitly
         '''
         super(IPTablesRole, self).schedule_cleanup()
         if self.block_on_finish:
