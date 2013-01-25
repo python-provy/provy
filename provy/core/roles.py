@@ -68,13 +68,13 @@ class Role(object):
 
     def register_template_loader(self, package_name):
         '''
-        Register the ``package_name`` module as a valid source for templates in jinja2.
+        Register the ``package_name`` module as a valid source for templates in `Jinja2 <http://jinja.pocoo.org/>`_.
 
-        Jinja2 will look inside a folder called *templates* in the specified module.
+        `Jinja2 <http://jinja.pocoo.org/>`_ will look inside a folder called *templates* in the specified module.
 
         It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
 
-        :param package_name: Full name of the module that jinja2 will try to import.
+        :param package_name: Full name of the module that `Jinja2 <http://jinja.pocoo.org/>`_ will try to import.
         ::
 
             from provy.core import Role
@@ -882,7 +882,8 @@ class Role(object):
         '''
         Renders a template with the given options and returns the rendered text.
 
-        The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
+        The :data:`template_file` parameter should be just the name of the file and not the file path. `Jinja2 <http://jinja.pocoo.org/>`_ will look for templates at the files directory in the provyfile path,
+        as well as in the templates directory of any registered module (check the :meth:`register_template_loader` method).
 
         The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 
