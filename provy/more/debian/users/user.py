@@ -42,7 +42,7 @@ class UserRole(Role):
         return group_name in values
 
     def __first_values_from(self, basename):
-        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=True, sudo=True)
+        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=False, sudo=True)
         values = values.strip().split()
         return values
 
@@ -110,7 +110,7 @@ class UserRole(Role):
         '''
         if not self.group_exists(group_name):
             self.log("Group %s not found! Creating..." % group_name)
-            self.execute('groupadd %s' % group_name, stdout=True, sudo=True)
+            self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
     def ensure_user_groups(self, username, groups=[]):
