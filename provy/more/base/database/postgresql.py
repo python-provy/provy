@@ -44,7 +44,7 @@ class BasePostgreSQLRole(Role):
     def __execute(self, command, stdout=True):
         return self.execute(command, stdout=stdout, sudo=True, user='postgres')
 
-    def get_password(self):
+    def get_password(self, username):
         for ii in range(3):
             p = getpass.getpass(
                 "Provide password for user {user}  while provisioning {host}"
@@ -83,7 +83,7 @@ class BasePostgreSQLRole(Role):
         script_parts.append("WITH")
 
         if not password and ask_password:
-            password = self.get_password()
+            password = self.get_password(username)
         if is_superuser:
             script_parts.append("SUPERUSER")
         else:
