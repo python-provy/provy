@@ -20,6 +20,8 @@ class UFWRole(Role):
 
     :param block_on_finish: If :data:`False`, doesn't block other ports and protocols when finishing the usage of this role. Defaults to :data:`True`.
     :type block_on_finish: :class:`bool`
+
+    Example:
     ::
 
         from provy.core import Role
@@ -42,6 +44,8 @@ class UFWRole(Role):
         Installs ufw and its dependencies, if they're not already installed.
 
         Also, it allows ssh (TCP+UDP/22), so that provy can continue to provision the server, and the user doesn't get locked out of it.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -59,6 +63,8 @@ class UFWRole(Role):
     def schedule_cleanup(self):
         '''
         Apart from the core cleanup, this one also enables the firewall.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -91,6 +97,8 @@ class UFWRole(Role):
         :type direction: :class:`str`
         :param protocol: Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
         :type protocol: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -113,6 +121,8 @@ class UFWRole(Role):
         :type direction: :class:`str`
         :param protocol: Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
         :type protocol: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -135,6 +145,8 @@ class UFWRole(Role):
         :type direction: :class:`str`
         :param protocol: Protocol to be used - choose one that is understandable by ufw (like "udp", "icmp" etc). By default, it changes for "tcp" and "udp".
         :type protocol: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role

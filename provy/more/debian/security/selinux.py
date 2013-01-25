@@ -19,6 +19,7 @@ class SELinuxRole(Role):
         Please note that, for SELinux to be installed from scratch, you have to reboot the server so that it relabels all the files in the system for SELinux.
         So it's also highly recommended that you provision a server that has SELinux installed and activated already.
 
+    Example:
     ::
 
         from provy.core import Role
@@ -47,6 +48,8 @@ class SELinuxRole(Role):
         Installs SELinux, its dependencies, its utilities and the `Audit framework <https://www.wzdftpd.net/docs/selinux/audit.html>`_.
 
         Also, it activates SELinux after installing the packages, puts the system in enforce mode and puts the generic users into confinement for enhanced security.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -66,6 +69,8 @@ class SELinuxRole(Role):
         Installs the necessary packages to provision SELinux.
 
         This is executed during provisioning, so you can ignore this method.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -91,6 +96,8 @@ class SELinuxRole(Role):
         Activates SELinux, confines generic users and puts the system into enforce mode.
 
         This is executed during provisioning, so you can ignore this method.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -114,6 +121,8 @@ class SELinuxRole(Role):
         Puts the system into enforce mode.
 
         This is executed during provisioning, so you can ignore this method.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -134,6 +143,8 @@ class SELinuxRole(Role):
 
         :param user_or_group: The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
         :type user_or_group: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -158,6 +169,8 @@ class SELinuxRole(Role):
         :type user_or_group: :class:`str`
         :param selinux_user: The SELinux user to be referenced.
         :type selinux_user: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -181,6 +194,8 @@ class SELinuxRole(Role):
         :type user_or_group: :class:`str`
         :param selinux_roles: The roles to be referenced.
         :type selinux_roles: :class:`iterable`
+
+        Example:
         ::
 
             from provy.core import Role

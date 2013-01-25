@@ -22,6 +22,8 @@ class IPTablesRole(Role):
 
     :param block_on_finish: If :data:`False`, doesn't block other ports and protocols when finishing the usage of this role. Defaults to :data:`True`.
     :type block_on_finish: :class:`bool`
+
+    Example:
     ::
 
         from provy.core import Role
@@ -59,6 +61,8 @@ class IPTablesRole(Role):
         Installs iptables and its dependencies, if they're not already installed (though this is usually the case).
 
         Also, it adds an `ACCEPT` rule for SSH (TCP/22), so that provy can continue to provision the server, and the user doesn't get locked out of it.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -80,6 +84,7 @@ class IPTablesRole(Role):
 
             $ sudo iptables -L
 
+        Example:
         ::
 
             from provy.core import Role
@@ -100,6 +105,7 @@ class IPTablesRole(Role):
 
             $ sudo iptables-save
 
+        Example:
         ::
 
             from provy.core import Role
@@ -116,6 +122,8 @@ class IPTablesRole(Role):
         '''
         Apart from the core cleanup, this one also blocks other ports and protocols not allowed earlier ("catch-all" as the last rule)
         and saves the iptables rules to the iptables config file, so that it's not lost upon restart.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -160,6 +168,8 @@ class IPTablesRole(Role):
         :type match: :class:`str`
         :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
         :type options: Keyword arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -188,6 +198,8 @@ class IPTablesRole(Role):
         :type match: :class:`str`
         :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
         :type options: Keyword arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -216,6 +228,8 @@ class IPTablesRole(Role):
         :type match: :class:`str`
         :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
         :type options: Keyword arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role

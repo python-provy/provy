@@ -13,6 +13,8 @@ class AppArmorRole(Role):
     .. warning::
 
         If you're provisioning a Debian Wheezy server or older, it's highly recommended you use :class:`SELinuxRole <provy.more.debian.security.selinux.SELinuxRole>` instead of this one.
+
+    Example:
     ::
 
         from provy.core import Role
@@ -32,6 +34,8 @@ class AppArmorRole(Role):
     def provision(self):
         '''
         Installs AppArmor profiles and utilities.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -56,6 +60,8 @@ class AppArmorRole(Role):
 
         :param executables: The executables to change.
         :type executables: positional arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -74,6 +80,8 @@ class AppArmorRole(Role):
 
         :param executables: The executables to change.
         :type executables: positional arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -92,6 +100,8 @@ class AppArmorRole(Role):
 
         :param executables: The executables to change.
         :type executables: positional arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -110,6 +120,8 @@ class AppArmorRole(Role):
 
         :param executables: The executables to change.
         :type executables: positional arguments of :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -138,6 +150,8 @@ class AppArmorRole(Role):
         :type read: :data:`iterable`
         :param read_and_write: If provided, paths to be readable and writable by the executable (there's no need to provide the "read" argument in this case). Defaults to :data:`[]` (empty list).
         :type read_and_write: :data:`iterable`
+
+        Example:
         ::
 
             from provy.core import Role

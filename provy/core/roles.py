@@ -49,6 +49,8 @@ class Role(object):
     Base Role class. This is the class that is inherited by all provy's roles.
 
     This class provides many utility methods for interacting with the remote server.
+
+    Example:
     ::
 
         from provy.core import Role
@@ -75,6 +77,9 @@ class Role(object):
         It is paramount that this module can be imported by python. The path must be well-known or be a sub-path of the provyfile.py directory.
 
         :param package_name: Full name of the module that `Jinja2 <http://jinja.pocoo.org/>`_ will try to import.
+        :type package_name: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -92,6 +97,9 @@ class Role(object):
         Logs a message to the console with the hour prepended.
 
         :param msg: Message to log.
+        :type msg: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -108,6 +116,7 @@ class Role(object):
 
         .. note:: If you are using the proper ways of calling roles (:meth:`provision_role`, :meth:`using`) in your role, you do not need to call this method.
 
+        Example:
         ::
 
             from provy.core import Role
@@ -134,6 +143,8 @@ class Role(object):
 
         :param role: The role to be provisioned.
         :type role: :class:`Role`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -151,6 +162,8 @@ class Role(object):
         Base provision method. This is meant to be overriden and does not do anything.
 
         The ``provision`` method of each ``Role`` is what provy calls on to provision servers.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -166,6 +179,8 @@ class Role(object):
         Base cleanup method. This is meant to be overriden and does not do anything.
 
         The ``cleanup`` method is the method that provy calls after all ``Roles`` have been provisioned and is meant to allow ``Roles`` to perform any cleaning of resources or finish any pending operations.
+
+        Example:
         ::
 
             from provy.core import Role
@@ -206,6 +221,8 @@ class Role(object):
 
         :return: The execution result
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -238,6 +255,8 @@ class Role(object):
 
         :return: The execution result
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -270,6 +289,8 @@ class Role(object):
 
         :return: The execution result
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -286,6 +307,8 @@ class Role(object):
 
         :return: The logged user
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -305,6 +328,8 @@ class Role(object):
 
         :return: Whether the file exists or not
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -325,6 +350,8 @@ class Role(object):
 
         :return: Whether the file exists or not
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -345,6 +372,8 @@ class Role(object):
 
         :return: Whether the directory exists or not
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -362,6 +391,8 @@ class Role(object):
 
         :return: The temp dir path
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -378,6 +409,8 @@ class Role(object):
 
         :return: The temp dir path
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -398,6 +431,8 @@ class Role(object):
         :type owner: :class:`str`
         :param sudo: If specified, the directory is created under the super-user. This is particularly useful in conjunction with the owner parameter, to create folders for the owner where only the super-user can write.
         :type sudo: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -423,6 +458,8 @@ class Role(object):
         :type directory: :class:`str`
         :param owner: User that should own this directory.
         :type owner: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -442,6 +479,8 @@ class Role(object):
         :type path: :class:`str`
         :param owner: User that should own this file.
         :type owner: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -461,6 +500,8 @@ class Role(object):
         :type path: :class:`str`
         :param owner: User that should own this path.
         :type owner: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -482,6 +523,8 @@ class Role(object):
         :rtype: :class:`int`
 
         :raise: :class:`IOError` if the path doesn't exist
+
+        Example:
         ::
 
             from provy.core import Role
@@ -505,6 +548,8 @@ class Role(object):
         :type mode: :class:`int`
         :param recursive: Indicates if the mode of the objects in the path should be changed recursively. Defaults to :class:`False`.
         :type recursive: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -532,6 +577,8 @@ class Role(object):
         :type mode: :class:`int`
         :param recursive: Indicates if the mode of the objects in the path should be changed recursively. Defaults to :class:`False`.
         :type recursive: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -552,6 +599,8 @@ class Role(object):
         :type path: :class:`str`
         :param mode: Mode of the file.
         :type mode: :class:`int`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -572,6 +621,8 @@ class Role(object):
 
         :return: The hash generated, or :class:`None` if `path` doesn't exist.
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -595,6 +646,8 @@ class Role(object):
 
         :return: The hash generated, or None if `path` doesn't exist.
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -625,6 +678,8 @@ class Role(object):
 
         :return: Whether the directory had to be removed or not.
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -654,6 +709,8 @@ class Role(object):
 
         :return: Whether the file had to be removed or not.
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -677,6 +734,8 @@ class Role(object):
         :type from_file: :class:`str`
         :param to_file: Path in the remote system.
         :type to_file: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -697,6 +756,8 @@ class Role(object):
         :type to_file: :class:`str`
         :param sudo: Indicates whether the symlink should be created by the super-user. Defaults to :data:`False`.
         :type sudo: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -738,6 +799,8 @@ class Role(object):
         :type to_file: :class:`str`
         :param sudo: Indicates whether the file should be created by the super-user. Defaults to :data:`False`.
         :type sudo: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -769,6 +832,8 @@ class Role(object):
 
         :return: Whether the file was updated or not.
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -839,6 +904,8 @@ class Role(object):
 
         :return: Temp file path.
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -867,6 +934,8 @@ class Role(object):
 
         :return: The contents of the file.
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -894,6 +963,8 @@ class Role(object):
 
         :return: The contents of the file.
         :rtype: :class:`str`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -924,6 +995,8 @@ class Role(object):
 
         :return: Whether the process is running or not.
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -947,6 +1020,8 @@ class Role(object):
 
         :return: Whether the line exists or not.
         :rtype: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -978,6 +1053,8 @@ class Role(object):
         :type owner: :class:`str`
         :param sudo: Indicates whether the file should be managed by the super-user. Defaults to :data:`False`.
         :type sudo: :class:`bool`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -998,6 +1075,8 @@ class Role(object):
 
         :param role: Role to be used.
         :type role: :class:`Role`
+
+        Example:
         ::
 
             from provy.core import Role
@@ -1020,6 +1099,8 @@ class Role(object):
             $ lsb_release -a
 
         in the server, so you might want to check which results are usual for your distribution.
+
+        Example:
         ::
 
             from provy.core import Role
