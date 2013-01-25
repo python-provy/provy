@@ -147,71 +147,83 @@ class IPTablesRole(Role):
     def allow(self, port=None, direction="in", protocol="tcp", interface=None, match=None, **options):
         '''
         Allows connections to be made to or from the server.
-        <em>Parameters</em>
-        port - Port to be used. Defaults to None, which means all ports will be allowed.
-        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
-        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
-        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
-        match - Match filter. Defaults to None.
-        **options - Arbitrary options that will be used in conjunction to the match filters.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    iptables.allow(port=11211, direction="out", protocol="udp") # allow UDP connections to an external Memcached server.
+        :param port: Port to be used. Defaults to None, which means all ports will be allowed. Defaults to :data:`None`.
+        :type port: :class:`int` or :class:`str`
+        :param direction: Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing). Defaults to "in".
+        :type direction: :class:`str`
+        :param protocol: Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "tcp".
+        :type protocol: :class:`str`
+        :param interface: The network interface to which the rule is bound to. Defaults to :data:`None` (bound to all).
+        :type interface: :class:`str`
+        :param match: Match filter. Defaults to :data:`None`.
+        :type match: :class:`str`
+        :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
+        :type options: Keyword arguments of :class:`str`
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        iptables.allow(port=11211, direction="out", protocol="udp") # allow UDP connections to an external Memcached server.
         '''
         self.__change_rule("ACCEPT", port, direction, protocol, interface, match, **options)
 
     def reject(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
         '''
         Rejects connections to be made to or from the server, responding with a "connection refused" packet.
-        <em>Parameters</em>
-        port - Port to be used. Defaults to None, which means all ports will be denied.
-        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
-        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
-        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
-        match - Match filter. Defaults to None.
-        **options - Arbitrary options that will be used in conjunction to the match filters.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    iptables.reject(port=11211, direction="out", protocol="udp") # reject UDP connections to an external Memcached server.
+        :param port: Port to be used. Defaults to None, which means all ports will be allowed.
+        :type port: :class:`int` or :class:`str`
+        :param direction: Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing). Defaults to "in".
+        :type direction: :class:`str`
+        :param protocol: Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        :type protocol: :class:`str`
+        :param interface: The network interface to which the rule is bound to. Defaults to :data:`None` (bound to all).
+        :type interface: :class:`str`
+        :param match: Match filter. Defaults to :data:`None`.
+        :type match: :class:`str`
+        :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
+        :type options: Keyword arguments of :class:`str`
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        iptables.reject(port=11211, direction="out", protocol="udp") # reject UDP connections to an external Memcached server.
         '''
         self.__change_rule("REJECT", port, direction, protocol, interface, match, **options)
 
     def drop(self, port=None, direction="in", protocol="all", interface=None, match=None, **options):
         '''
         Drop connections to be made to or from the server, without responding anything to the client (drop packets on the ground).
-        <em>Parameters</em>
-        port - Port to be used. Defaults to None, which means all ports will be dropped.
-        direction - Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing).
-        protocol - Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
-        interface - The network interface to which the rule is bound to. Defaults as None (bound to all).
-        match - Match filter. Defaults to None.
-        **options - Arbitrary options that will be used in conjunction to the match filters.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import IPTablesRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(IPTablesRole) as iptables:
-                    iptables.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
+        :param port: Port to be used. Defaults to None, which means all ports will be allowed.
+        :type port: :class:`int` or :class:`str`
+        :param direction: Direction of the connection related to the server. Can be either "in" (connections coming into the server), "out" (connections coming from the server to the outside) or "forward" (packet routing). Defaults to "in".
+        :type direction: :class:`str`
+        :param protocol: Protocol to be used - choose one that is understandable by iptables (like "udp", "icmp" etc). Defaults to "all".
+        :type protocol: :class:`str`
+        :param interface: The network interface to which the rule is bound to. Defaults to :data:`None` (bound to all).
+        :type interface: :class:`str`
+        :param match: Match filter. Defaults to :data:`None`.
+        :type match: :class:`str`
+        :param options: Arbitrary of arbitrary options that will be used in conjunction to the match filters.
+        :type options: Keyword arguments of :class:`str`
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import IPTablesRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(IPTablesRole) as iptables:
+                        iptables.drop(port=11211, direction="out", protocol="udp") # drop UDP connections to an external Memcached server.
         '''
         self.__change_rule("DROP", port, direction, protocol, interface, match, **options)
