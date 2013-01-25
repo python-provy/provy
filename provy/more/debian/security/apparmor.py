@@ -9,7 +9,10 @@ Roles in this namespace are meant to provide `AppArmor <http://wiki.apparmor.net
 class AppArmorRole(Role):
     '''
     This role provides `AppArmor <http://wiki.apparmor.net/>`_ utilities for Debian distributions.
-    If you're provisioning a Debian Wheezy server or older, it's highly recommended you use :class:`SELinuxRole <provy.more.debian.security.selinux.SELinuxRole>` instead of this one.
+
+    .. warning::
+
+        If you're provisioning a Debian Wheezy server or older, it's highly recommended you use :class:`SELinuxRole <provy.more.debian.security.selinux.SELinuxRole>` instead of this one.
     ::
 
         from provy.core import Role
