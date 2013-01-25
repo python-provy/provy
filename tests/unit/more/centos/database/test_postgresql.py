@@ -1,5 +1,5 @@
 from mock import call, patch, DEFAULT
-from nose.tools import istest
+from nose.tools import istest, nottest
 
 from provy.more.centos import YumRole, PostgreSQLRole
 from tests.unit.more.base.database import test_postgresql
@@ -54,7 +54,7 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
         with self.execution('..\r\npostgresql     \t0:off\t1:off\t2:on\t3:on\t4:on\t5:on\t6:off\r\n..', 'chkconfig --list', None):
             self.assertFalse(self.role._run_on_startup())
 
-    @istest
+    @nottest
     def change_directory_to_postgres_data_dir(self):
         with patch('fabric.api.cd') as cd_mock, self.execute_mock() as execute:
             self.role._execute('ls')
