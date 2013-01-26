@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Rails applications utility methods for Debian distributions.
+Roles in this namespace are meant to provide `Rails <http://rubyonrails.org/>`_ applications utility methods for Debian distributions.
 '''
 
 from provy.core import Role
