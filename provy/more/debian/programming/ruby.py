@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Ruby utility methods for Debian distributions.
+Roles in this namespace are meant to provide `Ruby <http://www.ruby-lang.org/>`_ utility methods for Debian distributions.
 '''
 
 from fabric.api import settings
@@ -13,17 +13,17 @@ from provy.more.debian import AptitudeRole
 
 class RubyRole(Role):
     '''
-    This role provides Ruby utilities for Debian distributions.
+    This role provides `Ruby <http://www.ruby-lang.org/>`_ utilities for Debian distributions.
 
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import RubyRole
+    Example:
+    ::
 
-    class MySampleRole(Role):
-        def provision(self):
-            self.provision_role(RubyRole)
-    </pre>
+        from provy.core import Role
+        from provy.more.debian import RubyRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                self.provision_role(RubyRole)
     '''
 
     version = "1.9.2"
@@ -39,17 +39,18 @@ class RubyRole(Role):
 
     def provision(self):
         '''
-        Installs Ruby and its dependencies. This method should be called upon if overriden in base classes, or Ruby won't work properly in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import RubyRole
+        Installs `Ruby <http://www.ruby-lang.org/>`_ and its dependencies.
+        This method should be called upon if overriden in base classes, or Ruby won't work properly in the remote server.
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(RubyRole) # no need to call this if using with block.
+        Example:
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import RubyRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(RubyRole) # no need to call this if using with block.
         '''
         with self.using(AptitudeRole) as role:
             for package in 'build-essential zlib1g zlib1g-dev libreadline5 libreadline5-dev libssl-dev libyaml-dev'.split():
