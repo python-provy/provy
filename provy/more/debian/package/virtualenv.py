@@ -30,6 +30,7 @@ class VirtualenvRole(Role):
 
     Example:
     ::
+
         from provy.core import Role
         from provy.more.debian import VirtualenvRole
 

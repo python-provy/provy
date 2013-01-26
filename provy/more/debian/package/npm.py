@@ -55,6 +55,8 @@ class NPMRole(Role):
         :type package_name: :class:`str`
         :param version: Version to check for. Defaults to :data:`None`, which makes it check for any version.
         :type version: :class:`str`
+        :return: Whether the package is installed or not.
+        :rtype: :class:`bool`
 
         Example:
         ::
@@ -78,9 +80,9 @@ class NPMRole(Role):
         '''
         Ensures that the given package in the given version is installed via NPM.
 
-        :param package_name: Name of the package to verify
+        :param package_name: Name of the package to install.
         :type package_name: :class:`str`
-        :param version: Version to check for. Defaults to :data:`None`, which makes it check for any version.
+        :param version: If specified, installs this version of the package. Installs latest version otherwise.
         :type version: :class:`str`
         :param stdout: Indicates whether install progress should be shown to stdout. Defaults to :data:`False`.
         :type stdout: :class:`bool`

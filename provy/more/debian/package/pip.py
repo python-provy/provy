@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provision packages installed via the PIP package manager for Debian distributions.
+Roles in this namespace are meant to provision packages installed via the `PIP <http://www.pip-installer.org/>`_ package manager for Debian distributions.
 '''
 
 from fabric.api import settings
@@ -15,22 +15,27 @@ import xmlrpclib
 
 class PipRole(Role):
     '''
-    This role provides package management operations with PIP within Debian distributions.
-    By default, all commands executed with this role will be executed with sudo, unless you set a different user (refer to the "set_user" method below).
-    You can also change the class parameters below in the class directly to have a global effect (use carefully!).
-    <em>Class/object properties</em>
-    use_sudo - If False, the packages will be installed as normal user. Defaults to True.
-    user - User through which the packages will be installed. Defaults to None, which means that, using together with the default use_sudo, will install packages globally.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import PipRole
+    This role provides package management operations with `PIP <http://www.pip-installer.org/>`_ within Debian distributions.
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(PipRole) as role:
-                role.ensure_package_installed('django', version='1.1.1')
-    </pre>
+    By default, all commands executed with this role will be executed with sudo, unless you set a different user (refer to the :meth:`set_user` method below).
+
+    You can also change the class parameters below in the class directly to have a global effect (use carefully!).
+
+    :var use_sudo: If :data:`False`, the packages will be installed as normal user. Defaults to :data:`True`.
+    :type use_sudo: :class:`bool`
+    :var user: User through which the packages will be installed. Defaults to :data:`None`, which means that, using together with the default use_sudo, will install packages globally.
+    :type user: :class:`str`
+
+    Example:
+    ::
+
+        from provy.core import Role
+        from provy.more.debian import PipRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(PipRole) as role:
+                    role.ensure_package_installed('django', version='1.1.1')
     '''
 
     use_sudo = True
@@ -39,15 +44,16 @@ class PipRole(Role):
     def provision(self):
         '''
         Installs pip dependencies. This method should be called upon if overriden in base classes, or PIP won't work properly in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(PipRole) # does not need to be called if using with block.
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(PipRole) # does not need to be called if using with block.
         '''
         with self.using(AptitudeRole) as role:
             role.ensure_up_to_date()
@@ -82,21 +88,26 @@ class PipRole(Role):
 
     def is_package_installed(self, package_name, version=None):
         '''
-        Returns True if the given package is installed via pip in the remote server, False otherwise.
-        <em>Parameters</em>
-        package_name - Name of the package to verify.
-        version - Version to check for. Defaults to None, which makes it check for any version.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Returns :data:`True` if the given package is installed via pip in the remote server, :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    if role.is_package_installed('django', version='1.1.1'):
-                        # do something
-        </pre>
+        :param package_name: Name of the package to verify
+        :type package_name: :class:`str`
+        :param version: Version to check for. Defaults to :data:`None`, which makes it check for any version.
+        :type version: :class:`str`
+        :return: Whether the package is installed or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        if role.is_package_installed('django', version='1.1.1'):
+                            pass
         '''
         with settings(warn_only=True):
             package_info = self.extract_package_data_from_input(package_name)
@@ -116,21 +127,25 @@ class PipRole(Role):
 
     def get_package_remote_version(self, package_name):
         '''
-        Returns the version of the package currently installed via PIP in the remote server. If package is not installed, returns None.
-        <em>Parameters</em>
-        package_name - Name of the package to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Returns the version of the package currently installed via PIP in the remote server. If package is not installed, returns :data:`None`.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    version = role.get_package_remote_version('django')
-                    if version and version == '1.1.1':
-                        # do something
-        </pre>
+        :param package_name: Name of the package to verify
+        :type package_name: :class:`str`
+        :return: The package version.
+        :rtype: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        version = role.get_package_remote_version('django')
+                        if version and version == '1.1.1':
+                            pass
         '''
         with settings(warn_only=True):
             result = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name.lower(), stdout=False, sudo=self.use_sudo, user=self.user)
@@ -142,23 +157,27 @@ class PipRole(Role):
 
     def get_package_latest_version(self, package_name):
         '''
-        Returns the latest available version of the package at the Python Package Index. If package is not available, returns None.
-        <em>Parameters</em>
-        package_name - Name of the package to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Returns the latest available version of the package at the Python Package Index. If package is not available, returns :data:`None`.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    version = role.get_package_remote_version('django')
-                    latest = role.get_package_latest_version('django')
-                    if version != latest:
-                        # do something
-                        # this check is not needed if you use ensure_package_up_to_date.
-        </pre>
+        :param package_name: Name of the package to verify
+        :type package_name: :class:`str`
+        :return: The package version.
+        :rtype: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        version = role.get_package_remote_version('django')
+                        latest = role.get_package_latest_version('django')
+                        if version != latest:
+                            pass
+                            # this check is not needed if you use ensure_package_up_to_date.
         '''
         pypi = xmlrpclib.ServerProxy('http://pypi.python.org/pypi')
         available = pypi.package_releases(package_name)
@@ -173,21 +192,25 @@ class PipRole(Role):
 
     def package_can_be_updated(self, package_name):
         '''
-        Returns True if there is an update for the given package in the Python Package Index, False otherwise.
-        <em>Parameters</em>
-        package_name - Name of the package to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Returns :data:`True` if there is an update for the given package in the Python Package Index, False otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    if role.package_can_be_updated('django'):
-                        # do something
-                        # this check is not needed if you use ensure_package_up_to_date.
-        </pre>
+        :param package_name: Name of the package to verify
+        :type package_name: :class:`str`
+        :return: Whether the package can be updated.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        if role.package_can_be_updated('django'):
+                            pass
+                            # this check is not needed if you use ensure_package_up_to_date.
         '''
         remote_version = self.get_package_remote_version(package_name)
         latest_version = self.get_package_latest_version(package_name)
@@ -196,20 +219,26 @@ class PipRole(Role):
 
     def ensure_package_installed(self, package_name, version=None):
         '''
-        Makes sure the package is installed with the specified version (Latest if None specified). This method does not verify and upgrade the package on subsequent provisions, though. Use <em>ensure_package_up_to_date</em> for this purpose instead.
-        <em>Parameters</em>
-        package_name - Name of the package to install.
-        version - If specified, installs this version of the package. Installs latest version otherwise. You can use >= or <= before version number to ensure package version.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Makes sure the package is installed with the specified version (latest if :data:`None` specified).
+        This method does not verify and upgrade the package on subsequent provisions, though. Use :meth:`ensure_package_up_to_date` for this purpose instead.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_package_installed('django', version='1.1.1')
-        </pre>
+        :param package_name: Name of the package to install.
+        :type package_name: :class:`str`
+        :param version: If specified, installs this version of the package. Installs latest version otherwise. You can use >= or <= before version number to ensure package version.
+        :type version: :class:`str`
+        :return: Whether the package had to be installed or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        role.ensure_package_installed('django', version='1.1.1')
         '''
         if version:
             package_info = self.extract_package_data_from_input(version)
@@ -231,18 +260,20 @@ class PipRole(Role):
     def ensure_requeriments_installed(self, requeriments_file_name):
         '''
         Makes sure the requirements file provided is installed.
-        <em>Parameters</em>
-        requeriments_file_name - Path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_requeriments_installed('/path/to/requirements.txt')
-        </pre>
+        :param requeriments_file_name: Path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
+        :type requeriments_file_name: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        role.ensure_requeriments_installed('/path/to/requirements.txt')
         '''
 
         with open(requeriments_file_name, 'r') as requeriments_file:
@@ -251,19 +282,22 @@ class PipRole(Role):
 
     def ensure_package_up_to_date(self, package_name):
         '''
-        Makes sure the package is installed and up-to-date with the latest version. This method verifies if there is a newer version for this package every time the server is provisioned. If a new version is found, it is installed.
-        <em>Parameters</em>
-        package_name - Name of the package to install.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
+        Makes sure the package is installed and up-to-date with the latest version.
+        This method verifies if there is a newer version for this package every time the server is provisioned. If a new version is found, it is installed.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_package_is_up_to_date('django')
-        </pre>
+        :param package_name: Name of the package to install.
+        :type package_name: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        role.ensure_package_is_up_to_date('django')
         '''
 
         is_installed = self.is_package_installed(package_name)
@@ -283,20 +317,22 @@ class PipRole(Role):
     def set_user(self, user):
         '''
         Prepares the pip role instance to run its commands as a specific user.
-        <em>Parameters</em>
-        user - The username with which the role should run its commands.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_package_installed('django') # runs as sudo
-                    role.set_user('johndoe')
-                    role.ensure_package_installed('django') # runs as "johndoe" user
-        </pre>
+        :param user: The username with which the role should run its commands.
+        :type user: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        role.ensure_package_installed('django') # runs as sudo
+                        role.set_user('johndoe')
+                        role.ensure_package_installed('django') # runs as "johndoe" user
         '''
 
         self.user = user
@@ -305,20 +341,21 @@ class PipRole(Role):
     def set_sudo(self):
         '''
         Prepares the pip role instance to run its commands with sudo; This is useful when you had previously set a user, and want it to run back as sudo.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import PipRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(PipRole) as role:
-                    role.ensure_package_installed('django') # runs as sudo
-                    role.set_user('johndoe')
-                    role.ensure_package_installed('django') # runs as "johndoe" user
-                    role.set_sudo()
-                    role.ensure_package_installed('django') # runs as sudo
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import PipRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(PipRole) as role:
+                        role.ensure_package_installed('django') # runs as sudo
+                        role.set_user('johndoe')
+                        role.ensure_package_installed('django') # runs as "johndoe" user
+                        role.set_sudo()
+                        role.ensure_package_installed('django') # runs as sudo
         '''
 
         self.user = None
