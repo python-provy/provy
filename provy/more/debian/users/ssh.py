@@ -20,27 +20,10 @@ if not os.environ.get('BYPASS_M2CRYPTO'):
 class SSHRole(Role):
     '''
     This role provides SSH keygen utilities for Debian distributions.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import SSHRole
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(SSHRole) as role:
-                role.ensure_ssh_key(user='someuser', private_key_file="private-key")
-    </pre>
-    '''
+    Example:
+    ::
 
-    def ensure_ssh_key(self, user, private_key_file):
-        '''
-        Ensures that the specified private ssh key is present in the remote server. Also creates the public key for this private key.
-        The private key file must be a template and be accessible to the Role.render method.
-        <em>Parameters</em>
-        user - Owner of the keys
-        private_key_file - Template file for the private key.
-        <em>Sample usage</em>
-        <pre class="sh_python">
         from provy.core import Role
         from provy.more.debian import SSHRole
 
@@ -48,7 +31,29 @@ class SSHRole(Role):
             def provision(self):
                 with self.using(SSHRole) as role:
                     role.ensure_ssh_key(user='someuser', private_key_file="private-key")
-        </pre>
+    '''
+
+    def ensure_ssh_key(self, user, private_key_file):
+        '''
+        Ensures that the specified private ssh key is present in the remote server. Also creates the public key for this private key.
+
+        The private key file must be a template and be accessible to the :meth:`Role.render <provy.core.roles.Role.render>` method.
+
+        :param user: Owner of the keys.
+        :type user: :class:`str`
+        :param private_key_file: Template file for the private key.
+        :type private_key_file: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import SSHRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SSHRole) as role:
+                        role.ensure_ssh_key(user='someuser', private_key_file="private-key")
 
         '''
         path = '/home/%s' % user

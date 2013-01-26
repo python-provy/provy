@@ -9,34 +9,39 @@ from provy.core import Role
 class UserRole(Role):
     '''
     This role provides many utility methods for user management operations within Debian distributions.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import UserRole
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(UserRole) as role:
-                role.ensure_user('myuser', identified_by='mypass', is_admin=True)
-    </pre>
-    '''
+    Example:
+    ::
 
-    def group_exists(self, group_name):
-        '''
-        Returns True if the given group exist, False otherwise.
-        <em>Parameters</em>
-        group_name - Name of the group to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
         from provy.core import Role
         from provy.more.debian import UserRole
 
         class MySampleRole(Role):
             def provision(self):
                 with self.using(UserRole) as role:
-                    if role.group_exists('usersgroup'):
-                        # do something
-        </pre>
+                    role.ensure_user('myuser', identified_by='mypass', is_admin=True)
+    '''
+
+    def group_exists(self, group_name):
+        '''
+        Returns :data:`True` if the given group exist, :data:`False` otherwise.
+
+        :param group_name: Name of the group to verify.
+        :type group_name: :class:`str`
+        :return: Whether the group exists or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import UserRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(UserRole) as role:
+                        if role.group_exists('usersgroup'):
+                            pass
         '''
         values = self.__first_values_from('group')
         return group_name in values
@@ -48,41 +53,50 @@ class UserRole(Role):
 
     def user_exists(self, username):
         '''
-        Returns True if the given user exist, False otherwise.
-        <em>Parameters</em>
-        username - Name of the user to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import UserRole
+        Returns :data:`True` if the given user exist, :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(UserRole) as role:
-                    if role.user_exists('myuser'):
-                        # do something
-        </pre>
+        :param username: Name of the user to verify.
+        :type username: :class:`str`
+        :return: Whether the user exists or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import UserRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(UserRole) as role:
+                        if role.user_exists('myuser'):
+                            pass
         '''
         values = self.__first_values_from('passwd')
         return username in values
 
     def user_in_group(self, username, group_name):
         '''
-        Returns True if the given user is in the given group, False otherwise.
-        <em>Parameters</em>
-        username - Name of the user to verify.
-        group_name - Name of the group to verify.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import UserRole
+        Returns :data:`True` if the given user is in the given group, :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(UserRole) as role:
-                    if role.user_in_group('myuser', 'mygroup'):
-                        # do something
-        </pre>
+        :param username: Name of the user to verify.
+        :type username: :class:`str`
+        :param group_name: Name of the group to verify.
+        :type group_name: :class:`str`
+        :return: Whether the user pertains to the group or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import UserRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(UserRole) as role:
+                        if role.user_in_group('myuser', 'mygroup'):
+                            pass
         '''
 
         raw_groups = self.execute('groups %s' % username, sudo=True, stdout=False).strip()
@@ -95,18 +109,20 @@ class UserRole(Role):
     def ensure_group(self, group_name):
         '''
         Ensures that a given user group is present in the remote server.
-        <em>Parameters</em>
-        group_name - Name of the group to create.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import UserRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(UserRole) as role:
-                    role.ensure_group('users-group')
-        </pre>
+        :param group_name: Name of the group to create.
+        :type group_name: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import UserRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(UserRole) as role:
+                        role.ensure_group('users-group')
         '''
         if not self.group_exists(group_name):
             self.log("Group %s not found! Creating..." % group_name)
@@ -123,23 +139,30 @@ class UserRole(Role):
     def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False):
         '''
         Ensures that a given user is present in the remote server.
-        <em>Parameters</em>
-        username - Name of the user.
-        identified_by - Password that the user will use to login to the remote server. If set to None, the user will not have a password.
-        home_folder - Specifies the user's home folder. Defaults to /home/&lt;username&gt;.
-        default_script - Sets the user's default script, the one that will execute commands per default when logging in. Defaults to /bin/sh.
-        groups - Groups that this user belongs to. If the groups do not exist they are created prior to user creation. Defaults to the name of the user.
-        is_admin - If set to True the user is added to the 'admin' user group as well. Defaults to False.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import UserRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(UserRole) as role:
-                    role.ensure_user('myuser', identified_by='mypass', is_admin=True)
-        </pre>
+        :param username: Name of the user.
+        :type username: :class:`str`
+        :param identified_by: Password that the user will use to login to the remote server. If set to None, the user will not have a password.
+        :type identified_by: :class:`str`
+        :param home_folder: Specifies the user's home folder. Defaults to `/home/<username>`.
+        :type home_folder: :class:`str`
+        :param default_script: Sets the user's default script, the one that will execute commands per default when logging in. Defaults to `/bin/sh`.
+        :type default_script: :class:`str`
+        :param groups: Groups that this user belongs to. If the groups do not exist they are created prior to user creation. Defaults to the name of the user.
+        :type groups: :class:`iterable`
+        :param is_admin: If set to :data:`True` the user is added to the 'admin' user group as well. Defaults to :data:`False`.
+        :type is_admin: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import UserRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(UserRole) as role:
+                        role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         '''
 
         is_admin_command = "-G admin"
