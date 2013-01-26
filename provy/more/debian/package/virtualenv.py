@@ -16,7 +16,8 @@ class VirtualenvRole(Role):
     This role provides `virtualenv <http://www.virtualenv.org/>`_ management.
     It also provides `virtualenvwrapper <http://www.doughellmann.com/projects/virtualenvwrapper/>`_ provisioning, although it's not internally used in this role.
 
-    When using the object as a context manager (that is, using a "with" block) it will make sure that the virtual environment is created and that the commands that run inside it run within this same virtual environment (which affects, for example, the python and pip commands).
+    When using the object as a context manager (that is, using a `with` block) it will make sure that the virtual environment is created and that the commands
+    that run inside it run within this same virtual environment (which affects, for example, the `python` and `pip` commands).
 
     If the virtual environment already exists, it just bypasses the creation procedure.
 
