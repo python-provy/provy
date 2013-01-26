@@ -32,6 +32,8 @@ Turn that tedious task of provisioning the infrastructure of your website into a
 Documentation
 =============
 
+(:doc:`Looking for the API? Here's a shortcut! </api/modules>`)
+
 * :doc:`whats-provy`
 * :doc:`installing`
 * :doc:`getting-started`
