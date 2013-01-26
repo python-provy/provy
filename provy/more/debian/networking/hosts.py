@@ -12,6 +12,8 @@ class HostsRole(Hosts):
     '''
     This role provides hosts file management utilities for debian distributions.
 
+    This is just a class wrapper over :class:`provy.more.linux.networking.hosts.HostsRole`
+
     Example:
     ::
 
