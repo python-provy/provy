@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Git repository creation operations within Debian distributions.
+Roles in this namespace are meant to provide `Git <http://git-scm.com/>`_ repository creation operations within Debian distributions.
 '''
 
 from provy.core import Role
@@ -11,34 +11,35 @@ from provy.more.debian.package.aptitude import AptitudeRole
 
 class GitRole(Role):
     '''
-    This role provides utility methods for Git repositories management within Debian distributions.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import GitRole
+    This role provides utility methods for `Git <http://git-scm.com/>`_ repositories management within Debian distributions.
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(GitRole) as role:
-                role.ensure_repository('git://github.com/python-provy/provy.git',
-                                       '/home/user/provy',
-                                       owner='user',
-                                       branch='some-branch')
-    </pre>
-    '''
+    Example:
+    ::
 
-    def provision(self):
-        '''
-        Installs git dependencies. This method should be called upon if overriden in base classes, or Git won't work properly in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
         from provy.core import Role
         from provy.more.debian import GitRole
 
         class MySampleRole(Role):
             def provision(self):
-                self.provision_role(GitRole) # does not need to be called if using with block.
-        </pre>
+                with self.using(GitRole) as role:
+                    role.ensure_repository('git://github.com/python-provy/provy.git', '/home/user/provy',
+                                           owner='user', branch='some-branch')
+    '''
+
+    def provision(self):
+        '''
+        Installs `Git <http://git-scm.com/>`_ dependencies.
+        This method should be called upon if overriden in base classes, or `Git <http://git-scm.com/>`_ won't work properly in the remote server.
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import GitRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(GitRole) # does not need to be called if using with block.
         '''
         with self.using(AptitudeRole) as role:
             role.ensure_up_to_date()
@@ -46,26 +47,31 @@ class GitRole(Role):
 
     def ensure_repository(self, repo, path, owner=None, branch=None, sudo=True):
         '''
-        Makes sure the repository is create in the remote server. This method does not update the repository or perform any operations in it. It is merely used to ensure that the repository exists in the specified path.
-        <em>Parameters</em>
-        repo - Git repository url.
-        path - Path to create the local repository.
-        owner - User that owns the repository directory. Defaults to None, using the current one in the remote server.
-        branch - If specified, the given branch will be checked-out, otherwise it stays in the master branch.
-        sudo - If False, won't sudo when creating the repository. Defaults to True.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import GitRole
+        Makes sure the repository is create in the remote server.
+        This method does not update the repository or perform any operations in it. It is merely used to ensure that the repository exists in the specified path.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(GitRole) as role:
-                    role.ensure_repository('git://github.com/python-provy/provy.git',
-                                           '/home/user/provy',
-                                           owner='user',
-                                           branch='some-branch')
-        </pre>
+        :param repo: Git repository url.
+        :type repo: :class:`str`
+        :param path: Path to create the local repository.
+        :type path: :class:`str`
+        :param owner: User that owns the repository directory. Defaults to :data:`None`, using the current one in the remote server.
+        :type owner: :class:`str`
+        :param branch: If specified, the given branch will be checked-out, otherwise it stays in the master branch.
+        :type branch: :class:`str`
+        :param sudo: If :data:`False`, won't sudo when creating the repository. Defaults to :data:`True`.
+        :type sudo: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import GitRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(GitRole) as role:
+                        role.ensure_repository('git://github.com/python-provy/provy.git', '/home/user/provy',
+                                               owner='user', branch='some-branch')
         '''
         if not self.remote_exists_dir(path):
             self.log("Repository for %s does not exist! Cloning..." % repo)

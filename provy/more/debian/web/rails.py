@@ -162,7 +162,8 @@ class RailsRole(Role):
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(RailsRole) as role:
-                        role.create_site(site='my-site', host='localhost www.mysite.com', port=8888, path='/home/myuser/my-rails-site')
+                        role.create_site(site='my-site', host='localhost www.mysite.com',
+                                         port=8888, path='/home/myuser/my-rails-site')
         '''
 
         template = "rails-nginx.template"
