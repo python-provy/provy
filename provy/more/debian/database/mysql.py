@@ -27,7 +27,6 @@ class MySQLRole(Role):
             def provision(self):
                 with self.using(MySQLRole) as role:
                     role.ensure_user(username=self.context['mysql_user'], identified_by=self.context['mysql_password'])
-
                     role.ensure_database(self.context['mysql_database'], owner=self.context['mysql_user'])
     '''
     def __init__(self, prov, context):
