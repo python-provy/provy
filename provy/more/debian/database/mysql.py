@@ -344,7 +344,7 @@ class MySQLRole(Role):
                         role.ensure_grant('ALL PRIVILEGES',
                                           on='database',
                                           username='backend',
-                                          login_from'%',
+                                          login_from='%',
                                           with_grant_option=True)
         '''
 
