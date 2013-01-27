@@ -56,8 +56,8 @@ class SSHRole(Role):
         path = '/home/%s' % user
         ssh_path = join(path, '.ssh')
         self.ensure_dir(ssh_path, sudo=True, owner=user)
-
         private_key = self.render(private_key_file)
+
         key = RSA.importKey(private_key)
         public_key = key.publickey().exportKey(format='OpenSSH')
 
