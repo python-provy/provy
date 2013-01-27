@@ -27,7 +27,7 @@ class MockPostgresqlRole(BasePostgreSQLRole):
     def execute_script_file(self, database, local_script_file):
         self.executed_scripts.append((database, local_script_file.read()))
 
-    def get_password(self):
+    def get_password(self, username):
         return "bar"
 
 
