@@ -24,13 +24,11 @@ class SSHRoleTest(ProvyTestCase):
         with patch('provy.more.debian.SSHRole._SSHRole__write_keys') as mock_write:
             self.role.ensure_ssh_key('user', 'test_private_key.pem')
 
-            self.assertEqual(
-                mock_ensure_dir.call_args,
-                call('/home/user/.ssh', owner='user', sudo=True),
+            mock_ensure_dir.assert_called_with(
+                '/home/user/.ssh', owner='user', sudo=True,
             )
-            self.assertEqual(
-                mock_write.call_args,
-                call('user', self.test_private_key, self.test_pub_key),
+            mock_write.assert_called_with(
+                'user', self.test_private_key, self.test_pub_key,
             )
 
     @istest
@@ -47,16 +45,22 @@ class SSHRoleTest(ProvyTestCase):
             call('import os; print os.uname()[1]', stdout=False)
         )
 
-        self.assertEqual(
-            write_to_temp_file.call_args_list,
+        write_to_temp_file.assert_has_calls(
             [
                 call('..public.. user@' + str(execute_python.return_value)),
                 call('..private..'),
             ]
         )
 
-        self.assertEqual(
-            update_file.call_args_list,
-            [call(write_to_temp_file.return_value, '/home/user/.ssh/id_rsa.pub', sudo=True, owner='user'),
-             call(write_to_temp_file.return_value, '/home/user/.ssh/id_rsa', sudo=True, owner='user')]
+        update_file.assert_has_calls(
+            [
+                call(
+                    write_to_temp_file.return_value,
+                    '/home/user/.ssh/id_rsa.pub', sudo=True, owner='user',
+                ),
+                call(
+                    write_to_temp_file.return_value,
+                    '/home/user/.ssh/id_rsa', sudo=True, owner='user',
+                ),
+            ]
         )
