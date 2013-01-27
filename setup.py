@@ -33,7 +33,6 @@ setup(
     install_requires=[
         "fabric",
         "jinja2",
-        "M2Crypto",
         "configobj",
     ],
 

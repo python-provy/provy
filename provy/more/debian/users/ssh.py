@@ -5,16 +5,11 @@
 Roles in this namespace are meant to provide SSH keygen utilities for Debian distributions.
 '''
 
-import os
 from os.path import join
-import base64
+
+from Crypto.PublicKey import RSA
 
 from provy.core import Role
-
-
-# This is a really dirty workaround, but it's the only way we can get Sphinx's autodoc to work inside ReadTheDocs
-if not os.environ.get('BYPASS_M2CRYPTO'):
-    import M2Crypto.RSA
 
 
 class SSHRole(Role):
@@ -59,10 +54,10 @@ class SSHRole(Role):
         path = '/home/%s' % user
         ssh_path = join(path, '.ssh')
         self.ensure_dir(ssh_path, sudo=True, owner=user)
-
         private_key = self.render(private_key_file)
-        key = M2Crypto.RSA.load_key_string(str(private_key))
-        public_key = 'ssh-rsa %s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s' % key.pub()))
+
+        key = RSA.importKey(private_key)
+        public_key = key.publickey().exportKey(format='OpenSSH')
 
         self.__write_keys(user, private_key, public_key)
 
