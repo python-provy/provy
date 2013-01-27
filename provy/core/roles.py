@@ -20,9 +20,11 @@ import StringIO
 
 class UsingRole(object):
     '''
-    This is the contextmanager that allows using :class:`Roles <Role>` in other :class:`Roles <Role>`, in a nested manner.
+    This is the contextmanager that allows using :class:`Roles <Role>`
+    in other :class:`Roles <Role>`, in a nested manner.
 
-    Don't use this directly; Instead, use the base :class:`Role`'s :meth:`using <Role.using>` method.
+    Don't use this directly; Instead, use the base
+    :class:`Role`'s :meth:`using <Role.using>` method.
     '''
     def __init__(self, role, prov, context):
         self.role = role
@@ -50,7 +52,8 @@ class Role(object):
     '''
     Base Role class. This is the class that is inherited by all provy's roles.
 
-    This class provides many utility methods for interacting with the remote server.
+    This class provides many utility methods for interacting with the remote
+    server.
 
     Example:
     ::
@@ -67,23 +70,26 @@ class Role(object):
             context['used_roles'] = {}
         if 'roles_in_context' not in context:
             context['roles_in_context'] = {}
-        self._paths_to_remove = set() #TODO: Anyone merging this: it holds list of paths that will be removed on self.cleanup()
-                # I feel this should be somewhere in context, but then it would be shared by all roles (which is bad).
+        self._paths_to_remove = set()  # TODO: Anyone merging this: it holds
+        # list of paths that will be removed on self.cleanup()
+        # I feel this should be somewhere in context, but then it would be
+        # shared by all roles (which is bad).
         self.prov = prov
         self.context = context
 
     def register_template_loader(self, package_name):
         '''
-        Register the ``package_name`` module as a valid source for templates in 
+        Register the ``package_name`` module as a valid source for templates in
         `Jinja2 <http://jinja.pocoo.org/>`_.
 
-        `Jinja2 <http://jinja.pocoo.org/>`_ will look inside a folder called 
+        `Jinja2 <http://jinja.pocoo.org/>`_ will look inside a folder called
         *templates* in the specified module.
 
-        It is paramount that this module can be imported by python. The path 
+        It is paramount that this module can be imported by python. The path
         must be well-known or be a sub-path of the provyfile.py directory.
 
-        :param package_name: Full name of the module that `Jinja2 <http://jinja.pocoo.org/>`_ will try to import.
+        :param package_name: Full name of the module that
+            Jinja2 <http://jinja.pocoo.org/>`_ will try to import.
         :type package_name: :class:`str`
 
         Example:
@@ -121,12 +127,15 @@ class Role(object):
     def roles_in_context(self):
         return self.context.get("roles_in_context", tuple([]))
 
-
     def schedule_cleanup(self):
         '''
-        Makes sure that this role will be cleaned up properly after the server has been provisioned. Call this method in your provision method if you need your role's cleanup method to be called.
+        Makes sure that this role will be cleaned up properly after the server
+        has been provisioned. Call this method in your provision method if you
+        need your role's cleanup method to be called.
 
-        .. note:: If you are using the proper ways of calling roles (:meth:`provision_role`, :meth:`using`) in your role, you do not need to call this method.
+        .. note:: If you are using the proper ways of calling roles
+        (:meth:`provision_role`, :meth:`using`) in your role, you do
+        not need to call this method.
 
         Example:
         ::
@@ -147,11 +156,14 @@ class Role(object):
 
     def provision_role(self, role):
         '''
-        Provisions a role inside your role. This method is the way to call other roles if you don't need to call any methods other than provision.
+        Provisions a role inside your role. This method is the way to call
+        other roles if you don't need to call any methods other than provision.
 
-        ``provision_role`` keeps the context and lifecycle for the current server when calling the role and makes sure it is disposed correctly.
+        ``provision_role`` keeps the context and lifecycle for the current
+        server when calling the role and makes sure it is disposed correctly.
 
-        .. note:: There's no need to call this method, if you're using the :meth:`using` as a context manager.
+        .. note:: There's no need to call this method, if you're using
+        the :meth:`using` as a context manager.
 
         :param role: The role to be provisioned.
         :type role: :class:`Role`
@@ -171,9 +183,11 @@ class Role(object):
 
     def provision(self):
         '''
-        Base provision method. This is meant to be overriden and does not do anything.
+        Base provision method. This is meant to be overriden
+        and does not do anything.
 
-        The ``provision`` method of each ``Role`` is what provy calls on to provision servers.
+        The ``provision`` method of each ``Role`` is what provy
+        calls on to provision servers.
 
         Example:
         ::
@@ -188,9 +202,12 @@ class Role(object):
 
     def cleanup(self):
         '''
-        Base cleanup method. This is meant to be overriden and does not do anything.
+        Base cleanup method. It cleans temporary files and directories created
+        on server using :meth:`create_remote_temp_file`.
 
-        The ``cleanup`` method is the method that provy calls after all ``Roles`` have been provisioned and is meant to allow ``Roles`` to perform any cleaning of resources or finish any pending operations.
+        The ``cleanup`` method is the method that provy calls after all
+        ``Roles`` have been provisioned and is meant to allow ``Roles``
+        to perform any cleaning of resources or finish any pending operations.
 
         Example:
         ::
@@ -204,9 +221,8 @@ class Role(object):
         for path in self._paths_to_remove:
             try:
                 self.remove_dir(path, True, True)
-            except Exception as e:
+            except Exception:
                 self.log("Couldn't clean path {}".format(path))
-
 
     @contextmanager
     def __showing_command_output(self, show=True):
@@ -219,7 +235,7 @@ class Role(object):
                 yield
 
     @contextmanager
-    def __cd(self, cd = None):
+    def __cd(self, cd=None):
         """
             If cd is not none will use fabric.api.cd else this is a noop.
         """
@@ -231,7 +247,8 @@ class Role(object):
 
     def execute(self, command, stdout=True, sudo=False, user=None, cwd=None):
         '''
-        This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
+        This method is the bread and butter of provy and is a base for most
+        other methods that interact with remote servers.
 
         It allows you to perform any shell action in the remote server.
         It is an abstraction over `fabric <https://fabric.readthedocs.org/en/latest/>`_
@@ -240,17 +257,22 @@ class Role(object):
 
         :param command: The command to be executed.
         :type command: :class:`str`
-        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to True.
+        :param stdout: If you specify this argument as False, the standard
+        output of the command execution will not be displayed in the console.
+        Defaults to True.
         :type stdout: :class:`bool`
-        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to False.
+        :param sudo: Specifies whether this command needs to be run as the
+        super-user. Doesn't need to be provided if the "user" parameter (below)
+        is provided. Defaults to False.
         :type sudo: :class:`bool`
-        :param user: If specified, will be the user with which the command will be executed. Defaults to None.
+        :param user: If specified, will be the user with which the command
+        will be executed. Defaults to None.
         :type user: :class:`str`
         :param cwd: Represents a directory on remote server.If specified we will
-         cd into that directory before executing command. Current path will be 
+         cd into that directory before executing command. Current path will be
          *unchanged* after the call.
         :type cwd: :class:`str`
-        
+
         :return: The execution result
         :rtype: :class:`str`
 
@@ -275,15 +297,21 @@ class Role(object):
 
     def execute_local(self, command, stdout=True, sudo=False, user=None):
         '''
-        Allows you to perform any shell action in the local machine. It is an abstraction over the `fabric.api.local <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.local>`_ method.
+        Allows you to perform any shell action in the local machine. It is an
+        abstraction over the `fabric.api.local <https://fabric.readthedocs.org/en/latest/api/core/operations.html#fabric.operations.local>`_ method.
 
         :param command: The command to be executed.
         :type command: :class:`str`
-        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :param stdout: If you specify this argument as False, the standard
+        output of the command execution will not be displayed in the console.
+        Defaults to :class:`True`.
         :type stdout: :class:`bool`
-        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :param sudo: Specifies whether this command needs to be run as the
+        super-user. Doesn't need to be provided if the "user" parameter (below)
+        is provided. Defaults to :class:`False`.
         :type sudo: :class:`bool`
-        :param user: If specified, will be the user with which the command will be executed. Defaults to :class:`None`.
+        :param user: If specified, will be the user with which the command will
+        be executed. Defaults to :class:`None`.
         :type user: :class:`str`
 
         :return: The execution result
@@ -311,13 +339,18 @@ class Role(object):
 
     def execute_python(self, command, stdout=True, sudo=False):
         '''
-        Just an abstraction over execute. This method executes the python code that is passed with python -c.
+        Just an abstraction over execute. This method executes the python
+        code that is passed with python -c.
 
         :param command: The command to be executed.
         :type command: :class:`str`
-        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :param stdout: If you specify this argument as False, the standard
+        output of the command execution will not be displayed in the console.
+        Defaults to :class:`True`.
         :type stdout: :class:`bool`
-        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :param sudo: Specifies whether this command needs to be run as the
+        super-user. Doesn't need to be provided if the "user" parameter (below)
+        is provided. Defaults to :class:`False`.
         :type sudo: :class:`bool`
 
         :return: The execution result
@@ -330,7 +363,8 @@ class Role(object):
 
             class MySampleRole(Role):
                 def provision(self):
-                    self.python_execute('import os; print os.curdir', stdout=False, sudo=True)
+                    self.python_execute('import os; print os.curdir',
+                                                stdout=False, sudo=True)
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
@@ -347,13 +381,13 @@ class Role(object):
 
     def remote_list_directory(self, path):
         """
-            Lists contents of remote directory and returns them as a python list.
+            Lists contents of remote directory and returns them as a python
+            list.
         """
-        import  json #in case someone uses python 2.6
+        import json  # in case someone uses python 2.6
         result = self.execute_python('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
         contents = json.loads(result)
         return contents
-
 
     def get_logged_user(self):
         '''
@@ -415,7 +449,8 @@ class Role(object):
                     if self.remote_exists('/tmp/my-file'):
                         pass
         '''
-        return self.execute('test -f %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
+        return self.execute('test -f %s; echo $?' % file_path, stdout=False,
+                            sudo=True) == '0'
 
     def remote_exists_dir(self, file_path):
         '''
@@ -437,7 +472,8 @@ class Role(object):
                     if self.remote_exists_dir('/tmp'):
                         pass
         '''
-        return self.execute('test -d %s; echo $?' % file_path, stdout=False, sudo=True) == '0'
+        return self.execute('test -d %s; echo $?' % file_path, stdout=False,
+                            sudo=True) == '0'
 
     def local_temp_dir(self):
         '''
@@ -475,17 +511,18 @@ class Role(object):
         '''
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
-    def create_remote_temp_file(self, prefix = '', suffix = '',  cleanup = False):
+    def create_remote_temp_file(self, prefix='', suffix='', cleanup=False):
         """
             Creates random unique file name, it is save to put write to this
             file on remote server.
         """
-        file_name = "{}/{}{}.{}".format(self.remote_temp_dir(), prefix, str(uuid.uuid4()), suffix)
+        file_name = "{}/{}{}.{}".format(self.remote_temp_dir(), prefix,
+                                        str(uuid.uuid4()), suffix)
         if cleanup:
             self._paths_to_remove.add(file_name)
         return file_name
 
-    def create_remote_temp_dir(self, dirname = None, owner = None, chmod = None, cleanup=True):
+    def create_remote_temp_dir(self, dirname=None, owner=None, chmod=None, cleanup=True):
 
         if dirname is None:
             dirname = str(uuid.uuid4())
@@ -779,14 +816,18 @@ class Role(object):
             return True
         return False
 
-    def remove_file(self, path, sudo=False, stdout = True):
+    def remove_file(self, path, sudo=False, stdout=True):
         '''
-        Removes a file in the remote server. Returns :data:`True` in the event of the file actually been removed. :data:`False` otherwise.
+        Removes a file in the remote server. Returns :data:`True` in the event
+        of the file actually been removed. :data:`False` otherwise.
 
         :param path: Path of the remote file.
         :type path: :class:`str`
-        :param sudo: Indicates whether the file should be removed by the super-user. Defaults to :data:`False`.
+        :param sudo: Indicates whether the file should be removed by the
+        super-user. Defaults to :data:`False`.
         :type sudo: :class:`bool`
+        :param stdout: If :data:`False` we will suppress logging message.
+         Defaults to :data:`True`.
 
         :return: Whether the file had to be removed or not.
         :rtype: :class:`bool`
@@ -801,9 +842,8 @@ class Role(object):
                     self.remove_file('/tmp/my-file', sudo=True)
         '''
 
-
         if self.remote_exists(path):
-            self.execute('rm -f %s' % path, stdout=stdout, sudo=sudo)
+            self.execute('rm -f %s' % path, stdout=False, sudo=sudo)
             if stdout:
                 self.log('%s removed!' % path)
             return True
@@ -892,7 +932,7 @@ class Role(object):
                 def provision(self):
                     self.put_file('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
         '''
-        
+
         with self.__showing_command_output(stdout):
             fabric.api.put(from_file, to_file, use_sudo=sudo)
 
