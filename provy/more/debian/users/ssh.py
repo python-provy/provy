@@ -5,9 +5,7 @@
 Roles in this namespace are meant to provide SSH keygen utilities for Debian distributions.
 '''
 
-import os
 from os.path import join
-import base64
 
 from Crypto.PublicKey import RSA
 
