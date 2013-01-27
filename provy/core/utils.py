@@ -1,6 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+Core utilities.
+
+Provides the :class:`AskFor` class, which is used to prompt for a password.
+'''
+
 from getpass import getpass
 import os
 
@@ -34,6 +40,11 @@ def import_module(module_name):
 
 
 class AskFor(object):
+    '''
+    Responsible for prompting for a password to the user.
+
+    You may pass an instance of it, instead of a plain value, in the ``servers`` dictionary, so that you require the user to enter a value.
+    '''
     def __init__(self, key, question):
         self.key = key
         self.question = question

@@ -4,23 +4,33 @@ from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 
 '''
-Roles in this namespace are meant to provide SELinux management utilities for Debian distributions.
+Roles in this namespace are meant to provide `SELinux <http://selinuxproject.org/>`_ management utilities for Debian distributions.
 '''
 
 
 class SELinuxRole(Role):
     '''
-    This role provides SELinux utilities for Debian distributions.
-    If you're provisioning a Ubuntu server, it's highly recommended you use AppArmorRole instead of this one.
-    Please note that, for SELinux to be installed from scratch, you have to reboot the server so that it relabels all the files in the system for SELinux. So it's also highly recommended that you provision a server that has SELinux installed and activated already.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import SELinuxRole
+    This role provides `SELinux <http://selinuxproject.org/>`_ utilities for Debian distributions.
 
-    class MySampleRole(Role):
-        def provision(self):
-    </pre>
+    .. warning::
+
+        If you're provisioning a Ubuntu server, it's highly recommended you use :class:`AppArmorRole <provy.more.debian.security.apparmor.AppArmorRole>` instead of this one.
+
+        Please note that, for SELinux to be installed from scratch, you have to reboot the server so that it relabels all the files in the system for SELinux.
+        So it's also highly recommended that you provision a server that has SELinux installed and activated already.
+
+    Example:
+    ::
+
+        from provy.core import Role
+        from provy.more.debian import SELinuxRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(SELinuxRole) as selinux:
+                    selinux.ensure_login_mapping("foo")
+                    selinux.map_login("foo", "staff_u")
+                    selinux.map_role("foo", ["staff_r", "sysadm_r"])
     '''
 
     def __init__(self, prov, context):
@@ -35,18 +45,19 @@ class SELinuxRole(Role):
 
     def provision(self):
         '''
-        Installs SELinux, its dependencies, its utilities and the Audit framework.
+        Installs SELinux, its dependencies, its utilities and the `Audit framework <https://www.wzdftpd.net/docs/selinux/audit.html>`_.
+
         Also, it activates SELinux after installing the packages, puts the system in enforce mode and puts the generic users into confinement for enhanced security.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(SELinuxRole) # no need to call this if using with block.
+        Example:
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(SELinuxRole) # no need to call this if using with block.
         '''
         self.install_packages()
         self.activate()
@@ -56,18 +67,19 @@ class SELinuxRole(Role):
     def install_packages(self):
         '''
         Installs the necessary packages to provision SELinux.
+
         This is executed during provisioning, so you can ignore this method.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.install_packages() # no need to call this directly.
+        Example:
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.install_packages() # no need to call this directly.
         '''
         with self.using(AptitudeRole) as aptitude:
             if self.__distro_is_ubuntu():
@@ -82,18 +94,19 @@ class SELinuxRole(Role):
     def activate(self):
         '''
         Activates SELinux, confines generic users and puts the system into enforce mode.
+
         This is executed during provisioning, so you can ignore this method.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.activate() # no need to call this directly.
+        Example:
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.activate() # no need to call this directly.
         '''
         if not self.__distro_is_ubuntu():
             self.execute('selinux-activate', stdout=False, sudo=True)
@@ -106,18 +119,19 @@ class SELinuxRole(Role):
     def enforce(self):
         '''
         Puts the system into enforce mode.
+
         This is executed during provisioning, so you can ignore this method.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.enforce() # no need to call this directly.
+        Example:
+        ::
 
-        </pre>
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.enforce() # no need to call this directly.
         '''
         with fabric.api.settings(warn_only=True):
             self.execute('setenforce 1', stdout=False, sudo=True)
@@ -126,20 +140,21 @@ class SELinuxRole(Role):
     def ensure_login_mapping(self, user_or_group):
         '''
         Makes sure that a mapping exists for a login user to an SELinux user (if creating one now, sets it to the "user_u" SELinux user).
-        <em>Parameters</em>
-        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.ensure_login_mapping("foo")
-                    selinux.ensure_login_mapping("@bar")
+        :param user_or_group: The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        :type user_or_group: :class:`str`
 
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.ensure_login_mapping("foo")
+                        selinux.ensure_login_mapping("@bar")
         '''
         with fabric.api.settings(warn_only=True):
             self.execute('semanage login -a %s' % user_or_group, stdout=False, sudo=True)
@@ -147,21 +162,24 @@ class SELinuxRole(Role):
     def map_login(self, user_or_group, selinux_user):
         '''
         Maps a login user to an SELinux user.
+
         If the login user has no mapping yet, the role creates one.
-        <em>Parameters</em>
-        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
-        selinux_user - The SELinux user to be referenced.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.map_login("foo", "staff_u")
+        :param user_or_group: The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        :type user_or_group: :class:`str`
+        :param selinux_user: The SELinux user to be referenced.
+        :type selinux_user: :class:`str`
 
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.map_login("foo", "staff_u")
         '''
         self.ensure_login_mapping(user_or_group)
         self.execute('semanage login -m -s %s %s' % (selinux_user, user_or_group), stdout=False, sudo=True)
@@ -169,21 +187,24 @@ class SELinuxRole(Role):
     def map_role(self, user_or_group, selinux_roles):
         '''
         Maps a login user to one or more SELinux roles.
+
         If the login user has no mapping yet, the role creates one.
-        <em>Parameters</em>
-        user_or_group - The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
-        selinux_roles - An iterable (tuple, list etc) with the roles to be referenced.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import SELinuxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(SELinuxRole) as selinux:
-                    selinux.map_role("foo", ["staff_r", "sysadm_r"])
+        :param user_or_group: The user or group to be changed. If providing a group, pass it with an "@" before the group name (like "@my-group").
+        :type user_or_group: :class:`str`
+        :param selinux_roles: The roles to be referenced.
+        :type selinux_roles: :class:`iterable`
 
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import SELinuxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(SELinuxRole) as selinux:
+                        selinux.map_role("foo", ["staff_r", "sysadm_r"])
         '''
         self.ensure_login_mapping(user_or_group)
         roles_as_string = ' '.join(selinux_roles)

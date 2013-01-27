@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # provy provisioning
-# https://github.com/heynemann/provy
+# https://github.com/python-provy/provy
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license

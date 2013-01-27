@@ -20,16 +20,17 @@ from provy.core.errors import ConfigurationError
 class AptitudeRole(Role):
     '''
     This role provides package management operations with Aptitude within Debian distributions.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import AptitudeRole
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(AptitudeRole) as role:
-                role.ensure_package_installed('nginx')
-    </pre>
+    Example:
+    ::
+
+        from provy.core import Role
+        from provy.more.debian import AptitudeRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(AptitudeRole) as role:
+                    role.ensure_package_installed('nginx')
     '''
 
     time_format = "%d-%m-%y %H:%M:%S"
@@ -69,15 +70,16 @@ class AptitudeRole(Role):
     def provision(self):
         '''
         Installs Aptitude dependencies. This method should be called upon if overriden in base classes, or Aptitude won't work properly in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(AptitudeRole) # does not need to be called if using with block.
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(AptitudeRole) # does not need to be called if using with block.
         '''
         if not self.is_package_installed('aptitude'):
             self.execute('apt-get install aptitude', stdout=False, sudo=True)
@@ -88,21 +90,23 @@ class AptitudeRole(Role):
     def ensure_gpg_key(self, url = None, file = None):
         '''
         Ensures that the specified gpg key is imported into aptitude.
-        <em>Parameters</em>
-        url - Url of the gpg key file.
-        file - Local filesystem file containing gpg file
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_gpg_key('http://some.url.com/to/key.gpg')
-                    role.ensure_gpg_key(CURRENT_DIR + '/data/foo.gpg')
-                    role.ensure_gpg_key(StringIO(SOME_CONSTANT))
-        </pre>
+        :param url: 
+        :type url: :class:`str` HTTP(s) url to file containing gpg key
+        :type file: :class:`str` Local file containing gpg key 
+        :type file: :class:`str`
+        
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.ensure_gpg_key('http://some.url.com/to/key.gpg')
         '''
 
         def do_url():
@@ -127,20 +131,24 @@ class AptitudeRole(Role):
 
     def has_source(self, source_string):
         '''
-        Returns True if the specified repository is in aptitude's list of repositories.
-        <em>Parameters</em>
-        source_string - Repository string
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
+        Returns :data:`True` if the specified repository is in aptitude's list of repositories.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    if role.has_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted'):
-                        # do something
-        </pre>
+        :param source_string: Repository string.
+        :type source_string: :class:`str`
+        :return: Whether the repository string is present or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        if role.has_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted'):
+                            pass
         '''
 
         result = self.execute('grep -ilR \'^%s\' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l' % source_string, stdout=False, sudo=True)
@@ -149,18 +157,22 @@ class AptitudeRole(Role):
     def ensure_aptitude_source(self, source_string):
         '''
         Ensures that the specified repository is in aptitude's list of repositories.
-        <em>Parameters</em>
-        source_string - Repository string
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_aptitude_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted')
-        </pre>
+        :param source_string: Repository string.
+        :type source_string: :class:`str`
+        :return: Whether the repository had to be added or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.ensure_aptitude_source('deb http://www.las.ic.unicamp.br/pub/ubuntu/ natty main restricted')
         '''
         if self.has_source(source_string):
             return False
@@ -183,48 +195,54 @@ class AptitudeRole(Role):
     def update_date_file(self):
         '''
         Returns the path for the file that contains the last update date to aptitudes's list of packages.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    file_path = role.update_date_file
-        </pre>
+        :return: The path to the file.
+        :rtype: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        file_path = role.update_date_file
         '''
         return join(self.remote_temp_dir(), 'last_aptitude_update')
 
     def store_update_date(self):
         '''
-        Updates the date in the <em>update_date_file</em>.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
+        Updates the date in the :meth:`update_date_file`.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.store_update_date()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.store_update_date()
         '''
         self.execute('echo "%s" > %s' % (datetime.now().strftime(self.time_format), self.update_date_file), stdout=False)
 
     def get_last_update_date(self):
         '''
-        Returns the date in the <em>update_date_file</em>.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
+        Returns the date in the :meth:`update_date_file`.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    last_update = role.get_last_update_date()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        last_update = role.get_last_update_date()
         '''
         if not self.remote_exists(self.update_date_file):
             return None
@@ -235,16 +253,17 @@ class AptitudeRole(Role):
     def ensure_up_to_date(self):
         '''
         Makes sure aptitude's repository is updated if it hasn't been updated in the last 30 minutes.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_up_to_date()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.ensure_up_to_date()
         '''
         last_updated = self.get_last_update_date()
         if not self.key in self.context and (not last_updated or (datetime.now() - last_updated > timedelta(minutes=30))):
@@ -253,16 +272,17 @@ class AptitudeRole(Role):
     def force_update(self):
         '''
         Forces an update to aptitude's repository.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.force_update()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.force_update()
         '''
         self.log('Updating aptitude sources...')
         self.execute('%s update' % self.aptitude, stdout=False, sudo=True)
@@ -272,20 +292,24 @@ class AptitudeRole(Role):
 
     def is_package_installed(self, package_name):
         '''
-        Returns True if the given package is installed via aptitude, False otherwise.
-        <em>Parameters</em>
-        package_name - Name of the package to verify
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
+        Returns :data:`True` if the given package is installed via aptitude, :data:`False` otherwise.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    if role.is_package_installed('nginx'):
-                        # do something
-        </pre>
+        :param package_name: Name of the package to verify.
+        :type package_name: :class:`str`
+        :return: Whether the package is installed or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        if role.is_package_installed('nginx'):
+                            pass
         '''
 
         with settings(warn_only=True):
@@ -294,22 +318,27 @@ class AptitudeRole(Role):
     def ensure_package_installed(self, package_name, stdout=False, sudo=True):
         '''
         Ensures that the given package is installed via aptitude.
-        <em>Parameters</em>
-        package_name - Name of the package to install
-        stdout - Indicates whether install progress should be shown to stdout. Defaults to False.
-        sudo - Indicates whether the package should be installed with the super user. Defaults to True.
-        <em>Exceptions</em>
-        Raises provy.more.debian.PackageNotFound if the package is not found in the repositories.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.ensure_package_installed('nginx')
-        </pre>
+        :param package_name: Name of the package to install.
+        :type package_name: :class:`str`
+        :param stdout: Indicates whether install progress should be shown to stdout. Defaults to :data:`False`.
+        :type stdout: :class:`bool`
+        :param sudo: Indicates whether the package should be installed with the super user. Defaults to :data:`True`.
+        :type sudo: :class:`bool`
+        :return: Whether the package had to be installed or not.
+        :rtype: :class:`bool`
+        :raise: :class:`provy.more.debian.PackageNotFound <provy.more.debian.package.aptitude.PackageNotFound>` if the package is not found in the repositories.
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.ensure_package_installed('nginx')
         '''
 
         if not self.is_package_installed(package_name):
@@ -327,18 +356,22 @@ class AptitudeRole(Role):
     def package_exists(self, package):
         '''
         Checks if the given package exists.
-        <em>Parameters</em>
-        package - Name of the package to check
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import AptitudeRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(AptitudeRole) as role:
-                    role.package_exists('nginx') # True
-        </pre>
+        :param package: Name of the package to check.
+        :type package: :class:`str`
+        :return: Whether the package exists or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import AptitudeRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(AptitudeRole) as role:
+                        role.package_exists('nginx') # True
         '''
         try:
             return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))

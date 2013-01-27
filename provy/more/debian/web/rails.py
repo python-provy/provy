@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Rails applications utility methods for Debian distributions.
+Roles in this namespace are meant to provide `Ruby on Rails <http://rubyonrails.org/>`_ applications utility methods for Debian distributions.
 '''
 
 from provy.core import Role
@@ -12,19 +12,20 @@ from provy.more.debian.package.gem import GemRole
 
 class RailsRole(Role):
     '''
-    This role provides Rails application utilities for Debian distributions.
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.debian import RailsRole
+    This role provides `Ruby on Rails <http://rubyonrails.org/>`_ application utilities for Debian distributions.
 
-    class MySampleRole(Role):
-        def provision(self):
-            with self.using(RailsRole) as role:
-                role.ensure_site_disabled('default')
-                role.create_site(site='my-site', path='/home/myuser/my-site)
-                role.ensure_site_enabled('my-site')
-    </pre>
+    Example:
+    ::
+
+        from provy.core import Role
+        from provy.more.debian import RailsRole
+
+        class MySampleRole(Role):
+            def provision(self):
+                with self.using(RailsRole) as role:
+                    role.ensure_site_disabled('default')
+                    role.create_site(site='my-site', path='/home/myuser/my-site')
+                    role.ensure_site_enabled('my-site')
     '''
 
     def __available_site_for(self, name):
@@ -35,16 +36,18 @@ class RailsRole(Role):
 
     def provision(self):
         '''
-        Installs Rails dependencies. This method should be called upon if overriden in base classes, or Rails won't work properly in the remote server.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import RailsRole
+        Installs `Ruby on Rails <http://rubyonrails.org/>`_ dependencies.
+        This method should be called upon if overriden in base classes, or Rails won't work properly in the remote server.
 
-        class MySampleRole(Role):
-            def provision(self):
-                self.provision_role(RailsRole) # does not need to be called if using with block.
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import RailsRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(RailsRole) # does not need to be called if using with block.
         '''
         self.register_template_loader('provy.more.debian.web')
 
@@ -76,6 +79,7 @@ class RailsRole(Role):
     def cleanup(self):
         '''
         Restarts nginx if any changes have been made.
+
         There's no need to call this method manually.
         '''
         if 'must-restart-nginx' in self.context and self.context['must-restart-nginx']:
@@ -83,19 +87,21 @@ class RailsRole(Role):
 
     def ensure_site_disabled(self, site):
         '''
-        Ensures that the specified site is removed from nginx list of enabled sites.
-        <em>Parameters</em>
-        site - Name of the site to disable.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import RailsRole
+        Ensures that the specified site is removed from Nginx list of enabled sites.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RailsRole) as role:
-                    role.ensure_site_disabled('default')
-        </pre>
+        :param site: Name of the site to disable.
+        :type site: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import RailsRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RailsRole) as role:
+                        role.ensure_site_disabled('default')
         '''
         result = self.remove_file(self.__enabled_site_for(site), sudo=True)
         if result:
@@ -104,19 +110,21 @@ class RailsRole(Role):
 
     def ensure_site_enabled(self, site):
         '''
-        Ensures that a symlink is created for the specified site at nginx list of enabled sites from the list of available sites.
-        <em>Parameters</em>
-        site - Name of the site to enable.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import RailsRole
+        Ensures that a symlink is created for the specified site at Nginx list of enabled sites from the list of available sites.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RailsRole) as role:
-                    role.ensure_site_enabled('my-site')
-        </pre>
+        :param site: Name of the site to enable.
+        :type site: :class:`str`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import RailsRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RailsRole) as role:
+                        role.ensure_site_enabled('my-site')
         '''
 
         result = self.remote_symlink(self.__available_site_for(site),
@@ -129,26 +137,33 @@ class RailsRole(Role):
     def create_site(self, site, host, path, port=80, options={}):
         '''
         Adds a website with the specified template to Nginx list of available sites.
-        Warning: Do not forget to call <em>ensure_site_enabled</em> after a call to create_site, or your site won't be enabled.
-        <em>Parameters</em>
-        site - Name of the site to enable.
-        host - Server domain that NGINX should respond by.
-        path - Path of the rails app.
-        port - Port that NGINX will listen in. Defaults to 80.
-        options - Options to pass to the NGINX template.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import RailsRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RailsRole) as role:
-                    role.create_site(site='my-site',
-                                     host='localhost www.mysite.com',
-                                     port=8888,
-                                     path='/home/myuser/my-rails-site')
-        </pre>
+        .. warning::
+
+            Do not forget to call :meth:`ensure_site_enabled` after a call to create_site, or your site won't be enabled.
+
+        :param site: Name of the site to enable.
+        :type site: :class:`str`
+        :param host: Server domain that Nginx should respond by.
+        :type host: :class:`str`
+        :param path: Path of the rails app.
+        :type path: :class:`str`
+        :param port: Port that Nginx will listen in. Defaults to `80`.
+        :type port: :class:`int`
+        :param options: Options to pass to the Nginx template. Defaults to empty dict (`{}`).
+        :type options: :class:`int`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import RailsRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RailsRole) as role:
+                        role.create_site(site='my-site', host='localhost www.mysite.com',
+                                         port=8888, path='/home/myuser/my-rails-site')
         '''
 
         template = "rails-nginx.template"
@@ -166,33 +181,35 @@ class RailsRole(Role):
 
     def ensure_restart(self):
         '''
-        Ensures that nginx gets restarted on cleanup. There's no need to call this method as any changes to nginx will trigger it.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import NginxRole
+        Ensures that Nginx gets restarted on cleanup. There's no need to call this method as any changes to Nginx will trigger it.
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(NginxRole) as role:
-                    role.ensure_restart()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import NginxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(NginxRole) as role:
+                        role.ensure_restart()
         '''
         self.context['must-restart-nginx'] = True
 
     def restart(self):
         '''
         Forcefully restarts nginx.
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        from provy.core import Role
-        from provy.more.debian import NginxRole
 
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(NginxRole) as role:
-                    role.restart()
-        </pre>
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import NginxRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(NginxRole) as role:
+                        role.restart()
         '''
         command = '/etc/init.d/nginx restart'
         self.execute(command, sudo=True)

@@ -3,12 +3,11 @@
 provy is a provisioning service in python.
 
 ## Status of the project
-[![Build Status](https://secure.travis-ci.org/heynemann/provy.png)](http://travis-ci.org/heynemann/provy)
+[![Build Status](https://secure.travis-ci.org/python-provy/provy.png)](http://travis-ci.org/python-provy/provy)
 
 ## Examples
 
-For an example script check the [test
-provyfile.py](https://github.com/heynemann/provy/blob/master/tests/functional/provyfile.py).
+For an example script check the [test provyfile.py](https://github.com/python-provy/provy/blob/master/tests/functional/fixtures/provyfile.py).
 
 ## Quick start
 
@@ -23,5 +22,5 @@ the webserver role (-r).
 
 ## Documentation
 
-For more documentation on how to use it, go to [the provy page](http://heynemann.github.com/provy/)
+For more documentation on how to use it, go to [the provy page](http://python-provy.github.com/provy/)
 
