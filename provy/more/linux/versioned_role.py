@@ -4,17 +4,20 @@ from operator import itemgetter
 
 from provy.core import Role
 
-class VersionedRole(Role):
 
+class VersionedRole(Role):
     """
-        Something that supports versioned provisioning. We have set of computers with the same desired configuration.
-        The problem is that this configuration changes in time. And from time to time provisioning may fail on
-        some machines (because of other peoples sysystem modifications), so we need to keep track on what role
+        Something that supports versioned provisioning. We have set of computers
+        with the same desired configuration. The problem is that this
+        configuration changes in time. And from time to time provisioning
+        may fail on some machines (because of other peoples sysystem
+        modifications), so we need to keep track on what role
         had been provisioned succesfully.
 
-        The idea is that this role stores a list of roles that can be provisioned with associated numeric versions.
-        These roles are executed one by another, in order of ascending versions. After role is executed succesfully
-        information about it is stored on the server.
+        The idea is that this role stores a list of roles that can be provisioned
+        with associated numeric versions. These roles are executed one by
+        another, in order of ascending versions. After role is executed
+        succesfully information about it is stored on the server.
 
         If we rerun this role on the same server it will only execute new roles.
 
@@ -64,15 +67,18 @@ class VersionedRole(Role):
         data = json.loads(self.read_remote_file(self.version_file))
         return data['last_version']
 
-    def prepare_data_dict(self, version = None):
+    def prepare_data_dict(self, version=None):
         if version is None:
             version = self.current_version
         return {
-            "last_version" : version
+            "last_version": version
         }
 
-    def save_version_file(self, version = None):
-        self.put_file(StringIO(unicode(json.dumps(self.prepare_data_dict(version)))), to_file=self.version_file, sudo=True)
+    def save_version_file(self, version=None):
+        self.put_file(
+            StringIO(unicode(json.dumps(self.prepare_data_dict(version)))),
+            to_file=self.version_file, sudo=True
+        )
         self.change_path_owner(self.version_file, "root:root")
         self.change_path_mode(self.version_file, 644)
 
@@ -89,5 +95,3 @@ class VersionedRole(Role):
         for ver, role in self.ordered_roles:
             if version < ver:
                 self.execute_role(role, ver)
-
-
