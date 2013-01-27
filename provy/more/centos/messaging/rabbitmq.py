@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide Rabbitmq utilities methods within
-CentOS distributions.
+Roles in this namespace are meant to provide `RabbitMQ <http://www.rabbitmq.com/>`_ utilities methods within CentOS distributions.
 '''
 
 from provy.core import Role
@@ -14,58 +13,56 @@ from fabric.utils import warn
 
 class RabbitMqRole(Role):
     '''
-    This role provides utility methods for Rabbitmq utilities
-    within CentOS distributions.
+    This role provides utility methods for `RabbitMQ <http://www.rabbitmq.com/>`_ utilities within CentOS distributions.
 
-    <em>Sample usage</em>
-    <pre class="sh_python">
-    from provy.core import Role
-    from provy.more.centos import RabbitMqRole
-    from provy.more.centos import HostNameRole
+    Example:
+    ::
 
-    class MySampleRole(Role):
-        def provision(self):
-
-            with self.using(HostNameRole) as role:
-                # From rabbitmq docs [1]:
-                # "RabbitMQ names the database directory using the current
-                # hostname of the system. If the hostname changes, a new empty
-                # database is created.  To avoid data loss it's crucial to set
-                # up a fixed and resolvable hostname"
-                #
-                # [1] http://www.rabbitmq.com/ec2.html
-
-                role.ensure_hostname('rabbit')
-
-            with self.using(RabbitMqRole) as role:
-                role.delete_user('guest')
-                role.ensure_user(
-                    self.context['rabbit_user'],
-                    self.context['rabbit_password'],
-                )
-                role.ensure_vhost(self.context['rabbit_vhost'])
-                role.ensure_permission(
-                    self.context['rabbit_vhost'],
-                    self.context['rabbit_user'],
-                    '".*" ".*" ".*"',
-                )
-    </pre>
-    '''
-    def provision(self):
-        '''
-        Installs Rabbitmq and dependencies. This method should be called upon
-        if overriden in base classes, or Rabbitmq won't work properly in the
-        remote server.
-
-        <em>Sample usage</em>
-        <pre class="sh_python">
         from provy.core import Role
-        from provy.more.centos import HgRole
+        from provy.more.centos import RabbitMqRole
+        from provy.more.centos import HostNameRole
 
         class MySampleRole(Role):
             def provision(self):
-                self.provision_role(RabbitMqRole)
-        </pre>
+
+                with self.using(HostNameRole) as role:
+                    # From rabbitmq docs [1]:
+                    # "RabbitMQ names the database directory using the current
+                    # hostname of the system. If the hostname changes, a new empty
+                    # database is created.  To avoid data loss it's crucial to set
+                    # up a fixed and resolvable hostname"
+                    #
+                    # [1] http://www.rabbitmq.com/ec2.html
+
+                    role.ensure_hostname('rabbit')
+
+                with self.using(RabbitMqRole) as role:
+                    role.delete_user('guest')
+                    role.ensure_user(
+                        self.context['rabbit_user'],
+                        self.context['rabbit_password'],
+                    )
+                    role.ensure_vhost(self.context['rabbit_vhost'])
+                    role.ensure_permission(
+                        self.context['rabbit_vhost'],
+                        self.context['rabbit_user'],
+                        '".*" ".*" ".*"',
+                    )
+    '''
+    def provision(self):
+        '''
+        Installs `RabbitMQ <http://www.rabbitmq.com/>`_ and dependencies.
+        This method should be called upon if overriden in base classes, or RabbitMQ won't work properly in the remote server.
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.centos import HgRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    self.provision_role(RabbitMqRole)
         '''
         with self.using(YumRole) as role:
             role.ensure_up_to_date()
@@ -88,29 +85,68 @@ class RabbitMqRole(Role):
                  ' is accessible publicly.')
 
     def user_exists(self, username):
+        '''
+        Checks if the RabbitMQ user exists.
+
+        :param username: Name of the user to be checked.
+        :type username: :class:`str`
+
+        :return: Whether the user exists or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.user_exists('johndoe')
+        '''
         cmd = 'rabbitmqctl list_users'
         users = self.execute(cmd, stdout=False, sudo=True)
         return username in users
 
     def vhost_exists(self, vhost):
+        '''
+        Checks if the RabbitMQ vhost exists.
+
+        :param vhost: Name of the vhost to be checked.
+        :type vhost: :class:`str`
+
+        :return: Whether the vhost exists or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.vhost_exists('foobarhost')
+        '''
         vhs = self.execute('rabbitmqctl list_vhosts', stdout=False, sudo=True)
         vhs = vhs.split('\r\n')[1:-1]
         return vhost in vhs
 
     def ensure_user(self, username, password):
         '''
-        Ensure the given user is created in the database and can authenticate
-        with rabbitmq
-        <em>Parameters</em>
-        username - Name of the user to be created.
-        password - Password that the user will use to authenticate to rabbitmq
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RabbitMqRole) as role:
-                    role.ensure_user(some_user, some_pass)
-        </pre>
+        Ensure the given user is created in the database and can authenticate with RabbitMQ.
+
+        :param username: Name of the user to be created.
+        :type username: :class:`str`
+        :param password: Password that the user will use to authenticate to RabbitMQ.
+        :type password: :class:`str`
+
+        :return: Whether the user had to be created or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.ensure_user(some_user, some_pass)
         '''
         if not self.user_exists(username):
             self.log('Setting up user %s and password' % username)
@@ -126,15 +162,17 @@ class RabbitMqRole(Role):
     def delete_user(self, user):
         '''
         Delete user from rabbitmq if exists
-        <em>Parameters</em>
-        user - Name of user to be deleted
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RabbitMqRole) as role:
-                    role.delete_user('guest', some_pass)
-        </pre>
+
+        :param user: Name of the user to be deleted.
+        :type user: :class:`str`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.delete_user('guest', some_pass)
         '''
         if self.user_exists(user):
             self.log('User %s exists, deleting')
@@ -147,15 +185,20 @@ class RabbitMqRole(Role):
     def ensure_vhost(self, vhost):
         '''
         Ensure the given vhost is created.
-        <em>Parameters</em>
-        vhost - vhost name
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RabbitMqRole) as role:
-                    role.ensure_vhost('/some_vhost')
-        </pre>
+
+        :param vhost: Name of the vhost to be checked/created.
+        :type vhost: :class:`str`
+
+        :return: Whether the vhost had to be created or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.ensure_vhost('/some_vhost')
         '''
         if not self.vhost_exists(vhost):
             self.log('Adding vhost %s' % vhost)
@@ -169,21 +212,28 @@ class RabbitMqRole(Role):
     def ensure_permission(self, vhost, username, perms):
         '''
         Ensure the given user has the given permissions on the specified vhost
-        <em>Parameters</em>
-        vhost - Virtual host name
-        username - User to ensure permissions
-        perms - Permissions to assign to user (i.e.: '".*" ".*" ".*"')
-        <em>Sample usage</em>
-        <pre class="sh_python">
-        class MySampleRole(Role):
-            def provision(self):
-                with self.using(RabbitMqRole) as role:
-                    role.ensure_permission(
-                        'previous_created_vhost',
-                        'previous_created_user',
-                        '".*" ".*" ".*"',
-                    )
-        </pre>
+
+        :param vhost: Virtual host name to assign the permissions at.
+        :type vhost: :class:`str`
+        :param username: User to assign permissions to.
+        :type username: :class:`str`
+        :param perms: Permissions to assign to user (e.g.: '".*" ".*" ".*"').
+        :type perms: :class:`str`
+
+        :return: Whether the permissions could be assigned or not.
+        :rtype: :class:`bool`
+
+        Example:
+        ::
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(RabbitMqRole) as role:
+                        role.ensure_permission(
+                            'previous_created_vhost',
+                            'previous_created_user',
+                            '".*" ".*" ".*"',
+                        )
         '''
         if not self.user_exists(username):
             msg = 'Cannot set permission: User %s doesn\'t exists' % username
