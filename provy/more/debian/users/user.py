@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''Roles in this namespace are meant to provide user management operations for Debian distributions.'''
@@ -48,7 +49,7 @@ class UserRole(Role):
 
     def __first_values_from(self, basename):
         values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=False, sudo=True)
-        values = values.strip().split('\n')
+        values = values.strip().split()
         return values
 
     def user_exists(self, username):
@@ -198,3 +199,13 @@ class UserRole(Role):
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
         self.context['owner'] = username
+
+
+def CreateUser(*largs, **kwargs):
+    """
+        Creates a role that creates a user on remote server.
+    """
+    class TempUserRole(UserRole):
+        def provision(self):
+            self.ensure_user(*largs, **kwargs)
+    return TempUserRole
