@@ -19,7 +19,8 @@ from provy.core.errors import ConfigurationError
 
 class AptitudeRole(Role):
     '''
-    This role provides package management operations with Aptitude within Debian distributions.
+    This role provides package management operations with Aptitude
+    within Debian distributions.
 
     Example:
     ::
@@ -40,20 +41,21 @@ class AptitudeRole(Role):
     @classmethod
     def disable_provision(cls, role):
         """
-            Used to temporalily disable AptitudeRole.provision (Why one could want to do it: provision tries to
-            download curl, which depending on sources config might not work. Since overriding sources list also uses
-            this role).
+        Used to temporalily disable AptitudeRole.provision
+        (Why one could want to do it: provision tries to download curl,
+        which depending on sources config might not work. Since overriding
+        sources list also uses this role).
 
-            Example usage::
+        Example usage::
 
-                class PrepareApt(Role):
-                    def provision(self):
-                        super(PrepareApt, self).provision()
-                        with AptitudeRole.disable_provision(self):
-                            with self.using(AptitudeRole) as role:
-                                role.override_sources_list(StringIO(SOURCES_LIST))
+            class PrepareApt(Role):
+                def provision(self):
+                    super(PrepareApt, self).provision()
+                    with AptitudeRole.disable_provision(self):
+                        with self.using(AptitudeRole) as role:
+                            role.override_sources_list(StringIO(SOURCES_LIST))
 
-            It can be nested.
+        It can be nested.
         """
         @contextmanager
         def manage_context(role):
@@ -64,22 +66,13 @@ class AptitudeRole(Role):
             else:
                 role.context['aptitude_no_provision']-=1
 
-
         return manage_context(role)
 
     def provision(self):
         '''
-        Installs Aptitude dependencies. This method should be called upon if overriden in base classes, or Aptitude won't work properly in the remote server.
-
-        Example:
-        ::
-
-            from provy.core import Role
-            from provy.more.debian import AptitudeRole
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(AptitudeRole) # does not need to be called if using with block.
+        Installs Aptitude dependencies. This method should be called upon if
+        overriden in base classes, or Aptitude won't work properly in the
+        remote server.
         '''
         if not self.is_package_installed('aptitude'):
             self.execute('apt-get install aptitude', stdout=False, sudo=True)
@@ -87,15 +80,14 @@ class AptitudeRole(Role):
         self.ensure_up_to_date()
         self.ensure_package_installed('curl')
 
-    def ensure_gpg_key(self, url = None, file = None):
+    def ensure_gpg_key(self, url=None, file=None):
         '''
         Ensures that the specified gpg key is imported into aptitude.
 
-        :param url: 
+        :param url:
         :type url: :class:`str` HTTP(s) url to file containing gpg key
-        :type file: :class:`str` Local file containing gpg key 
+        :type file: :class:`str` Local file containing gpg key
         :type file: :class:`str`
-        
 
         Example:
         ::
@@ -131,7 +123,8 @@ class AptitudeRole(Role):
 
     def has_source(self, source_string):
         '''
-        Returns :data:`True` if the specified repository is in aptitude's list of repositories.
+        Returns :data:`True` if the specified repository is in aptitude's
+        list of repositories.
 
         :param source_string: Repository string.
         :type source_string: :class:`str`
@@ -156,7 +149,8 @@ class AptitudeRole(Role):
 
     def ensure_aptitude_source(self, source_string):
         '''
-        Ensures that the specified repository is in aptitude's list of repositories.
+        Ensures that the specified repository is in aptitude's list of
+        repositories.
 
         :param source_string: Repository string.
         :type source_string: :class:`str`
@@ -194,7 +188,8 @@ class AptitudeRole(Role):
     @property
     def update_date_file(self):
         '''
-        Returns the path for the file that contains the last update date to aptitudes's list of packages.
+        Returns the path for the file that contains the last update date to
+        aptitudes's list of packages.
 
         :return: The path to the file.
         :rtype: :class:`str`

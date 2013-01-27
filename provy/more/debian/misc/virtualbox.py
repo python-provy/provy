@@ -2,8 +2,6 @@ from StringIO import StringIO
 from provy.core import Role
 from provy.more.debian import AptitudeRole
 
-__author__ = 'jb'
-
 # Taken from http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc
 # it is a http connection so it is vunerable to man in the middle attacks
 # it is safer to store it locally for provisioning

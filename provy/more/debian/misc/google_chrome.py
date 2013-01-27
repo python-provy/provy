@@ -1,7 +1,5 @@
 from provy.more.debian import AptitudeRole
 
-__author__ = 'jb'
-
 from provy.core import Role
 
 class ChromeRole(Role):

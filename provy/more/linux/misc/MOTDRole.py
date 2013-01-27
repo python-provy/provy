@@ -1,7 +1,5 @@
 from provy.core import Role
 
-__author__ = 'jb'
-
 
 class MOTDRole(Role):
     """

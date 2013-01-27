@@ -2,8 +2,6 @@ from io import StringIO
 import json
 from operator import itemgetter
 
-__author__ = 'jb'
-
 from provy.core import Role
 
 class VersionedRole(Role):

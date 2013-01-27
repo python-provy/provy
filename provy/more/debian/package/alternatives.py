@@ -2,8 +2,6 @@ from operator import itemgetter
 from fabric.context_managers import settings, hide
 from provy.core import Role
 
-__author__ = 'jb'
-
 import re
 
 
