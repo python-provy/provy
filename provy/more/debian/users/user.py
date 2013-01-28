@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 '''Roles in this namespace are meant to provide user management operations for Debian distributions.'''
@@ -35,9 +34,6 @@ class UserRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import UserRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(UserRole) as role:
@@ -63,9 +59,6 @@ class UserRole(Role):
 
         Example:
         ::
-
-            from provy.core import Role
-            from provy.more.debian import UserRole
 
             class MySampleRole(Role):
                 def provision(self):
@@ -99,7 +92,6 @@ class UserRole(Role):
                         if role.user_in_group('myuser', 'mygroup'):
                             pass
         '''
-
         raw_groups = self.execute('groups %s' % username, sudo=True, stdout=False).strip()
         if not raw_groups.startswith(username):
             raise ValueError("User '%s' doesn't exist" % username)
@@ -143,7 +135,7 @@ class UserRole(Role):
 
         :param username: Name of the user.
         :type username: :class:`str`
-        :param identified_by: Password that the user will use to login to the remote server. If set to None, the user will not have a password.
+        :param identified_by: Password that the user will use to login to the remote server. If set to :data:`None`, the user will not have a password.
         :type identified_by: :class:`str`
         :param home_folder: Specifies the user's home folder. Defaults to `/home/<username>`.
         :type home_folder: :class:`str`
