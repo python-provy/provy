@@ -38,6 +38,8 @@ class AptitudeRole(Role):
     key = 'aptitude-up-to-date'
     aptitude = 'aptitude'
 
+
+
     @classmethod
     def disable_provision(cls, role):
         """
@@ -68,17 +70,47 @@ class AptitudeRole(Role):
 
         return manage_context(role)
 
+    def ensure_package_removed(self, package_name, purge = False):
+
+        operation = "purge" if purge else "remove"
+
+        if isinstance(package_name, (list, set, tuple)):
+            if any(map(self.is_package_installed, package_name)):
+                self.log("Removing packages {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, " ".join(package_name)), sudo=True)
+        else:
+            if self.is_package_installed(package_name):
+                self.log("Removing package {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, package_name), sudo=True)
+
+
+
+    def override_sources_list(self, sources_list_file):
+        close = False
+        if isinstance(sources_list_file, basestring):
+            close = True
+            sources_list_file = open(sources_list_file)
+        tempfile = self.create_remote_temp_file()
+        self.log("Overriding aptitude sources")
+        self.put_file(sources_list_file, to_file=tempfile, stdout=True)
+        self.execute('cat "{}" > /etc/apt/sources.list'.format(tempfile), stdout=False, sudo=True)
+        if close:
+            sources_list_file.close()
+        self.force_update()
+
+
     def provision(self):
         '''
         Installs Aptitude dependencies. This method should be called upon if
         overriden in base classes, or Aptitude won't work properly in the
         remote server.
         '''
-        if not self.is_package_installed('aptitude'):
-            self.execute('apt-get install aptitude', stdout=False, sudo=True)
+        if self.context.get("aptitude_no_provision", 0) == 0:
+            if not self.is_package_installed('aptitude'):
+                self.execute('apt-get install aptitude', stdout=False, sudo=True)
 
-        self.ensure_up_to_date()
-        self.ensure_package_installed('curl')
+            self.ensure_up_to_date()
+            self.ensure_package_installed('curl')
 
     def ensure_gpg_key(self, url=None, file=None):
         '''
