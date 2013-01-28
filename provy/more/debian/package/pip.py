@@ -48,9 +48,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     self.provision_role(PipRole) # does not need to be called if using with block.
@@ -100,9 +97,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
@@ -137,9 +131,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
@@ -166,9 +157,6 @@ class PipRole(Role):
 
         Example:
         ::
-
-            from provy.core import Role
-            from provy.more.debian import PipRole
 
             class MySampleRole(Role):
                 def provision(self):
@@ -202,9 +190,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
@@ -231,9 +216,6 @@ class PipRole(Role):
 
         Example:
         ::
-
-            from provy.core import Role
-            from provy.more.debian import PipRole
 
             class MySampleRole(Role):
                 def provision(self):
@@ -267,9 +249,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
@@ -291,15 +270,11 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
                         role.ensure_package_is_up_to_date('django')
         '''
-
         is_installed = self.is_package_installed(package_name)
 
         if is_installed and self.package_can_be_updated(package_name):
@@ -324,9 +299,6 @@ class PipRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import PipRole
-
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(PipRole) as role:
@@ -344,9 +316,6 @@ class PipRole(Role):
 
         Example:
         ::
-
-            from provy.core import Role
-            from provy.more.debian import PipRole
 
             class MySampleRole(Role):
                 def provision(self):
