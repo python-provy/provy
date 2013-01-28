@@ -217,6 +217,21 @@ class AptitudeRole(Role):
         parts = re.split('\s+', source_string, 3)
         return {'type': parts[0], 'uri': parts[1], 'distribution': parts[2], 'components': parts[3]}
 
+    def override_preferences_file(self, file_name, file):
+        """
+        Creates /etc/apt/preferences.d/<<file_name>> file with specified
+        contents.
+
+        :param file_name: Name of preferences file on remote server. For example
+                         `pgdg`. Correct extension will be appended
+                          automatically.
+        :param file: Contents to be uploaded to remote server. Should be a path
+                     on local server, or a file-like object.
+        """
+
+        self.put_file(file,
+                      "/etc/apt/preferences.d/{}.pref".format(file_name), sudo=True)
+
     @property
     def update_date_file(self):
         '''
