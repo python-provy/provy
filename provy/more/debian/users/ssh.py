@@ -8,6 +8,7 @@ Roles in this namespace are meant to provide SSH keygen utilities for Debian dis
 import os
 from os.path import join
 import base64
+import StringIO
 
 from provy.core import Role
 
@@ -32,6 +33,52 @@ class SSHRole(Role):
                 with self.using(SSHRole) as role:
                     role.ensure_ssh_key(user='someuser', private_key_file="private-key")
     '''
+
+    def ensure_ssh_dir(self, user):
+        """
+        Creates user ssh directory for `user`, and sets proper permissions.
+        :param user: User for which to create remote directory.
+
+        :return: ssh directory for `user`.
+        """
+        path = "/home/{}/.ssh".format(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+        self.change_path_mode(path, 700, recursive=True)
+        self.change_path_owner(path, "user:user")
+        return path
+
+    def override_authorized_keys(self, user, authorized_key_file):
+        """
+        Overrides `user`'s authorized keys file.
+
+        :param user:  Name of ser for which to perform action. :type user:`str`.
+        :param authorized_key_file: Either a file like object containing keys
+        or an iterable of strings containing public keys.
+        """
+        if isinstance(authorized_key_file, (list, set, tuple)):
+            file = StringIO.StringIO()
+            for key in authorized_key_file:
+                file.write(key.strip())
+                file.write("\n")
+            authorized_key_file = file
+
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/authorized_keys"
+        self.update_file(authorized_key_file, file_path, owner=user, sudo=True)
+        self.ensure_ssh_dir(user) #as a side effect forces 700 perms
+
+    def override_known_hosts(self, user, known_hosts_file):
+        """
+        Overrides known hosts file for  user.
+
+        :param user:  Name of ser for which to perform action. :type user:`str`.
+        :param known_hosts_file: Path to known hosts file to upload.
+        """
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/known_hosts"
+        self.update_file(known_hosts_file, file_path, owner=user, sudo=True)
+        self.execute("chmod -R og-rwx {}".format(path), sudo=True)
+        self.ensure_ssh_dir(user) #as a side effect forces 700 perms
 
     def ensure_ssh_key(self, user, private_key_file):
         '''
