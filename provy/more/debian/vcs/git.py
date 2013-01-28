@@ -34,9 +34,6 @@ class GitRole(Role):
         Example:
         ::
 
-            from provy.core import Role
-            from provy.more.debian import GitRole
-
             class MySampleRole(Role):
                 def provision(self):
                     self.provision_role(GitRole) # does not need to be called if using with block.
