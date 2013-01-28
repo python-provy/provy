@@ -44,7 +44,7 @@ class SSHRole(Role):
         path = "/home/{}/.ssh".format(user)
         self.ensure_dir(path, sudo=True, owner=user)
         self.change_path_mode(path, 700, recursive=True)
-        self.change_path_owner(path, "user:user")
+        self.change_path_owner(path, "{0}:{0}".format(user))
         return path
 
     def override_authorized_keys(self, user, authorized_key_file):
@@ -64,7 +64,7 @@ class SSHRole(Role):
 
         path = self.ensure_ssh_dir(user)
         file_path = path + "/authorized_keys"
-        self.update_file(authorized_key_file, file_path, owner=user, sudo=True)
+        self.put_file(authorized_key_file, file_path, sudo=True)
         self.ensure_ssh_dir(user) #as a side effect forces 700 perms
 
     def override_known_hosts(self, user, known_hosts_file):
