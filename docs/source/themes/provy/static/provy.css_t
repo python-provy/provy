@@ -4,3 +4,7 @@
 a:link {
     text-decoration: underline;
 }
+
+th {
+    background-color: rgb(254, 213, 187);
+}
