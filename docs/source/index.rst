@@ -1,3 +1,5 @@
+.. image:: images/logo.png
+
 =====
 provy
 =====
