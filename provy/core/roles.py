@@ -1064,6 +1064,9 @@ class Role(object):
                     self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
         if not self.has_line(line, file_path):
+            chars_to_escape = ('"', '$', '`')
+            for char in chars_to_escape:
+                line = line.replace(char, r'\%s' % char)
             self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
