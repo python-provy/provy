@@ -1,5 +1,5 @@
 @import url("default.css");
-@import url("http://fonts.googleapis.com/css?family=Maven+Pro|Lobster&v2");
+@import url("https://fonts.googleapis.com/css?family=Maven+Pro|Lobster&v2");
 
 a:link {
     text-decoration: underline;
