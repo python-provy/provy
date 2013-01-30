@@ -470,8 +470,20 @@ class Role(object):
 
     def create_remote_temp_file(self, prefix='', suffix='', cleanup=True):
         """
-            Creates random unique file name, it is save to put write to this
-            file on remote server.
+        Creates random unique file name in the remote server temp dir.
+
+        This file is not uploaded by server, but because it is generated
+        by :class:`uuid.uuid4` you can be sure no other process will
+        clash with it.
+
+        :param str prefix: Optional prefix to the file name.
+        :param str suffix: Optional suffix to the file name. Usefull
+            to provide extensions.
+        :param bool cleanup: If True file will be deleted during cleanup
+            phase. Default: :data:`True`.
+
+        :return: Created file name.
+        :rtype: str
         """
         file_name = "{}/{}{}.{}".format(self.remote_temp_dir(), prefix,
                                         str(uuid.uuid4()), suffix)
@@ -480,6 +492,25 @@ class Role(object):
         return file_name
 
     def create_remote_temp_dir(self, dirname=None, owner=None, chmod=None, cleanup=True):
+        """
+
+        Creates temporary directory on remote server. This directory will be
+        stored in temporary directory on remote server.
+
+        :param str dirname: Name of the directory. If None random name will be
+            choosen. Defaults to None.
+        :param str owner: Username of user who will own this directory.
+            Defaults to :data:`None` which in turns means current remote user.
+        :param chmod: File modifiers specified for this directory.   Defaults
+            to :data:`None` which in turns means leave default chmod specified
+            by the remote OS.
+           :param bool cleanup: If True directory will be deleted during cleanup
+            phase. Default: :data:`True`.
+
+        :return: Created directory name.
+
+        :rtype: str
+        """
 
         if dirname is None:
             dirname = str(uuid.uuid4())  # NOQA
