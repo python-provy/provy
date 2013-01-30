@@ -3,7 +3,7 @@
 # flake8: noqa
 
 '''
-Roles in this namespace are meant to enable message queueing service management as RabbitMq, Apache Qpid and such, in CentOS distributions.
+Roles in this namespace are meant to provide general utilities within CentOS distributions.
 '''
 
 from provy.more.centos.utils.hostname import HostNameRole

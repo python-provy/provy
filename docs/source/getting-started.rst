@@ -331,7 +331,9 @@ Provisioning the front-end server
 
 Ok, now let's get our front-end up and running. *provy* comes with an `nginx <http://www.nginx.org/>`_ module, so it is pretty easy configuring it.
 
-We have to provide template files for both *nginx.conf* and our website's site. Following what `Tornado <http://tornadoweb.org/>`_'s documentation instructs, these are good templates::
+We have to provide template files for both *nginx.conf* and our website's site. Following what `Tornado <http://tornadoweb.org/>`_'s documentation instructs, these are good templates:
+
+.. code-block:: nginx
 
     user {{ user }};
     worker_processes 1;
@@ -368,7 +370,7 @@ We have to provide template files for both *nginx.conf* and our website's site. 
         include /etc/nginx/sites-enabled/*;
     }
 
-::
+.. code-block:: nginx
 
     upstream frontends {
         server 33.33.33.34:8000;

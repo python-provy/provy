@@ -14,4 +14,4 @@ Each django process is a gunicorn process bound to a port ranging from 8000-8003
 
 Django's static files are served using nginx.
 
-To read more about this recipe, click here
+To read more about this recipe, :doc:`click here </recipes/django-1-server>`.

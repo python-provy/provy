@@ -112,6 +112,27 @@ class RoleTest(ProvyTestCase):
             execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
 
     @istest
+    def escapes_quotes_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this could be a "quote"', '/some/file')
+            execute.assert_called_with(r'echo "this could be a \"quote\"" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def escapes_dollars_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('I may have U$ 10.00', '/some/file')
+            execute.assert_called_with(r'echo "I may have U\$ 10.00" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def escapes_backticks_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('To show your dir: `pwd`', '/some/file')
+            execute.assert_called_with(r'echo "To show your dir: \`pwd\`" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
     def inserts_line_with_sudo(self):
         with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
             has_line.return_value = False
