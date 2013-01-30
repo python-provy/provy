@@ -1159,7 +1159,7 @@ class ExecutePythonScriptTests(ProvyTestCase):
 
     def test_proper_file_executed(self):
         self.role.execute.assert_called_once_with(
-            'python -f "{}"'.format(self.remote_tmp_file),
+            'python "{}"'.format(self.remote_tmp_file),
             self.stdout,
             self.sudo
         )

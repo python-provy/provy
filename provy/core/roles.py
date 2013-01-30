@@ -336,7 +336,7 @@ class Role(object):
 
         self.put_file(script, script_file, sudo, False)
 
-        self.execute('python -f "{}"'.format(script_file), stdout, sudo)
+        self.execute('python "{}"'.format(script_file), stdout, sudo)
 
     def remote_list_directory(self, path):
         """
