@@ -5,11 +5,17 @@
 Roles in this namespace are meant to provide SSH keygen utilities for Debian distributions.
 '''
 
+import os
 from os.path import join
-
-from Crypto.PublicKey import RSA
+import base64
+import StringIO
 
 from provy.core import Role
+
+
+# This is a really dirty workaround, but it's the only way we can get Sphinx's autodoc to work inside ReadTheDocs
+if not os.environ.get('BYPASS_M2CRYPTO'):
+    import M2Crypto.RSA
 
 
 class SSHRole(Role):
@@ -27,6 +33,52 @@ class SSHRole(Role):
                 with self.using(SSHRole) as role:
                     role.ensure_ssh_key(user='someuser', private_key_file="private-key")
     '''
+
+    def ensure_ssh_dir(self, user):
+        """
+        Creates user ssh directory for `user`, and sets proper permissions.
+        :param user: User for which to create remote directory.
+
+        :return: ssh directory for `user`.
+        """
+        path = "/home/{}/.ssh".format(user)
+        self.ensure_dir(path, sudo=True, owner=user)
+        self.change_path_mode(path, 700, recursive=True)
+        self.change_path_owner(path, "{0}:{0}".format(user))
+        return path
+
+    def override_authorized_keys(self, user, authorized_key_file):
+        """
+        Overrides `user`'s authorized keys file.
+
+        :param user:  Name of ser for which to perform action. :type user:`str`.
+        :param authorized_key_file: Either a file like object containing keys
+        or an iterable of strings containing public keys.
+        """
+        if isinstance(authorized_key_file, (list, set, tuple)):
+            file = StringIO.StringIO()
+            for key in authorized_key_file:
+                file.write(key.strip())
+                file.write("\n")
+            authorized_key_file = file
+
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/authorized_keys"
+        self.put_file(authorized_key_file, file_path, sudo=True)
+        self.ensure_ssh_dir(user) #as a side effect forces 700 perms
+
+    def override_known_hosts(self, user, known_hosts_file):
+        """
+        Overrides known hosts file for  user.
+
+        :param user:  Name of ser for which to perform action. :type user:`str`.
+        :param known_hosts_file: Path to known hosts file to upload.
+        """
+        path = self.ensure_ssh_dir(user)
+        file_path = path + "/known_hosts"
+        self.update_file(known_hosts_file, file_path, owner=user, sudo=True)
+        self.execute("chmod -R og-rwx {}".format(path), sudo=True)
+        self.ensure_ssh_dir(user) #as a side effect forces 700 perms
 
     def ensure_ssh_key(self, user, private_key_file):
         '''
@@ -54,10 +106,10 @@ class SSHRole(Role):
         path = '/home/%s' % user
         ssh_path = join(path, '.ssh')
         self.ensure_dir(ssh_path, sudo=True, owner=user)
-        private_key = self.render(private_key_file)
 
-        key = RSA.importKey(private_key)
-        public_key = key.publickey().exportKey(format='OpenSSH')
+        private_key = self.render(private_key_file)
+        key = M2Crypto.RSA.load_key_string(str(private_key))
+        public_key = 'ssh-rsa %s' % (base64.b64encode('\0\0\0\7ssh-rsa%s%s' % key.pub()))
 
         self.__write_keys(user, private_key, public_key)
 

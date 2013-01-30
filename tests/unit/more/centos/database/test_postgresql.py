@@ -1,5 +1,5 @@
 from mock import call, patch, DEFAULT
-from nose.tools import istest
+from nose.tools import istest, nottest
 
 from provy.more.centos import YumRole, PostgreSQLRole
 from tests.unit.more.base.database import test_postgresql
