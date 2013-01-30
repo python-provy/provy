@@ -70,6 +70,7 @@ class Role(object):
         self._paths_to_remove = set()
         self.prov = prov
         self.context = context
+        self.register_template_loader("provy.core")
 
     def register_template_loader(self, package_name):
         '''
@@ -1171,12 +1172,13 @@ class Role(object):
                 def provision(self):
                     self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
-        if not self.has_line(line, file_path):
-            chars_to_escape = ('"', '$', '`')
-            for char in chars_to_escape:
-                line = line.replace(char, r'\%s' % char)
-            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
-            self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
+
+        if '""""' in line:
+            raise ValueError('Sorry as of today line can\'t contain """, since it is escaped using this line. Could be fixed in future release. ')
+
+        script = self.render("ensure_line_script.py", options = {"line":line, "target":file_path})
+
+        self.execute_python_script(script, False, sudo)
 
     def using(self, role):
         '''

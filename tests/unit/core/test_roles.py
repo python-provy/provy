@@ -13,19 +13,23 @@ from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
+def create_default_context():
+    loader = ChoiceLoader([
+        FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
+    ])
+    context = {
+        'owner': 'foo',
+        'registered_loaders': [],
+        'loader': loader,
+        'cleanup': [],
+        'host': 'localhost',
+        }
+    return context
+
 class RoleTest(ProvyTestCase):
     def setUp(self):
-        loader = ChoiceLoader([
-            FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
-        ])
-        context = {
-            'owner': 'foo',
-            'registered_loaders': [],
-            'loader': loader,
-            'cleanup': [],
-            'host': 'localhost',
-        }
-        self.role = Role(prov=None, context=context)
+
+        self.role = Role(prov=None, context=create_default_context())
         self.update_data = UpdateData('/tmp/some-file.ext', 'some local md5', 'some remote md5')
 
     @contextmanager
@@ -100,52 +104,19 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def ignores_line_if_already_exists_in_file(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = True
-            self.role.ensure_line('this line in', '/some/file')
-            self.assertFalse(execute.called)
+        raise ValueError()
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def escapes_quotes_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this could be a "quote"', '/some/file')
-            execute.assert_called_with(r'echo "this could be a \"quote\"" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def escapes_dollars_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('I may have U$ 10.00', '/some/file')
-            execute.assert_called_with(r'echo "I may have U\$ 10.00" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def escapes_backticks_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('To show your dir: `pwd`', '/some/file')
-            execute.assert_called_with(r'echo "To show your dir: \`pwd\`" >> /some/file', stdout=False, sudo=False, user=None)
+        raise ValueError()
 
     @istest
     def inserts_line_with_sudo(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', sudo=True)
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=True, user=None)
+        raise ValueError()
 
     @istest
     def inserts_line_with_specific_user(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', owner='foo')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
+        raise ValueError()
 
     @istest
     def registers_a_template_loader(self):
@@ -156,7 +127,7 @@ class RoleTest(ProvyTestCase):
         self.assertIn(package_name, self.role.context['registered_loaders'])
 
         choice_loader = self.role.context['loader']
-        package_loader = choice_loader.loaders[1]
+        package_loader = choice_loader.loaders[2]
         self.assertIn('monitoring', package_loader.provider.module_path)
 
     @istest
@@ -167,7 +138,7 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def doesnt_append_again_if_role_is_already_in_cleanup_list(self):
-        same_class_instance = Role(None, {})
+        same_class_instance = Role(None, create_default_context())
         self.role.context['cleanup'] = [same_class_instance]
         self.role.schedule_cleanup()
         self.assertEqual(self.role.context['cleanup'], [same_class_instance])
@@ -1026,12 +997,10 @@ class UsingRoleTest(ProvyTestCase):
 
 class RemoteTempFileTests(ProvyTestCase):
 
-    def any_context(self):
-        return {'used_roles': {}}
 
     def setUp(self):
         super(RemoteTempFileTests, self).setUp()
-        self.instance = Role(None, self.any_context())
+        self.instance = Role(None, create_default_context())
         self.patcher = patch("provy.core.roles.Role.remote_temp_dir", Mock(return_value="/tmp"))
         self.patcher.start()
         self.ensure_dir_patcher = patch("provy.core.roles.Role.ensure_dir", Mock(return_value="/tmp"))
@@ -1126,7 +1095,7 @@ class ExecutePythonScriptTests(ProvyTestCase):
 
     def setUp(self):
 
-        self.role = Role(prov=None, context={})
+        self.role = Role(prov=None, context=create_default_context())
 
         self.patchers = []
 
