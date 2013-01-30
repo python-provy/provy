@@ -6,6 +6,7 @@ Roles in this namespace are meant to provision packages installed via the Aptitu
 '''
 
 from base64 import b64encode
+from contextlib import contextmanager
 from os.path import join
 from datetime import datetime, timedelta
 import re
@@ -13,11 +14,13 @@ from urlparse import urlparse
 
 from fabric.api import settings
 from provy.core import Role
+from provy.core.errors import ConfigurationError
 
 
 class AptitudeRole(Role):
     '''
-    This role provides package management operations with Aptitude within Debian distributions.
+    This role provides package management operations with Aptitude
+    within Debian distributions.
 
     Example:
     ::
@@ -35,32 +38,88 @@ class AptitudeRole(Role):
     key = 'aptitude-up-to-date'
     aptitude = 'aptitude'
 
+
+
+    @classmethod
+    def disable_provision(cls, role):
+        """
+        Used to temporalily disable AptitudeRole.provision
+        (Why one could want to do it: provision tries to download curl,
+        which depending on sources config might not work. Since overriding
+        sources list also uses this role).
+
+        Example usage::
+
+            class PrepareApt(Role):
+                def provision(self):
+                    super(PrepareApt, self).provision()
+                    with AptitudeRole.disable_provision(self):
+                        with self.using(AptitudeRole) as role:
+                            role.override_sources_list(StringIO(SOURCES_LIST))
+
+        It can be nested.
+        """
+        @contextmanager
+        def manage_context(role):
+            role.context['aptitude_no_provision'] = role.context.get('aptitude_no_provision', 0) + 1
+            yield
+            if role.context['aptitude_no_provision'] == 1:
+                del role.context['aptitude_no_provision']
+            else:
+                role.context['aptitude_no_provision']-=1
+
+        return manage_context(role)
+
+    def ensure_package_removed(self, package_name, purge = False):
+
+        operation = "purge" if purge else "remove"
+
+        if isinstance(package_name, (list, set, tuple)):
+            if any(map(self.is_package_installed, package_name)):
+                self.log("Removing packages {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, " ".join(package_name)), sudo=True)
+        else:
+            if self.is_package_installed(package_name):
+                self.log("Removing package {}".format(package_name))
+                self.execute("aptitude -y {} {}".format(operation, package_name), sudo=True)
+
+
+
+    def override_sources_list(self, sources_list_file):
+        close = False
+        if isinstance(sources_list_file, basestring):
+            close = True
+            sources_list_file = open(sources_list_file)
+        tempfile = self.create_remote_temp_file()
+        self.log("Overriding aptitude sources")
+        self.put_file(sources_list_file, to_file=tempfile, stdout=True)
+        self.execute('cat "{}" > /etc/apt/sources.list'.format(tempfile), stdout=False, sudo=True)
+        if close:
+            sources_list_file.close()
+        self.force_update()
+
+
     def provision(self):
         '''
-        Installs Aptitude dependencies. This method should be called upon if overriden in base classes, or Aptitude won't work properly in the remote server.
-
-        Example:
-        ::
-
-            from provy.core import Role
-            from provy.more.debian import AptitudeRole
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.provision_role(AptitudeRole) # does not need to be called if using with block.
+        Installs Aptitude dependencies. This method should be called upon if
+        overriden in base classes, or Aptitude won't work properly in the
+        remote server.
         '''
-        if not self.is_package_installed('aptitude'):
-            self.execute('apt-get install aptitude', stdout=False, sudo=True)
+        if self.context.get("aptitude_no_provision", 0) == 0:
+            if not self.is_package_installed('aptitude'):
+                self.execute('apt-get install aptitude', stdout=False, sudo=True)
 
-        self.ensure_up_to_date()
-        self.ensure_package_installed('curl')
+            self.ensure_up_to_date()
+            self.ensure_package_installed('curl')
 
-    def ensure_gpg_key(self, url):
+    def ensure_gpg_key(self, url=None, file=None):
         '''
         Ensures that the specified gpg key is imported into aptitude.
 
-        :param url: URL of the gpg key file.
-        :type url: :class:`str`
+        :param url:
+        :type url: :class:`str` HTTP(s) url to file containing gpg key
+        :type file: :class:`str` Local file containing gpg key
+        :type file: :class:`str`
 
         Example:
         ::
@@ -73,12 +132,31 @@ class AptitudeRole(Role):
                     with self.using(AptitudeRole) as role:
                         role.ensure_gpg_key('http://some.url.com/to/key.gpg')
         '''
-        command = "curl %s | apt-key add -" % url
-        self.execute(command, stdout=False, sudo=True)
+
+        def do_url():
+            command = "curl %s | apt-key add -" % url
+            self.execute(command, stdout=False, sudo=True)
+
+        def do_file():
+            temp_dir = self.create_remote_temp_dir()
+            key_name = temp_dir + "/key.gpg"
+            self.put_file(file, key_name, sudo = True, stdout=False)
+            self.execute("apt-key add {}".format(key_name), sudo=True)
+
+        if not url and not file or (url and file):
+            raise ConfigurationError("Must specify url either file parameter of ensure_gpg_key (not both(")
+
+        if url:
+            do_url()
+
+        if file:
+            do_file()
+
 
     def has_source(self, source_string):
         '''
-        Returns :data:`True` if the specified repository is in aptitude's list of repositories.
+        Returns :data:`True` if the specified repository is in aptitude's
+        list of repositories.
 
         :param source_string: Repository string.
         :type source_string: :class:`str`
@@ -103,7 +181,8 @@ class AptitudeRole(Role):
 
     def ensure_aptitude_source(self, source_string):
         '''
-        Ensures that the specified repository is in aptitude's list of repositories.
+        Ensures that the specified repository is in aptitude's list of
+        repositories.
 
         :param source_string: Repository string.
         :type source_string: :class:`str`
@@ -138,10 +217,26 @@ class AptitudeRole(Role):
         parts = re.split('\s+', source_string, 3)
         return {'type': parts[0], 'uri': parts[1], 'distribution': parts[2], 'components': parts[3]}
 
+    def override_preferences_file(self, file_name, file):
+        """
+        Creates /etc/apt/preferences.d/<<file_name>> file with specified
+        contents.
+
+        :param file_name: Name of preferences file on remote server. For example
+                         `pgdg`. Correct extension will be appended
+                          automatically.
+        :param file: Contents to be uploaded to remote server. Should be a path
+                     on local server, or a file-like object.
+        """
+
+        self.put_file(file,
+                      "/etc/apt/preferences.d/{}.pref".format(file_name), sudo=True)
+
     @property
     def update_date_file(self):
         '''
-        Returns the path for the file that contains the last update date to aptitudes's list of packages.
+        Returns the path for the file that contains the last update date to
+        aptitudes's list of packages.
 
         :return: The path to the file.
         :rtype: :class:`str`
@@ -325,6 +420,51 @@ class AptitudeRole(Role):
         except SystemExit:
             return False
 
+def UninstallPackages(package_list, purge = False):
+    """
+    Example usage::
+        servers = {
+            'new': {
+                'address': '192.168.57.20',
+                'user': USERNAME,
+                'roles': [
+                    UninstallPackages(("exim4", "exim4-base", "exim4-config", "exim4-deamon-light", "bsd-mailx"))
+                ]
+                }
+            }
+        }
+    """
+    class PackageRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                role.ensure_package_removed(package_list, purge=purge)
+    return PackageRole
+
+def InstallPackages(package_list):
+    """
+    Example usage:
+    servers = {
+            'new': {
+                'address': '192.168.57.20',
+                'user': USERNAME,
+                'roles': [
+                    InstallPackages(("exim4", "exim4-base", "exim4-config", "exim4-deamon-light", "bsd-mailx"))
+                ]
+                }
+            }
+        }
+
+    """
+    class PackageRole(Role):
+        def provision(self):
+            with self.using(AptitudeRole) as role:
+                role.ensure_up_to_date()
+                if isinstance(package_list, basestring):
+                    role.ensure_package_installed(package_list)
+                else:
+                    for pack in package_list:
+                        role.ensure_package_installed(pack)
+    return PackageRole
 
 class PackageNotFound(Exception):
     '''Should be raised when a package doesn't exist.'''

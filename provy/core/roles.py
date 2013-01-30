@@ -14,6 +14,8 @@ from tempfile import gettempdir, NamedTemporaryFile
 
 import fabric.api
 from jinja2 import Environment, PackageLoader, FileSystemLoader
+import uuid
+import StringIO
 
 
 class UsingRole(object):
@@ -65,6 +67,7 @@ class Role(object):
             context['used_roles'] = {}
         if 'roles_in_context' not in context:
             context['roles_in_context'] = {}
+        self._paths_to_remove = set()
         self.prov = prov
         self.context = context
 
@@ -109,6 +112,10 @@ class Role(object):
                     self.log('Hello World')
         '''
         print '[%s] %s' % (datetime.now().strftime('%H:%M:%S'), msg)
+
+    @property
+    def roles_in_context(self):
+        return self.context.get("roles_in_context", tuple([]))
 
     def schedule_cleanup(self):
         '''
@@ -201,7 +208,18 @@ class Role(object):
             ):
                 yield
 
-    def execute(self, command, stdout=True, sudo=False, user=None):
+    @contextmanager
+    def __cd(self, cd=None):
+        """
+            If cd is not none will use fabric.api.cd else this is a noop.
+        """
+        if cd is not None:
+            with fabric.api.cd(cd):
+                yield
+        else:
+            yield
+
+    def execute(self, command, stdout=True, sudo=False, user=None, cwd=None):
         '''
         This method is the bread and butter of provy and is a base for most other methods that interact with remote servers.
 
@@ -218,6 +236,10 @@ class Role(object):
         :type sudo: :class:`bool`
         :param user: If specified, will be the user with which the command will be executed. Defaults to None.
         :type user: :class:`str`
+        :param cwd: Represents a directory on remote server.If specified we will
+         cd into that directory before executing command. Current path will be
+         *unchanged* after the call.
+        :type cwd: :class:`str`
 
         :return: The execution result
         :rtype: :class:`str`
@@ -233,7 +255,8 @@ class Role(object):
                     self.execute('ls /', stdout=False, user='vip')
         '''
         with self.__showing_command_output(stdout):
-            return self.__execute_command(command, sudo=sudo, user=user)
+            with self.__cd(cwd):
+                return self.__execute_command(command, sudo=sudo, user=user)
 
     def __execute_command(self, command, sudo=False, user=None):
         if sudo or (user is not None):
@@ -300,6 +323,27 @@ class Role(object):
                     self.python_execute('import os; print os.curdir', stdout=False, sudo=True)
         '''
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
+
+    def execute_python_script(self, script, stdout=True, sudo=False):
+        script_file = self.create_remote_temp_file("script", "py")
+        if isinstance(script, basestring):
+            script = StringIO.StringIO(script)
+
+        self.put_file(script, script, sudo)
+        try:
+            self.execute("python -f {}".format(script_file), str, sudo)
+        finally:
+            self.remove_file(script_file, sudo)
+
+    def remote_list_directory(self, path):
+        """
+            Lists contents of remote directory and returns them as a python
+            list.
+        """
+        import json  # in case someone uses python 2.6
+        result = self.execute_python('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path))
+        contents = json.loads(result)
+        return contents
 
     def get_logged_user(self):
         '''
@@ -420,6 +464,34 @@ class Role(object):
                     self.context['target_dir'] = self.remote_temp_dir()
         '''
         return self.execute_python('from tempfile import gettempdir; print gettempdir()', stdout=False)
+
+    def create_remote_temp_file(self, prefix='', suffix='', cleanup=False):
+        """
+            Creates random unique file name, it is save to put write to this
+            file on remote server.
+        """
+        file_name = "{}/{}{}.{}".format(self.remote_temp_dir(), prefix,
+                                        str(uuid.uuid4()), suffix)
+        if cleanup:
+            self._paths_to_remove.add(file_name)
+        return file_name
+
+    def create_remote_temp_dir(self, dirname=None, owner=None, chmod=None, cleanup=True):
+
+        if dirname is None:
+            dirname = str(uuid.uuid4())
+
+        dirname = "{}/{}".format(self.remote_temp_dir(), dirname)
+
+        self.ensure_dir(dirname, owner, owner is not None)
+
+        if chmod is not None:
+            self.change_dir_mode(dirname, chmod)
+
+        if cleanup:
+            self._paths_to_remove.add(dirname)
+
+        return dirname
 
     def ensure_dir(self, directory, owner=None, sudo=False):
         '''
@@ -698,7 +770,7 @@ class Role(object):
             return True
         return False
 
-    def remove_file(self, path, sudo=False):
+    def remove_file(self, path, sudo=False, stdout=True):
         '''
         Removes a file in the remote server. Returns :data:`True` in the event of the file actually been removed. :data:`False` otherwise.
 
@@ -706,6 +778,8 @@ class Role(object):
         :type path: :class:`str`
         :param sudo: Indicates whether the file should be removed by the super-user. Defaults to :data:`False`.
         :type sudo: :class:`bool`
+        :param stdout: If :data:`False` we will suppress logging message.
+         Defaults to :data:`True`.
 
         :return: Whether the file had to be removed or not.
         :rtype: :class:`bool`
@@ -722,7 +796,8 @@ class Role(object):
 
         if self.remote_exists(path):
             self.execute('rm -f %s' % path, stdout=False, sudo=sudo)
-            self.log('%s removed!' % path)
+            if stdout:
+                self.log('%s removed!' % path)
             return True
         return False
 
@@ -789,7 +864,7 @@ class Role(object):
             extended[key] = value
         return extended
 
-    def put_file(self, from_file, to_file, sudo=False):
+    def put_file(self, from_file, to_file, sudo=False, stdout=True):
         '''
         Puts a file to the remote server.
 
@@ -809,7 +884,9 @@ class Role(object):
                 def provision(self):
                     self.put_file('/home/user/my-app', '/etc/init.d/my-app', sudo=True)
         '''
-        fabric.api.put(from_file, to_file, use_sudo=sudo)
+
+        with self.__showing_command_output(stdout):
+            fabric.api.put(from_file, to_file, use_sudo=sudo)
 
     def update_file(self, from_file, to_file, owner=None, options={}, sudo=None):
         '''
@@ -951,8 +1028,7 @@ class Role(object):
         '''
         Renders a template with the given options and returns the rendered text.
 
-        The :data:`template_file` parameter should be just the name of the file and not the file path. `Jinja2 <http://jinja.pocoo.org/>`_ will look for templates at the files directory in the provyfile path,
-        as well as in the templates directory of any registered module (check the :meth:`register_template_loader` method).
+        The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
 
         The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 
