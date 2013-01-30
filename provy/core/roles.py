@@ -482,7 +482,7 @@ class Role(object):
     def create_remote_temp_dir(self, dirname=None, owner=None, chmod=None, cleanup=True):
 
         if dirname is None:
-            dirname = str(uuid.uuid4())
+            dirname = str(uuid.uuid4())  # NOQA
 
         prepared_dirname = "{}/{}".format(self.remote_temp_dir(), dirname)
 
