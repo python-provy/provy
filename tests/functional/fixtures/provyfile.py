@@ -19,6 +19,7 @@ class Role1(Role):
         ])
 
     def cleanup(self):
+        super(Role1, self).cleanup()
         cleanups.append(self.__class__)
 
 
@@ -28,6 +29,7 @@ class Role2(Role):
         contexts[self.__class__] = self.context
 
     def cleanup(self):
+        super(Role2, self).cleanup()
         cleanups.append(self.__class__)
 
 
@@ -37,6 +39,7 @@ class Role3(Role):
         contexts[self.__class__] = self.context
 
     def cleanup(self):
+        super(Role3, self).cleanup()
         cleanups.append(self.__class__)
 
 
@@ -46,6 +49,7 @@ class Role4(Role):
         contexts[self.__class__] = self.context
 
     def cleanup(self):
+        super(Role4, self).cleanup()
         cleanups.append(self.__class__)
 
 servers = {
