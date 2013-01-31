@@ -67,6 +67,7 @@ class ApacheRole(Role):
 
         There's no need to call this method manually.
         '''
+        super(ApacheRole, self).cleanup()
         if self.must_restart:
             self.restart()
 

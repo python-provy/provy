@@ -241,8 +241,8 @@ class Role(object):
         :param user: If specified, will be the user with which the command will be executed. Defaults to None.
         :type user: :class:`str`
         :param cwd: Represents a directory on remote server.If specified we will
-         cd into that directory before executing command. Current path will be
-         *unchanged* after the call.
+             cd into that directory before executing command. Current path will be
+             *unchanged* after the call.
         :type cwd: :class:`str`
 
         :return: The execution result
@@ -329,6 +329,21 @@ class Role(object):
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
     def execute_python_script(self, script, stdout=True, sudo=False):
+        """
+        Executes python script on remote server. Difference with
+        :func:`execute_python` is that this implementation uploads a file
+        with script to remote server and then executes it, so we have no
+        problems with shell expansion.
+
+        :param script: Script to be executed on remote server. Can be either
+            a string or a file like object.
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :type stdout: :class:`bool`
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :type sudo: :class:`bool`
+
+        :return: stdout of script
+        """
         script_file = self.create_remote_temp_file("script", "py")
 
         if isinstance(script, basestring):
@@ -336,12 +351,18 @@ class Role(object):
 
         self.put_file(script, script_file, sudo, False)
 
-        self.execute('python "{}"'.format(script_file), stdout, sudo)
+        return self.execute('python "{}"'.format(script_file), stdout, sudo)
 
     def remote_list_directory(self, path):
         """
-            Lists contents of remote directory and returns them as a python
-            list.
+        Lists contents of remote directory and returns them as a python
+        list.
+
+        :param str path: Path to list on the remote side.
+
+        :return: Remote directory lisitng.
+
+        :rtype: list
         """
         import json  # in case someone uses python 2.6
         result = self.execute_python('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path), False, True)

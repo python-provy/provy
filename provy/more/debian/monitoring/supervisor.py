@@ -303,6 +303,7 @@ class SupervisorRole(Role):
 
         There's no need to call this method since provy's lifecycle will make sure it is called.
         '''
+        super(SupervisorRole, self).cleanup()
 
         if MUST_UPDATE_CONFIG_KEY in self.context and self.context[MUST_UPDATE_CONFIG_KEY]:
             self.update_init_script(self.context[CONFIG_KEY]['config_file_directory'])

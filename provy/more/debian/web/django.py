@@ -188,6 +188,7 @@ class DjangoRole(Role):
 
         There's no need to call this method since provy's lifecycle will make sure it is called.
         '''
+        super(DjangoRole, self).cleanup()
 
         if SITES_KEY in self.context:
             for website in self.context[SITES_KEY]:

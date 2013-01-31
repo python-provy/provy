@@ -124,6 +124,7 @@ class VarnishRole(Role):
                     with self.using(VarnishRole) as role:
                         role.cleanup() # No need to call this if using a with block.
         '''
+        super(VarnishRole, self).cleanup()
         if 'must-restart-varnish' in self.context and self.context['must-restart-varnish']:
             self.restart()
 

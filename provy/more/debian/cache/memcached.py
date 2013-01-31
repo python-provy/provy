@@ -136,6 +136,7 @@ class MemcachedRole(Role):
                     with self.using(MemcachedRole) as role:
                         role.cleanup() # No need to call this if using a with block.
         '''
+        super(MemcachedRole, self).cleanup()
         if 'must-restart-memcached' in self.context and self.context['must-restart-memcached']:
             self.restart()
 
