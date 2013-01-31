@@ -2,8 +2,79 @@
 # -*- coding: utf-8 -*-
 
 '''Roles in this namespace are meant to provide user management operations for Debian distributions.'''
-
+from random import SystemRandom
+import base64
+import getpass
+import StringIO
 from provy.core import Role
+
+
+def random_salt_function(self = None, salt_len=12):
+    """
+    Creates random salt for password.
+
+    :param int salt_len: Length of salt. Default :data:12
+
+    :return: Computed salt
+    :rtype: str
+    """
+    charset = "abcdefghijklmnopqrstuxyz"
+    charset = charset + charset.upper() + '1234567890'
+    chars = []
+    rand = SystemRandom()
+    for _ in range(salt_len):
+        chars.append(rand.choice(charset))
+    return "".join(chars)
+
+def hash_password_function(self, password, salt=None, magic=6, local=True):
+    """
+        Hashes password using `crypt` function on either remote server
+        on local server.
+
+        :param password: Plaintext password to be hashed.
+        :type password: :class:`str`
+        :param salt: Salt to be used with this password, if None will
+            use random password.
+        :type salt: :class:`str`
+        :param int magic: Specifies salt type. Default :data:`6` which means
+            use `sha-512`.
+        :type salt: :class:`int`
+        :param bool local: Specifies whether should compute hash on local
+            machine or remote machine. Bear in mind that if you use remote
+            machine password will be transferred there and briefly stored
+            in the /tmp/ directory on both machines.
+            Defaults to :data:`True` that means to use local machine.
+
+        :type salt: :class:`bool`
+        :return: remote password
+    """
+    SCRIPT = """
+            import crypt, base64; result = crypt.crypt(base64.b64decode('{password})'), '{salt}'); print(result);
+    """
+
+    if salt is None:
+        salt = random_salt_function()
+
+    salt = "${magic}${salt}".format(magic=magic, salt=salt)
+
+    password = base64.b64encode(password)
+
+    print("'{}'".format(password))
+
+    SCRIPT = SCRIPT.format(password = password, salt = salt)
+
+    SCRIPT = SCRIPT.strip()
+
+    if local:
+        global_dict = {}
+        exec(SCRIPT.strip(), global_dict)
+        return global_dict["result"]
+    else:
+        if self is None:
+            raise ValueError("To use remote version of `hash_password_function` "
+                             "you need to this function via the UserRole")
+        SCRIPT = SCRIPT.replace("$", "\$").strip()
+        return self.execute_python(SCRIPT, False, False)
 
 
 class UserRole(Role):
@@ -99,6 +170,10 @@ class UserRole(Role):
         groups = groups_string.split()
         return group_name in groups
 
+    random_salt = random_salt_function
+
+    hash_password = hash_password_function
+
     def ensure_group(self, group_name):
         '''
         Ensures that a given user group is present in the remote server.
@@ -129,7 +204,7 @@ class UserRole(Role):
                 self.execute('usermod -G %s %s' % (user_group, username), stdout=False, sudo=True)
                 self.log("User %s is in group %s now!" % (username, user_group))
 
-    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False):
+    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False, encrypted=False):
         '''
         Ensures that a given user is present in the remote server.
 
@@ -145,6 +220,9 @@ class UserRole(Role):
         :type groups: :class:`iterable`
         :param is_admin: If set to :data:`True` the user is added to the 'admin' user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
+        :param encrypted: If true we assume `identified_by` is encrypted. Defaults to true.
+        :type encrypted: :class:`bool`
+
 
         Example:
         ::
@@ -188,6 +266,48 @@ class UserRole(Role):
         self.ensure_user_groups(username, groups)
 
         if identified_by:
-            self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
+            self.set_user_password(username, identified_by, encrypted=encrypted)
 
         self.context['owner'] = username
+
+    def set_user_password(self, username, password, encrypted=False):
+        """
+            Sets user password.
+        """
+
+        tmp_file = self.create_remote_temp_file()
+
+        password_line = "{username}:{password}".format(
+            username = username,
+            password = password
+        )
+
+        self.put_file(StringIO.StringIO(password_line), tmp_file, True, False)
+
+        command = 'cat "{tmp_file}" | chpasswd {encrypted}'.format(
+            encrypted = "-e" if encrypted else "",
+            tmp_file = tmp_file
+        )
+
+        self.execute(command, stdout=False, sudo=True)
+
+        self.remove_dir(tmp_file)
+
+class EncryptPasswordRemote(Role):
+    def provision(self):
+        super(EncryptPasswordRemote, self).provision()
+        with self.using(UserRole) as user_role:
+            password = getpass.getpass("Please provide password to be hashed on remote server")
+            hashed = user_role.hash_password(password)
+            print("hashed password ", hashed)
+
+
+
+def CreateUser(*largs, **kwargs):
+    """
+        Creates a role that creates a user on remote server.
+    """
+    class TempUserRole(UserRole):
+        def provision(self):
+            self.ensure_user(*largs, **kwargs)
+    return TempUserRole
