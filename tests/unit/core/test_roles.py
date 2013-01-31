@@ -679,12 +679,14 @@ class RoleTest(ProvyTestCase):
         content = 'some content'
 
         temp_file = self.role.write_to_temp_file(content)
+        try:
+            self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
 
-        self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
-
-        with open(temp_file) as f:
-            saved_content = f.read().strip()
-            self.assertEqual(saved_content, content)
+            with open(temp_file) as f:
+                saved_content = f.read().strip()
+                self.assertEqual(saved_content, content)
+        finally:
+            os.remove(temp_file)
 
     @istest
     def writes_utf8_content_to_a_temp_file(self):
@@ -692,11 +694,14 @@ class RoleTest(ProvyTestCase):
 
         temp_file = self.role.write_to_temp_file(content)
 
-        self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
+        try:
+            self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
 
-        with open(temp_file) as f:
-            saved_content = f.read().decode('utf-8').strip()
-            self.assertEqual(saved_content, content)
+            with open(temp_file) as f:
+                saved_content = f.read().decode('utf-8').strip()
+                self.assertEqual(saved_content, content)
+        finally:
+            os.remove(temp_file)
 
     @istest
     def creates_a_new_file_when_remote_doesnt_exist_during_update(self):
