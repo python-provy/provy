@@ -59,8 +59,6 @@ def hash_password_function(self, password, salt=None, magic=6, local=True):
 
     password = base64.b64encode(password)
 
-    print("'{}'".format(password))
-
     SCRIPT = SCRIPT.format(password = password, salt = salt)
 
     SCRIPT = SCRIPT.strip()
