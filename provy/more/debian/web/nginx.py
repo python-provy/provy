@@ -58,6 +58,7 @@ class NginxRole(Role):
         Restarts nginx if any changes have been made.
         There's no need to call this method manually.
         '''
+        super(NginxRole, self).cleanup()
         if 'must-restart-nginx' in self.context and self.context['must-restart-nginx']:
             self.restart()
 

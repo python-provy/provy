@@ -70,7 +70,7 @@ class Role(object):
         self._paths_to_remove = set()
         self.prov = prov
         self.context = context
-        self.register_template_loader("provy.core")
+        # self.register_template_loader("provy.core")
 
     def register_template_loader(self, package_name):
         '''
@@ -188,6 +188,9 @@ class Role(object):
 
         The ``cleanup`` method is the method that provy calls after all ``Roles`` have been provisioned and is meant to allow ``Roles`` to perform any cleaning of resources or finish any pending operations.
 
+        Please note that when overriding this method you should call
+        `super` method.
+
         Example:
         ::
 
@@ -242,8 +245,8 @@ class Role(object):
         :param user: If specified, will be the user with which the command will be executed. Defaults to None.
         :type user: :class:`str`
         :param cwd: Represents a directory on remote server.If specified we will
-         cd into that directory before executing command. Current path will be
-         *unchanged* after the call.
+             cd into that directory before executing command. Current path will be
+             *unchanged* after the call.
         :type cwd: :class:`str`
 
         :return: The execution result
@@ -330,6 +333,22 @@ class Role(object):
         return self.execute('''python -c "%s"''' % command, stdout=stdout, sudo=sudo)
 
     def execute_python_script(self, script, stdout=True, sudo=False):
+        """
+        Executes python script on remote server. Difference with
+        :func:`execute_python` is that this implementation uploads a file
+        with script to remote server and then executes it, so we have no
+        problems with shell expansion.
+
+        :param script: Script to be executed on remote server. Can be either
+            a string or a (opened) file like object.
+        :type script:`string or an opened file`
+        :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
+        :type stdout: :class:`bool`
+        :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
+        :type sudo: :class:`bool`
+
+        :return: stdout of script
+        """
         script_file = self.create_remote_temp_file("script", "py")
 
         if isinstance(script, basestring):
@@ -337,12 +356,18 @@ class Role(object):
 
         self.put_file(script, script_file, sudo, False)
 
-        self.execute('python "{}"'.format(script_file), stdout, sudo)
+        return self.execute('python "{}"'.format(script_file), stdout, sudo)
 
     def remote_list_directory(self, path):
         """
-            Lists contents of remote directory and returns them as a python
-            list.
+        Lists contents of remote directory and returns them as a python
+        list.
+
+        :param str path: Path to list on the remote side.
+
+        :return: Remote directory lisitng.
+
+        :rtype: list
         """
         import json  # in case someone uses python 2.6
         result = self.execute_python('''import os, json; print json.dumps(os.listdir('{}'))'''.format(path), False, True)
@@ -477,11 +502,14 @@ class Role(object):
         by :class:`uuid.uuid4` you can be sure no other process will
         clash with it.
 
-        :param str prefix: Optional prefix to the file name.
-        :param str suffix: Optional suffix to the file name. Usefull
+        :param prefix: Optional prefix to the file name.
+        :type prefix: :class:`str`
+        :param suffix: Optional suffix to the file name. Usefull
             to provide extensions.
+        :type suffix: :class:`str`
         :param bool cleanup: If True file will be deleted during cleanup
             phase. Default: :data:`True`.
+        :type cleanup: :class:`bool`
 
         :return: Created file name.
         :rtype: str
@@ -498,15 +526,19 @@ class Role(object):
         Creates temporary directory on remote server. This directory will be
         stored in temporary directory on remote server.
 
-        :param str dirname: Name of the directory. If None random name will be
+        :param dirname: Name of the directory. If None random name will be
             choosen. Defaults to None.
-        :param str owner: Username of user who will own this directory.
+        :type dirname: :class:`str`
+        :param owner: Username of user who will own this directory.
             Defaults to :data:`None` which in turns means current remote user.
+        :type owner: :class:`str`
         :param chmod: File modifiers specified for this directory.   Defaults
             to :data:`None` which in turns means leave default chmod specified
             by the remote OS.
-           :param bool cleanup: If True directory will be deleted during cleanup
+        :type chmod: :class:`str`
+        :param cleanup: If True directory will be deleted during cleanup
             phase. Default: :data:`True`.
+        :type cleanup: :class:`bool`
 
         :return: Created directory name.
 
@@ -1061,7 +1093,8 @@ class Role(object):
         '''
         Renders a template with the given options and returns the rendered text.
 
-        The template_file parameter should be just the name of the file and not the file path. jinja2 will look for templates at the files directory in the provyfile path, as well as in the templates directory of any registered module (check the <em>register_template_loader</em> method).
+        The :data:`template_file` parameter should be just the name of the file and not the file path. `Jinja2 <http://jinja.pocoo.org/>`_ will look for templates at the files directory in the provyfile path,
+        as well as in the templates directory of any registered module (check the :meth:`register_template_loader` method).
 
         The options parameter will extend the server context, so all context variables (including per-server options) are available to the renderer.
 
@@ -1176,7 +1209,28 @@ class Role(object):
         if '""""' in line:
             raise ValueError('Sorry as of today line can\'t contain """, since it is escaped using this line. Could be fixed in future release. ')
 
-        script = self.render("ensure_line_script.py", options = {"line":line, "target":file_path})
+        #Yes it is a hack
+        SCRIPT = '''
+LINE=""" {line} """
+LINE = LINE[1:-1]
+TARGET="""{target}"""
+
+import os
+
+with open(TARGET, 'r') as file:
+    append_file = LINE not in file.read()
+
+if append_file:
+    with open(TARGET, 'a') as file:
+        file.write(LINE)
+
+if not append_file:
+    print "0"
+else:
+    print "1"
+        '''
+
+        script = SCRIPT.format(line=line, target=file_path)
 
         self.execute_python_script(script, False, sudo)
 

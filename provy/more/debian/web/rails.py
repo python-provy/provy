@@ -82,6 +82,7 @@ class RailsRole(Role):
 
         There's no need to call this method manually.
         '''
+        super(RailsRole, self).cleanup()
         if 'must-restart-nginx' in self.context and self.context['must-restart-nginx']:
             self.restart()
 

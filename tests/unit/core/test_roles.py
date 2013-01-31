@@ -6,30 +6,26 @@ import os
 import tempfile
 
 from jinja2 import ChoiceLoader, FileSystemLoader
-from mock import MagicMock, patch, call, ANY, Mock
+from mock import MagicMock, patch, call, ANY, Mock, DEFAULT
 from nose.tools import istest
 
 from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
-def create_default_context():
-    loader = ChoiceLoader([
-        FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
-    ])
-    context = {
-        'owner': 'foo',
-        'registered_loaders': [],
-        'loader': loader,
-        'cleanup': [],
-        'host': 'localhost',
-        }
-    return context
-
 class RoleTest(ProvyTestCase):
     def setUp(self):
-
-        self.role = Role(prov=None, context=create_default_context())
+        loader = ChoiceLoader([
+            FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
+        ])
+        context = {
+            'owner': 'foo',
+            'registered_loaders': [],
+            'loader': loader,
+            'cleanup': [],
+            'host': 'localhost',
+        }
+        self.role = Role(prov=None, context=context)
         self.update_data = UpdateData('/tmp/some-file.ext', 'some local md5', 'some remote md5')
 
     @contextmanager
@@ -104,19 +100,52 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def ignores_line_if_already_exists_in_file(self):
-        raise ValueError()
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = True
+            self.role.ensure_line('this line in', '/some/file')
+            self.assertFalse(execute.called)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet(self):
-        raise ValueError()
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file')
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def escapes_quotes_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this could be a "quote"', '/some/file')
+            execute.assert_called_with(r'echo "this could be a \"quote\"" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def escapes_dollars_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('I may have U$ 10.00', '/some/file')
+            execute.assert_called_with(r'echo "I may have U\$ 10.00" >> /some/file', stdout=False, sudo=False, user=None)
+
+    @istest
+    def escapes_backticks_when_inserting_line(self):
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('To show your dir: `pwd`', '/some/file')
+            execute.assert_called_with(r'echo "To show your dir: \`pwd\`" >> /some/file', stdout=False, sudo=False, user=None)
 
     @istest
     def inserts_line_with_sudo(self):
-        raise ValueError()
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file', sudo=True)
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=True, user=None)
 
     @istest
     def inserts_line_with_specific_user(self):
-        raise ValueError()
+        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+            has_line.return_value = False
+            self.role.ensure_line('this line in', '/some/file', owner='foo')
+            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
 
     @istest
     def registers_a_template_loader(self):
@@ -127,7 +156,7 @@ class RoleTest(ProvyTestCase):
         self.assertIn(package_name, self.role.context['registered_loaders'])
 
         choice_loader = self.role.context['loader']
-        package_loader = choice_loader.loaders[2]
+        package_loader = choice_loader.loaders[1]
         self.assertIn('monitoring', package_loader.provider.module_path)
 
     @istest
@@ -138,7 +167,7 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def doesnt_append_again_if_role_is_already_in_cleanup_list(self):
-        same_class_instance = Role(None, create_default_context())
+        same_class_instance = Role(None, {})
         self.role.context['cleanup'] = [same_class_instance]
         self.role.schedule_cleanup()
         self.assertEqual(self.role.context['cleanup'], [same_class_instance])
@@ -226,7 +255,7 @@ class RoleTest(ProvyTestCase):
         with patch('fabric.api.run'):
             with patch('fabric.api.cd') as cd:
                 self.role.execute("some command")
-        self.assertEqual(len(cd.mock_calls), 0)
+        self.assertFalse(cd.called)
 
     @istest
     def executes_a_local_command_with_stdout_and_same_user(self):
@@ -504,7 +533,7 @@ class RoleTest(ProvyTestCase):
                 with self.mock_role_method('remote_exists_dir') as exists:
                     exists.return_value = True
                     self.role.remove_dir('/some/dir', sudo=True, stdout=False)
-        self.assertEqual(len(log.mock_calls), 0)
+        self.assertFalse(log.called)
 
     @istest
     def removes_dir_logging_if_requested(self):
@@ -940,6 +969,161 @@ class RoleTest(ProvyTestCase):
             self.role.remote_list_directory("/some/path")
         execute.assert_called_once_with('''import os, json; print json.dumps(os.listdir('/some/path'))''', False, True)
 
+    @istest
+    def test_proper_file_putted(self):
+        sudo = False
+        stdout = False
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['put_file'].assert_called_once_with(
+            ANY,
+            "/tmp/scriptfoo.py",
+            sudo,
+            False
+        )
+
+    @istest
+    def test_proper_file_putted_sudo(self):
+        sudo = True
+        stdout = False
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        print values['put_file'].mock_calls
+
+        values['put_file'].assert_called_once_with(
+            ANY,
+            "/tmp/scriptfoo.py",
+            sudo,
+            False
+        )
+
+    @istest
+    def test_proper_file_putted_stdout(self):
+        sudo = False
+        stdout = True
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['put_file'].assert_called_once_with(
+            ANY,
+            "/tmp/scriptfoo.py",
+            sudo,
+            False
+        )
+
+    @istest
+    def test_proper_file_putted_stdout_sudo(self):
+        sudo = True
+        stdout = True
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['put_file'].assert_called_once_with(
+            ANY,
+            "/tmp/scriptfoo.py",
+            sudo,
+            False
+        )
+
+    @istest
+    def test_proper_file_executed(self):
+        sudo = False
+        stdout = False
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['execute'].assert_called_once_with(
+            'python "{}"'.format("/tmp/scriptfoo.py"),
+            stdout,
+            sudo
+        )
+
+    @istest
+    def test_proper_file_executed_sudo(self):
+        sudo = True
+        stdout = False
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['execute'].assert_called_once_with(
+            'python "{}"'.format("/tmp/scriptfoo.py"),
+            stdout,
+            sudo
+        )
+
+    @istest
+    def test_proper_file_executed_stdout(self):
+        sudo = False
+        stdout = True
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['execute'].assert_called_once_with(
+            'python "{}"'.format("/tmp/scriptfoo.py"),
+            stdout,
+            sudo
+        )
+
+    @istest
+    def test_proper_file_executed_sudo_stdout(self):
+        sudo = True
+        stdout = True
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", stdout, sudo)
+
+        values['execute'].assert_called_once_with(
+            'python "{}"'.format("/tmp/scriptfoo.py"),
+            stdout,
+            sudo
+        )
+
+    @istest
+    def test_script_converted(self):
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script("script", False, False)
+
+        self.assertTrue(isinstance(values['put_file'].mock_calls[0][1][0], StringIO))
+
+    @istest
+    def test_script_file_not_converted(self):
+        script = Mock(spec=file)
+        with patch.multiple("provy.core.roles.Role", execute=DEFAULT,
+                            create_remote_temp_file=DEFAULT,
+                            put_file=DEFAULT) as values:
+            values['create_remote_temp_file'].return_value = "/tmp/scriptfoo.py"
+            self.role.execute_python_script(script, False, False)
+
+        self.assertIs(values['put_file'].mock_calls[0][1][0], script)
+
 
 class UsingRoleTest(ProvyTestCase):
     def any_context(self):
@@ -950,7 +1134,6 @@ class UsingRoleTest(ProvyTestCase):
         class DummyRole(Role):
             def schedule_cleanup(self):
                 pass
-
         with UsingRole(DummyRole, None, self.any_context()) as role:
             self.assertIsInstance(role, DummyRole)
 
@@ -997,10 +1180,12 @@ class UsingRoleTest(ProvyTestCase):
 
 class RemoteTempFileTests(ProvyTestCase):
 
+    def any_context(self):
+        return {'used_roles': {}}
 
     def setUp(self):
         super(RemoteTempFileTests, self).setUp()
-        self.instance = Role(None, create_default_context())
+        self.instance = Role(None, self.any_context())
         self.patcher = patch("provy.core.roles.Role.remote_temp_dir", Mock(return_value="/tmp"))
         self.patcher.start()
         self.ensure_dir_patcher = patch("provy.core.roles.Role.ensure_dir", Mock(return_value="/tmp"))
@@ -1011,145 +1196,73 @@ class RemoteTempFileTests(ProvyTestCase):
         self.ensure_dir_patcher.stop()
 
     @istest
-    def assert_in_tempdir(self):
+    def file_created_in_tempdir(self):
         file = self.instance.create_remote_temp_file("foo")
         self.assertTrue(file.startswith("/tmp"))
 
     @istest
-    def assert_in_tempdir_dir(self):
+    def directory_created_in_tempdir(self):
         folder = self.instance.create_remote_temp_dir("foo")
         self.assertTrue(folder.startswith("/tmp"))
 
     @istest
-    def assert_create_remote_tempdir_prefix(self):
+    def file_created_with_proper_prefix(self):
         file = self.instance.create_remote_temp_dir("foo")
         self.assertTrue(file.startswith("/tmp/foo"))
 
     @istest
-    def assert_correct_file_name(self):
+    def directory_created_with_proper_name(self):
         dir = self.instance.create_remote_temp_dir("foobar")
         self.assertEqual("/tmp/foobar", dir)
 
     @istest
-    def assert_create_remote_tempfile_prefix(self):
+    def file_created_with_proper_suffix(self):
         file = self.instance.create_remote_temp_file(suffix="sql")
         self.assertEqual(file[-3:], "sql")
 
     @istest
-    def assert_files_deleted_if_requested(self):
+    def files_will_be_deleted_on_cleanup_if_requested(self):
         file = self.instance.create_remote_temp_file(cleanup=True)
         self.assertIn(file, self.instance._paths_to_remove)
 
     @istest
-    def assert_dirs_deleted_if_requested(self):
+    def directories_will_be_deleted_on_cleanup_if_requested(self):
         directory = self.instance.create_remote_temp_dir(cleanup=True)
         self.assertIn(directory, self.instance._paths_to_remove)
 
     @istest
-    def assert_files_not_deleted_if_requested(self):
+    def files_will_not_be_deleted_on_cleanup_if_requested(self):
         file = self.instance.create_remote_temp_file(cleanup=False)
         self.assertNotIn(file, self.instance._paths_to_remove)
 
     @istest
-    def assert_dirs_not_deleted_if_requested(self):
+    def directories_will_not_be_deleted_on_cleanup_if_requested(self):
         dirs = self.instance.create_remote_temp_file(cleanup=False)
         self.assertNotIn(dirs, self.instance._paths_to_remove)
 
     @istest
-    def assert_created_files_are_different(self):
+    def check_if_random_files_have_different_names(self):
         dirs = set()
         for _ in range(100):
             dirs.add(self.instance.create_remote_temp_file())
         self.assertEqual(len(dirs), 100)
 
     @istest
-    def assert_created_dirs_are_different(self):
+    def check_if_random_directories_have_different_names(self):
         dirs = set()
         for _ in range(100):
             dirs.add(self.instance.create_remote_temp_dir())
         self.assertEqual(len(dirs), 100)
 
     @istest
-    def assert_dir_mode(self):
+    def check_if_directories_have_proper_mode(self):
         mode = "666"
         with self.mock_role_method("change_dir_mode") as change_dir_mode:
             dir = self.instance.create_remote_temp_dir(chmod=mode)
         change_dir_mode.assert_called_once_with(dir, mode)
 
     @istest
-    def asssert_dir_owner(self):
+    def check_if_directories_have_proper_owner(self):
         owner = "user"
         self.instance.create_remote_temp_dir(owner=owner)
         self.instance.ensure_dir.assert_called_once_with(ANY, owner, ANY)
-
-
-class ExecutePythonScriptTests(ProvyTestCase):
-
-    remote_tmp_file = "/tmp/scriptfoo.py"
-
-    sudo = False
-
-    stdout = False
-
-    script = "some_script"
-
-    def setUp(self):
-
-        self.role = Role(prov=None, context=create_default_context())
-
-        self.patchers = []
-
-        self.patchers.append(
-            patch("provy.core.roles.Role.create_remote_temp_file", Mock(return_value=self.remote_tmp_file))
-        )
-        self.patchers.append(patch("provy.core.roles.Role.execute"))
-        self.patchers.append(patch("provy.core.roles.Role.put_file"))
-
-        for p in self.patchers:
-            p.start()
-
-        self.role.execute_python_script(self.script, self.stdout, self.sudo)
-
-    def tearDown(self):
-        for p in self.patchers:
-            p.stop()
-
-    def test_proper_file_putted(self):
-
-        self.role.put_file.assert_called_once_with(
-            ANY,
-            self.remote_tmp_file,
-            self.sudo,
-            False
-        )
-
-    def test_script_converted(self):
-        self.assertTrue(isinstance(self.role.put_file.mock_calls[0][1][0], StringIO))
-
-    def test_proper_file_executed(self):
-        self.role.execute.assert_called_once_with(
-            'python "{}"'.format(self.remote_tmp_file),
-            self.stdout,
-            self.sudo
-        )
-
-
-class ExecutePythonScriptTestsSudo(ExecutePythonScriptTests):
-    sudo = True
-
-
-class ExecutePythonScriptTestsStdout(ExecutePythonScriptTests):
-    stdout = True
-
-
-class ExecutePythonScriptTestsStdoutSudo(ExecutePythonScriptTests):
-    stdout = True
-    sudo = True
-
-
-class ExecutePythonScriptTestsTestFile(ExecutePythonScriptTests):
-
-    script = Mock(spec=file)
-
-    def test_script_converted(self):
-        self.assertEqual(self.role.put_file.mock_calls[0][1][0], self.script)
