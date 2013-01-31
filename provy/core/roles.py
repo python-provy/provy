@@ -187,6 +187,9 @@ class Role(object):
 
         The ``cleanup`` method is the method that provy calls after all ``Roles`` have been provisioned and is meant to allow ``Roles`` to perform any cleaning of resources or finish any pending operations.
 
+        Please note that when overriding this method you should call
+        `super` method.
+
         Example:
         ::
 
