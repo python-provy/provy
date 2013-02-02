@@ -21,30 +21,35 @@ class MySQLRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITHOUT_JOHN_GRANTS
             self.assertFalse(self.role.has_grant('ALL', 'foo', 'john', '%', False))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def has_grant_if_granted(self):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('ALL', 'foo', 'john', '%', False))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def has_grant_if_granted_with_grant_option(self):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS_AND_GRANT_OPTION
             self.assertTrue(self.role.has_grant('ALL', 'foo', 'john', '%', True))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def has_grant_if_granted_even_if_provided_full(self):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('ALL PRIVILEGES', 'foo', 'john', '%', False))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def has_grant_if_granted_even_if_provided_as_lowercase_string(self):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('all', 'foo', 'john', '%', False))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def can_get_user_grants(self):
@@ -52,6 +57,7 @@ class MySQLRoleTest(ProvyTestCase):
             execute.return_value = FOO_DB_WITHOUT_JOHN_GRANTS
             expected = ["GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*B9EE00DF55E7C816911C6DA56F1E3A37BDB31093'"]
             self.assertEqual(expected, self.role.get_user_grants('john', '%'))
+            execute.assert_called_with('''mysql -u root -E -e "SHOW GRANTS FOR 'john'@'%';" mysql''', sudo=True, stdout=False)
 
     @istest
     def installs_necessary_packages_to_provision(self):
