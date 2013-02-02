@@ -66,7 +66,7 @@ class MySQLRole(Role):
         if self.mysql_root_pass:
             pass_string = '--password="%s" ' % self.mysql_root_pass
 
-        self.execute('mysql -u %s %s -e "%s" mysql' % (self.mysql_root_user, pass_string, query), stdout=False, sudo=True)
+        self.execute('mysql -u %s %s-e "%s" mysql' % (self.mysql_root_user, pass_string, query), stdout=False, sudo=True)
 
     def __execute_query(self, query):
         pass_string = ""
