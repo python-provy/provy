@@ -92,7 +92,7 @@ class MySQLRole(Role):
                     'index': index_re.search(line).groups()[0]
                 }
             else:
-                key, value = line.split(':')
+                key, value = line.split(':', 1)
                 item[key.strip()] = value.strip()
         if item:
             items.append(item)
