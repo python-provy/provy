@@ -1,4 +1,4 @@
-from mock import call
+from mock import call, patch
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, MySQLRole
@@ -134,3 +134,21 @@ class MySQLRoleTest(ProvyTestCase):
             ])
             execute.assert_called_with('''mysql -u root --password="mypass" -E -e "select Host from mysql.user where LOWER(User)='root'" mysql''',
                                        sudo=True, stdout=False)
+
+    @istest
+    def checks_that_a_user_exists(self):
+        with patch.object(self.role, 'get_user_hosts') as get_user_hosts:
+            get_user_hosts.return_value = ['localhost']
+
+            self.assertTrue(self.role.user_exists('johndoe', 'localhost'))
+
+            get_user_hosts.assert_called_with('johndoe')
+
+    @istest
+    def checks_that_a_user_doesnt_exist(self):
+        with patch.object(self.role, 'get_user_hosts') as get_user_hosts:
+            get_user_hosts.return_value = ['localhost']
+
+            self.assertFalse(self.role.user_exists('johndoe', 'somewhere-else'))
+
+            get_user_hosts.assert_called_with('johndoe')
