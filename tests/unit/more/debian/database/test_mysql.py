@@ -152,3 +152,23 @@ class MySQLRoleTest(ProvyTestCase):
             self.assertFalse(self.role.user_exists('johndoe', 'somewhere-else'))
 
             get_user_hosts.assert_called_with('johndoe')
+
+    @istest
+    def creates_a_user_if_it_doesnt_exist_yet(self):
+        with patch.object(self.role, 'user_exists') as user_exists, self.execute_mock() as execute:
+            user_exists.return_value = False
+
+            result = self.role.ensure_user('johndoe', 'mypass', 'localhost')
+
+            self.assertTrue(result)
+            execute.assert_called_with("""mysql -u root  -e "CREATE USER 'johndoe'@'localhost' IDENTIFIED BY 'mypass';" mysql""", sudo=True, stdout=False)
+
+    @istest
+    def doesnt_create_user_if_it_already_exists(self):
+        with patch.object(self.role, 'user_exists') as user_exists, self.execute_mock() as execute:
+            user_exists.return_value = True
+
+            result = self.role.ensure_user('johndoe', 'mypass', 'localhost')
+
+            self.assertFalse(result)
+            self.assertFalse(execute.called)
