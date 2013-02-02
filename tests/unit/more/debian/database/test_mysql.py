@@ -214,3 +214,23 @@ class MySQLRoleTest(ProvyTestCase):
 
             self.assertFalse(result)
             execute.assert_called_with('mysql -u root -E -e "SHOW DATABASES" mysql', stdout=False, sudo=True)
+
+    @istest
+    def creates_a_database_if_it_doesnt_exist_yet(self):
+        with patch.object(self.role, 'is_database_present') as is_database_present, self.execute_mock() as execute:
+            is_database_present.return_value = False
+
+            result = self.role.ensure_database('my_data')
+
+            self.assertTrue(result)
+            execute.assert_called_with('mysql -u root -e "CREATE DATABASE my_data" mysql', sudo=True, stdout=False)
+
+    @istest
+    def doesnt_create_a_database_if_it_already_exists(self):
+        with patch.object(self.role, 'is_database_present') as is_database_present, self.execute_mock() as execute:
+            is_database_present.return_value = True
+
+            result = self.role.ensure_database('my_data')
+
+            self.assertFalse(result)
+            self.assertFalse(execute.called)
