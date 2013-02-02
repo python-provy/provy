@@ -15,6 +15,12 @@ FOO_DB_WITHOUT_JOHN_GRANTS = """
 *************************** 1. row ***************************
 Grants for john@%: GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*B9EE00DF55E7C816911C6DA56F1E3A37BDB31093'
 """
+FOO_DB_WITH_JOHN_GRANTS_AND_GRANT_OPTION = """
+*************************** 1. row ***************************
+Grants for john@%: GRANT USAGE ON *.* TO 'john'@'%' IDENTIFIED BY PASSWORD '*2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19'
+*************************** 2. row ***************************
+Grants for john@%: GRANT ALL PRIVILEGES ON `foo`.* TO 'john'@'%' WITH GRANT OPTION
+"""
 HOSTS_FOR_USER = """
 *************************** 1. row ***************************
 Host: 127.0.0.1
@@ -52,6 +58,12 @@ class MySQLRoleTest(ProvyTestCase):
         with self.execute_mock() as execute:
             execute.return_value = FOO_DB_WITH_JOHN_GRANTS
             self.assertTrue(self.role.has_grant('ALL', 'foo', 'john', '%', False))
+
+    @istest
+    def has_grant_if_granted_with_grant_option(self):
+        with self.execute_mock() as execute:
+            execute.return_value = FOO_DB_WITH_JOHN_GRANTS_AND_GRANT_OPTION
+            self.assertTrue(self.role.has_grant('ALL', 'foo', 'john', '%', True))
 
     @istest
     def has_grant_if_granted_even_if_provided_full(self):
