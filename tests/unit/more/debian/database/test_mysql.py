@@ -25,6 +25,16 @@ Host: my-desktop
 *************************** 4. row ***************************
 Host: localhost
 """
+DATABASES = """
+*************************** 1. row ***************************
+Database: information_schema
+*************************** 2. row ***************************
+Database: mysql
+*************************** 3. row ***************************
+Database: performance_schema
+*************************** 4. row ***************************
+Database: test
+"""
 
 
 class MySQLRoleTest(ProvyTestCase):
@@ -182,4 +192,25 @@ class MySQLRoleTest(ProvyTestCase):
             result = self.role.ensure_user('johndoe', 'mypass', 'localhost')
 
             self.assertTrue(result)
-            execute.assert_called_with("""mysql -u root --password="otherpass" -e "CREATE USER 'johndoe'@'localhost' IDENTIFIED BY 'mypass';" mysql""", sudo=True, stdout=False)
+            execute.assert_called_with("""mysql -u root --password="otherpass" -e "CREATE USER 'johndoe'@'localhost' IDENTIFIED BY 'mypass';" mysql""",
+                                       sudo=True, stdout=False)
+
+    @istest
+    def checks_that_a_database_is_present(self):
+        with self.execute_mock() as execute:
+            execute.return_value = DATABASES
+
+            result = self.role.is_database_present('performance_schema')
+
+            self.assertTrue(result)
+            execute.assert_called_with('mysql -u root -E -e "SHOW DATABASES" mysql', stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_database_is_not_present(self):
+        with self.execute_mock() as execute:
+            execute.return_value = DATABASES
+
+            result = self.role.is_database_present('bad_bad_database')
+
+            self.assertFalse(result)
+            execute.assert_called_with('mysql -u root -E -e "SHOW DATABASES" mysql', stdout=False, sudo=True)
