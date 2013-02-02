@@ -246,3 +246,33 @@ class MySQLRoleTest(ProvyTestCase):
 
             self.assertFalse(result)
             self.assertFalse(execute.called)
+
+    @istest
+    def grants_privilege_if_not_granted_yet(self):
+        with patch.object(self.role, 'has_grant') as has_grant, self.execute_mock() as execute:
+            has_grant.return_value = False
+
+            result = self.role.ensure_grant('ALL PRIVILEGES', on='foo', username='john', login_from='%', with_grant_option=False)
+
+            self.assertTrue(result)
+            execute.assert_called_with('''mysql -u root -e "GRANT ALL PRIVILEGES ON foo.* TO 'john'@'%'" mysql''', stdout=False, sudo=True)
+
+    @istest
+    def grants_privilege_with_grant_option_if_not_granted_yet(self):
+        with patch.object(self.role, 'has_grant') as has_grant, self.execute_mock() as execute:
+            has_grant.return_value = False
+
+            result = self.role.ensure_grant('ALL PRIVILEGES', on='foo', username='john', login_from='%', with_grant_option=True)
+
+            self.assertTrue(result)
+            execute.assert_called_with('''mysql -u root -e "GRANT ALL PRIVILEGES ON foo.* TO 'john'@'%' WITH GRANT OPTION" mysql''', stdout=False, sudo=True)
+
+    @istest
+    def doesnt_grant_privilege_if_already_granted(self):
+        with patch.object(self.role, 'has_grant') as has_grant, self.execute_mock() as execute:
+            has_grant.return_value = True
+
+            result = self.role.ensure_grant('ALL PRIVILEGES', on='foo', username='john', login_from='%', with_grant_option=True)
+
+            self.assertFalse(result)
+            self.assertFalse(execute.called)
