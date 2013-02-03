@@ -63,7 +63,7 @@ class MySQLRole(Role):
         if self.mysql_root_pass:
             pass_string = '--password="%s" ' % self.mysql_root_pass
 
-        self.execute('mysql -u %s %s -e "%s" mysql' % (self.mysql_root_user, pass_string, query), stdout=False, sudo=True)
+        self.execute('mysql -u %s %s-e "%s" mysql' % (self.mysql_root_user, pass_string, query), stdout=False, sudo=True)
 
     def __execute_query(self, query):
         pass_string = ""
@@ -89,7 +89,7 @@ class MySQLRole(Role):
                     'index': index_re.search(line).groups()[0]
                 }
             else:
-                key, value = line.split(':')
+                key, value = line.split(':', 1)
                 item[key.strip()] = value.strip()
         if item:
             items.append(item)
@@ -242,12 +242,13 @@ class MySQLRole(Role):
                         if role.get_user_grants('user', login_from='%'):
                             pass
         '''
-        return_grants = []
         grants = self.__execute_query("SHOW GRANTS FOR '%s'@'%s';" % (username, login_from))
+        only_grants = []
         for grant in grants:
-            return_grants.append(grant.values()[1])
+            filtered_grants = filter(lambda x: x.startswith('GRANT '), grant.itervalues())
+            only_grants.extend(filtered_grants)
 
-        return grants
+        return only_grants
 
     def has_grant(self, privileges, on, username, login_from, with_grant_option):
         '''
@@ -281,19 +282,38 @@ class MySQLRole(Role):
         '''
 
         grants = self.get_user_grants(username, login_from)
-        grant_option_string = ""
-        if with_grant_option:
-            grant_option_string = " WITH GRANT OPTION"
-
-        grants = [grant.values()[-1] for grant in grants]
-        grant_strings = ["GRANT %s ON `%s`.`*` TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string),
-                         "GRANT %s ON %s.* TO '%s'@'%s'%s" % (privileges, on, username, login_from, grant_option_string)]
+        grant_option_string = self._get_grant_option_string(with_grant_option)
+        privileges = self._get_privileges(privileges)
+        grant_strings = self._get_possible_grant_strings(on, username, privileges, login_from, grant_option_string)
 
         for grant_string in grant_strings:
             if grant_string in grants:
                 return True
 
         return False
+
+    def _get_privileges(self, privileges):
+        privileges = privileges.upper()
+        if privileges == 'ALL':
+            privileges = 'ALL PRIVILEGES'
+        return privileges
+
+    def _get_grant_option_string(self, with_grant_option):
+        grant_option_string = ""
+        if with_grant_option:
+            grant_option_string = " WITH GRANT OPTION"
+        return grant_option_string
+
+    def _get_possible_grant_strings(self, on, username, privileges, login_from, grant_option_string):
+        # These possible "ON" tokens are used because MySQL can behave differently depending on the version and system
+        possible_on_tokens = [
+            '`%s`.*' % on,
+            '`%s`.`*`' % on,
+            '%s.*' % on,
+        ]
+        grant_strings = ["GRANT %s ON %s TO '%s'@'%s'%s" % (privileges, on_token, username, login_from, grant_option_string)
+                         for on_token in possible_on_tokens]
+        return grant_strings
 
     def ensure_grant(self, privileges, on, username, login_from="%", with_grant_option=False):
         '''
