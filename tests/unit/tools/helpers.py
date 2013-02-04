@@ -4,13 +4,16 @@ from unittest import TestCase
 
 from mock import MagicMock, patch
 
-from provy.core.roles import DistroInfo
+from provy.core.roles import DistroInfo, Role
 
 
 PROJECT_ROOT = abspath(join(dirname(__file__), '..', '..', '..'))
 
 
 class ProvyTestCase(TestCase):
+    def setUp(self):
+        self.role = Role(prov=None, context={})
+
     @contextmanager
     def using_stub(self, role):
         mock_role = MagicMock(spec=role)
@@ -29,7 +32,10 @@ class ProvyTestCase(TestCase):
 
     @contextmanager
     def mock_role_method(self, method):
-        with patch('provy.core.roles.Role.%s' % method) as mock:
+        '''
+        Mocks a method in the current role instance's class - i.e., not necessarily provy.core.roles.Role, depends on the object that self.role holds.
+        '''
+        with patch.object(self.role.__class__, method) as mock:
             yield mock
 
     def debian_info(self):
