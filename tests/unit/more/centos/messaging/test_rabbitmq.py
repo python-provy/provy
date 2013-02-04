@@ -1,4 +1,4 @@
-from mock import patch, call, DEFAULT
+from mock import call
 from nose.tools import istest
 
 from provy.more.centos import RabbitMqRole, YumRole
@@ -31,7 +31,7 @@ class RabbitMqRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self, **mocks):
-        with self.using_stub(YumRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
+        with self.using_stub(YumRole) as mock_yum, self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
             self.role.is_process_running.return_value = True
             self.role.user_exists.return_value = False
 
