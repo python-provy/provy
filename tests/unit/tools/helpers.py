@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from os.path import abspath, dirname, join
 from unittest import TestCase
 
-from mock import MagicMock, patch
+from mock import MagicMock, patch, DEFAULT
 
 from provy.core.roles import DistroInfo, Role
 
@@ -37,6 +37,15 @@ class ProvyTestCase(TestCase):
         '''
         with patch.object(self.role.__class__, method) as mock:
             yield mock
+
+    @contextmanager
+    def mock_role_methods(self, *methods):
+        '''
+        Same as mock_role_method, except that several methods can be provided.
+        '''
+        methods_to_mock = dict((method, DEFAULT) for method in methods)
+        with patch.multiple(self.role.__class__, **methods_to_mock) as mocks:
+            yield tuple(mocks[method] for method in methods)
 
     def debian_info(self):
         distro_info = DistroInfo()

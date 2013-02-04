@@ -30,9 +30,8 @@ class RabbitMqRoleTest(ProvyTestCase):
             execute.assert_called_with('rabbitmqctl list_users', sudo=True, stdout=False)
 
     @istest
-    @patch.multiple('provy.more.centos.RabbitMqRole', is_process_running=DEFAULT, user_exists=DEFAULT, execute=DEFAULT)
     def installs_necessary_packages_to_provision(self, **mocks):
-        with self.using_stub(YumRole) as mock_yum:
+        with self.using_stub(YumRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
             self.role.is_process_running.return_value = True
             self.role.user_exists.return_value = False
 
@@ -42,9 +41,8 @@ class RabbitMqRoleTest(ProvyTestCase):
             mock_yum.ensure_package_installed.assert_called_with('rabbitmq-server')
 
     @istest
-    @patch.multiple('provy.more.centos.RabbitMqRole', is_process_running=DEFAULT, user_exists=DEFAULT, execute=DEFAULT)
     def executes_the_correct_commands_to_provision(self, **mocks):
-        with self.using_stub(YumRole):
+        with self.using_stub(YumRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
             self.role.is_process_running.return_value = False
             self.role.user_exists.return_value = False
 
@@ -57,9 +55,8 @@ class RabbitMqRoleTest(ProvyTestCase):
             ])
 
     @istest
-    @patch.multiple('provy.more.centos.RabbitMqRole', is_process_running=DEFAULT, user_exists=DEFAULT, execute=DEFAULT)
     def doesnt_start_rabbit_if_already_started_during_provisioning(self, **mocks):
-        with self.using_stub(YumRole):
+        with self.using_stub(YumRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
             self.role.is_process_running.return_value = True
             self.role.user_exists.return_value = False
 
