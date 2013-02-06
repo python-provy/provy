@@ -12,8 +12,11 @@ from nose.tools import istest
 from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
+import uuid
 
-class RoleTest(ProvyTestCase):
+
+class CoreRoleTest(ProvyTestCase):
+
     def setUp(self):
         loader = ChoiceLoader([
             FileSystemLoader(os.path.join(PROJECT_ROOT, 'files'))
@@ -27,6 +30,9 @@ class RoleTest(ProvyTestCase):
         }
         self.role = Role(prov=None, context=context)
         self.update_data = UpdateData('/tmp/some-file.ext', 'some local md5', 'some remote md5')
+
+
+class RoleTest(CoreRoleTest):
 
     @contextmanager
     def mock_update_data(self):
@@ -99,53 +105,34 @@ class RoleTest(ProvyTestCase):
             self.assertEqual(distro_info.codename, 'Final')
 
     @istest
-    def ignores_line_if_already_exists_in_file(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = True
-            self.role.ensure_line('this line in', '/some/file')
-            self.assertFalse(execute.called)
+    def proper_file_is_put_to_remote_server(self):
+        with self.mock_role_method("execute_python_script"), \
+                self.mock_role_method("put_file") as put_file, \
+                self.mock_role_method("create_remote_temp_file") as tmp_file:
+            tmp_file.return_value = "/tmp/foo"
+            self.role.ensure_line("foo_bar", "/tmp/bar_baz")
+        put_file.assert_called_once_with(ANY, "/tmp/foo", sudo=False, stdout=False)
 
     @istest
-    def inserts_line_if_it_doesnt_exist_yet(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
+    def proper_file_is_put_to_remote_server_sudo(self):
+        with self.mock_role_method("execute_python_script"), \
+                self.mock_role_method("put_file") as put_file, \
+                self.mock_role_method("create_remote_temp_file") as tmp_file:
+            tmp_file.return_value = "/tmp/foo"
+            self.role.ensure_line("foo_bar", "/tmp/bar_baz", sudo=True)
+        put_file.assert_called_once_with(ANY, "/tmp/foo", sudo=True, stdout=False)
 
     @istest
-    def escapes_quotes_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this could be a "quote"', '/some/file')
-            execute.assert_called_with(r'echo "this could be a \"quote\"" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def escapes_dollars_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('I may have U$ 10.00', '/some/file')
-            execute.assert_called_with(r'echo "I may have U\$ 10.00" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def escapes_backticks_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('To show your dir: `pwd`', '/some/file')
-            execute.assert_called_with(r'echo "To show your dir: \`pwd\`" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def inserts_line_with_sudo(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', sudo=True)
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=True, user=None)
-
-    @istest
-    def inserts_line_with_specific_user(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', owner='foo')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
+    def proper_content_in_line_file(self):
+        with self.mock_role_method("execute_python_script") as execute, \
+                self.mock_role_method("put_file"), \
+                self.mock_role_method("create_remote_temp_file") as tmp_file:
+            tmp_file.return_value = "/tmp/foo"
+            self.role.ensure_line("foo bar", "/etc/baz")
+        # self.assertTrue(isinstance(put_file.mock_calls[0][1][0], StringIO))
+        content = execute.mock_calls[0][1][0]
+        self.assertIn('''LINE = """ /tmp/foo """''', content)
+        self.assertIn('''TARGET = """/etc/baz"""''', content)
 
     @istest
     def registers_a_template_loader(self):
@@ -156,8 +143,13 @@ class RoleTest(ProvyTestCase):
         self.assertIn(package_name, self.role.context['registered_loaders'])
 
         choice_loader = self.role.context['loader']
-        package_loader = choice_loader.loaders[1]
-        self.assertIn('monitoring', package_loader.provider.module_path)
+        found = False
+        for loader in choice_loader.loaders:
+            if hasattr(loader, 'provider') and 'monitoring' in loader.provider.module_path:
+                found = True
+                break
+
+        self.assertTrue(found, "Couldnt find added loader in path")
 
     @istest
     def appends_role_instance_to_cleanup_list_when_scheduling_cleanup(self):
@@ -1010,6 +1002,72 @@ class RoleTest(ProvyTestCase):
             self.role.execute_python_script(script, False, False)
 
         self.assertIs(values['put_file'].mock_calls[0][1][0], script)
+
+
+class TestEnsureLine(CoreRoleTest):
+    def setUp(self):
+        super(TestEnsureLine, self).setUp()
+        self.tested_file = os.path.join(tempfile.gettempdir(), "res" + str(uuid.uuid4()))
+        self.line_file = os.path.join(tempfile.gettempdir(), "line" + str(uuid.uuid4()))
+
+    def tearDown(self):
+        super(TestEnsureLine, self).tearDown()
+        # os.remove(self.tested_file)
+        # os.remove(self.line_file)
+
+    def _write(self, file_name, content):
+        """
+            Writes content to a file. Helper/
+        """
+        with open(file_name, "w") as f:
+            f.write(content.strip())
+
+    def execute_script(self):
+        """
+        Executes tested script
+        """
+        script = self.role.render("base_ensure_line.py", options={
+            "line": self.line_file,
+            "target": self.tested_file
+        })
+        exec(script)
+
+    def _assert_content(self, content):
+        """
+            Checks content of tested file
+        """
+        with open(self.tested_file) as f:
+            self.assertEquals(content.strip(), f.read().strip())
+
+    @istest
+    def writes_line_if_there_is_none(self):
+        TESTED_FILE = """
+foo bar
+bar baz
+baz foo
+        """
+        DESIRED_CONTENT = """
+foo bar
+bar baz
+baz foo
+foo foo
+        """
+        self._write(self.tested_file, TESTED_FILE)
+        self._write(self.line_file, "foo foo")
+        self.execute_script()
+        self._assert_content(DESIRED_CONTENT)
+
+    @istest
+    def doesnt_touch_file_if_there_is_line(self):
+        TESTED_FILE = """
+foo bar
+bar baz
+baz foo
+        """
+        self._write(self.tested_file, TESTED_FILE)
+        self._write(self.line_file, "bar baz")
+        self.execute_script()
+        self._assert_content(TESTED_FILE)
 
 
 class UsingRoleTest(ProvyTestCase):

@@ -15,7 +15,7 @@ from tempfile import gettempdir, NamedTemporaryFile
 import fabric.api
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 import uuid
-import StringIO
+from StringIO import StringIO
 
 
 class UsingRole(object):
@@ -67,10 +67,15 @@ class Role(object):
             context['used_roles'] = {}
         if 'roles_in_context' not in context:
             context['roles_in_context'] = {}
+        if not "registered_loaders" in context:
+            context["registered_loaders"] = []
+        if not "loader" in context:
+            from jinja2 import ChoiceLoader
+            context["loader"] = ChoiceLoader([])
         self._paths_to_remove = set()
         self.prov = prov
         self.context = context
-        # self.register_template_loader("provy.core")
+        self.register_template_loader("provy.core")
 
     def register_template_loader(self, package_name):
         '''
@@ -352,7 +357,7 @@ class Role(object):
         script_file = self.create_remote_temp_file("script", "py")
 
         if isinstance(script, basestring):
-            script = StringIO.StringIO(script)
+            script = StringIO(script)
 
         self.put_file(script, script_file, sudo, False)
 
@@ -934,7 +939,7 @@ class Role(object):
         Puts a file to the remote server.
 
         :param from_file: Source file in the local system.
-        :type from_file: :class:`str`
+        :type from_file: :class:`str` or :class:`file`
         :param to_file: Target path in the remote server.
         :type to_file: :class:`str`
         :param sudo: Indicates whether the file should be created by the super-user. Defaults to :data:`False`.
@@ -1209,28 +1214,14 @@ class Role(object):
         if '""""' in line:
             raise ValueError('Sorry as of today line can\'t contain """, since it is escaped using this line. Could be fixed in future release. ')
 
-        #Yes it is a hack
-        SCRIPT = '''
-LINE=""" {line} """
-LINE = LINE[1:-1]
-TARGET="""{target}"""
+        remote_tmp_file = self.create_remote_temp_file()
 
-import os
+        self.put_file(StringIO(line), remote_tmp_file, sudo=sudo, stdout=False)
 
-with open(TARGET, 'r') as file:
-    append_file = LINE not in file.read()
-
-if append_file:
-    with open(TARGET, 'a') as file:
-        file.write(LINE)
-
-if not append_file:
-    print "0"
-else:
-    print "1"
-        '''
-
-        script = SCRIPT.format(line=line, target=file_path)
+        script = self.render("base_ensure_line.py", options={
+            "line": remote_tmp_file,
+            "target": file_path
+        })
 
         self.execute_python_script(script, False, sudo)
 
