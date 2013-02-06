@@ -1211,9 +1211,6 @@ class Role(object):
                     self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
 
-        if '""""' in line:
-            raise ValueError('Sorry as of today line can\'t contain """, since it is escaped using this line. Could be fixed in future release. ')
-
         remote_tmp_file = self.create_remote_temp_file()
 
         self.put_file(StringIO(line), remote_tmp_file, sudo=sudo, stdout=False)
