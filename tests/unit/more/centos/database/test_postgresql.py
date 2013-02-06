@@ -1,4 +1,4 @@
-from mock import call, patch, DEFAULT
+from mock import call, patch
 from nose.tools import istest
 
 from provy.more.centos import YumRole, PostgreSQLRole
@@ -64,12 +64,9 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
             )
 
     @istest
-    @patch.multiple(
-        'provy.more.centos.postgresql.PostgreSQLRole', _run_on_startup=DEFAULT,
-        _ensure_running=DEFAULT, _ensure_initialized=DEFAULT,
-    )
-    def installs_necessary_packages_to_provision(self, **mocked_methods):
-        with self.using_stub(YumRole) as mock_yum:
+    def installs_necessary_packages_to_provision(self):
+        with self.using_stub(YumRole) as mock_yum, self.mock_role_methods('_run_on_startup', '_ensure_running', '_ensure_initialized'):
+            print mock_yum
             self.role.provision()
             install_calls = mock_yum.ensure_package_installed.mock_calls
             self.assertEqual(
@@ -77,5 +74,6 @@ class PostgreSQLRoleTest(PostgreSQLRoleTestCase):
                 [call('postgresql-server'), call('postgresql-devel')],
             )
 
-        for mock in mocked_methods.values():
-            self.assertTrue(mock.called)
+            self.assertTrue(self.role._run_on_startup.called)
+            self.assertTrue(self.role._ensure_running.called)
+            self.assertTrue(self.role._ensure_initialized.called)
