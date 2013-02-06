@@ -15,7 +15,7 @@ from tempfile import gettempdir, NamedTemporaryFile
 import fabric.api
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 import uuid
-import StringIO
+from StringIO import StringIO
 
 
 class UsingRole(object):
@@ -67,9 +67,15 @@ class Role(object):
             context['used_roles'] = {}
         if 'roles_in_context' not in context:
             context['roles_in_context'] = {}
+        if not "registered_loaders" in context:
+            context["registered_loaders"] = []
+        if not "loader" in context:
+            from jinja2 import ChoiceLoader
+            context["loader"] = ChoiceLoader([])
         self._paths_to_remove = set()
         self.prov = prov
         self.context = context
+        self.register_template_loader("provy.core")
 
     def register_template_loader(self, package_name):
         '''
@@ -351,7 +357,7 @@ class Role(object):
         script_file = self.create_remote_temp_file("script", "py")
 
         if isinstance(script, basestring):
-            script = StringIO.StringIO(script)
+            script = StringIO(script)
 
         self.put_file(script, script_file, sudo, False)
 
@@ -933,7 +939,7 @@ class Role(object):
         Puts a file to the remote server.
 
         :param from_file: Source file in the local system.
-        :type from_file: :class:`str`
+        :type from_file: :class:`str` or :class:`file`
         :param to_file: Target path in the remote server.
         :type to_file: :class:`str`
         :param sudo: Indicates whether the file should be created by the super-user. Defaults to :data:`False`.
@@ -1204,12 +1210,17 @@ class Role(object):
                 def provision(self):
                     self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
-        if not self.has_line(line, file_path):
-            chars_to_escape = ('"', '$', '`')
-            for char in chars_to_escape:
-                line = line.replace(char, r'\%s' % char)
-            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
-            self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
+
+        remote_tmp_file = self.create_remote_temp_file()
+
+        self.put_file(StringIO(line), remote_tmp_file, sudo=sudo, stdout=False)
+
+        script = self.render("base_ensure_line.py", options={
+            "line": remote_tmp_file,
+            "target": file_path
+        })
+
+        self.execute_python_script(script, False, sudo)
 
     def using(self, role):
         '''
