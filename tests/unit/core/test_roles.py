@@ -1012,8 +1012,8 @@ class TestEnsureLine(CoreRoleTest):
 
     def tearDown(self):
         super(TestEnsureLine, self).tearDown()
-        # os.remove(self.tested_file)
-        # os.remove(self.line_file)
+        os.remove(self.tested_file)
+        os.remove(self.line_file)
 
     def _write(self, file_name, content):
         """
