@@ -8,7 +8,7 @@ from .fixtures import (
     HOSTS_FOR_USER,
     DATABASES,
 )
-from provy.more.debian import AptitudeRole, MySQLRole
+from provy.more.centos import YumRole, MySQLRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -61,42 +61,33 @@ class MySQLRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        with self.using_stub(AptitudeRole) as mock_aptitude, self.execute_mock() as execute:
-            mock_aptitude.ensure_package_installed.return_value = 'some result'
+        with self.using_stub(YumRole) as mock_yum, self.execute_mock() as execute:
+            mock_yum.ensure_package_installed.return_value = 'some result'
 
             self.role.provision()
 
             self.assertEqual(execute.mock_calls, [
-                call('echo "mysql-server mysql-server/root_password select temppass" | debconf-set-selections',
-                     stdout=False, sudo=True),
-                call('echo "mysql-server mysql-server/root_password_again select temppass" | debconf-set-selections',
-                     stdout=False, sudo=True),
                 call("mysqladmin -u %s -p'temppass' password '%s'" % (self.role.mysql_root_user, self.role.mysql_root_pass),
                      stdout=False, sudo=True),
             ])
-            self.assertEqual(mock_aptitude.ensure_package_installed.mock_calls, [
+            self.assertEqual(mock_yum.ensure_package_installed.mock_calls, [
                 call('mysql-server'),
-                call('mysql-client'),
-                call('libmysqlclient-dev'),
+                call('mysql-devel'),
+                call('mysql-libs'),
             ])
 
     @istest
     def installs_necessary_packages_to_provision_again(self):
-        with self.using_stub(AptitudeRole) as mock_aptitude, self.execute_mock() as execute:
-            mock_aptitude.ensure_package_installed.return_value = False
+        with self.using_stub(YumRole) as mock_yum, self.execute_mock() as execute:
+            mock_yum.ensure_package_installed.return_value = False
 
             self.role.provision()
 
-            self.assertEqual(execute.mock_calls, [
-                call('echo "mysql-server mysql-server/root_password select temppass" | debconf-set-selections',
-                     stdout=False, sudo=True),
-                call('echo "mysql-server mysql-server/root_password_again select temppass" | debconf-set-selections',
-                     stdout=False, sudo=True),
-            ])
-            self.assertEqual(mock_aptitude.ensure_package_installed.mock_calls, [
+            self.assertFalse(execute.called)
+            self.assertEqual(mock_yum.ensure_package_installed.mock_calls, [
                 call('mysql-server'),
-                call('mysql-client'),
-                call('libmysqlclient-dev'),
+                call('mysql-devel'),
+                call('mysql-libs'),
             ])
 
     @istest

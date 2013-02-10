@@ -1,4 +1,4 @@
-from mock import call, DEFAULT, patch
+from mock import call, patch
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, SELinuxRole
@@ -11,7 +11,7 @@ class SELinuxRoleTest(ProvyTestCase):
 
     @istest
     def provisions_correctly(self):
-        with patch.multiple(self.role, install_packages=DEFAULT, activate=DEFAULT):
+        with self.mock_role_methods('install_packages', 'activate'):
             self.role.provision()
 
             self.role.install_packages.assert_called_with()
