@@ -13,6 +13,25 @@ from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
+class _PutFileMatcher(object):
+
+    """
+    Can be used to match first argument of put_file if we expected call like::
+
+        role.put_file(StringIO("foobar"), "/tmp/foo")
+
+    """
+
+    def __init__(self, test, file_contents):
+        self.test = test
+        self.file_contents = file_contents
+
+    def __eq__(self, other):
+        self.test.assertIsInstance(other, StringIO)
+        self.test.assertEqual(other.read(), self.file_contents)
+        return True
+
+
 class RoleTest(ProvyTestCase):
     def setUp(self):
         loader = ChoiceLoader([
@@ -100,52 +119,50 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def ignores_line_if_already_exists_in_file(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+        with self.mock_role_methods("has_line", "put_file", "execute") as mocked:
+            has_line, _, execute = mocked
             has_line.return_value = True
             self.role.ensure_line('this line in', '/some/file')
             self.assertFalse(execute.called)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+
+        LINE_CONTENTS = 'this line in'
+        REMOTE_TMP_FILE = "/tmp/foo"
+        with self.mock_role_methods("has_line", "put_file", "execute", "create_remote_temp_file") as mocked:
+            has_line, put_file, execute, create_remote_temp_file = mocked
+            create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user=None)
+            self.role.ensure_line(LINE_CONTENTS, "/some/file")
+            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, False, stdout=False)
+            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
 
     @istest
-    def escapes_quotes_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+    def inserts_line_if_it_doesnt_exist_yet_with_sudo(self):
+
+        LINE_CONTENTS = 'this line in'
+        REMOTE_TMP_FILE = "/tmp/foo"
+        with self.mock_role_methods("has_line", "put_file", "execute", "create_remote_temp_file") as mocked:
+            has_line, put_file, execute, create_remote_temp_file = mocked
+            create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
-            self.role.ensure_line('this could be a "quote"', '/some/file')
-            execute.assert_called_with(r'echo "this could be a \"quote\"" >> /some/file', stdout=False, sudo=False, user=None)
+            self.role.ensure_line(LINE_CONTENTS, "/some/file", sudo=True)
+            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
+            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
 
     @istest
-    def escapes_dollars_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('I may have U$ 10.00', '/some/file')
-            execute.assert_called_with(r'echo "I may have U\$ 10.00" >> /some/file', stdout=False, sudo=False, user=None)
+    def inserts_line_if_it_doesnt_exist_yet_with_user(self):
 
-    @istest
-    def escapes_backticks_when_inserting_line(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
+        LINE_CONTENTS = 'this line in'
+        REMOTE_TMP_FILE = "/tmp/foo"
+        with self.mock_role_methods("has_line", "put_file", "execute", "create_remote_temp_file") as mocked:
+            has_line, put_file, execute, create_remote_temp_file = mocked
+            create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
-            self.role.ensure_line('To show your dir: `pwd`', '/some/file')
-            execute.assert_called_with(r'echo "To show your dir: \`pwd\`" >> /some/file', stdout=False, sudo=False, user=None)
-
-    @istest
-    def inserts_line_with_sudo(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', sudo=True)
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=True, user=None)
-
-    @istest
-    def inserts_line_with_specific_user(self):
-        with self.mock_role_method('has_line') as has_line, self.execute_mock() as execute:
-            has_line.return_value = False
-            self.role.ensure_line('this line in', '/some/file', owner='foo')
-            execute.assert_called_with('echo "this line in" >> /some/file', stdout=False, sudo=False, user='foo')
+            self.role.ensure_line(LINE_CONTENTS, "/some/file", owner="foo")
+            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
+            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
 
     @istest
     def registers_a_template_loader(self):
