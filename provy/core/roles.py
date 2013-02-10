@@ -15,7 +15,7 @@ from tempfile import gettempdir, NamedTemporaryFile
 import fabric.api
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 import uuid
-import StringIO
+from StringIO import StringIO
 
 
 class UsingRole(object):
@@ -351,7 +351,7 @@ class Role(object):
         script_file = self.create_remote_temp_file("script", "py")
 
         if isinstance(script, basestring):
-            script = StringIO.StringIO(script)
+            script = StringIO(script)
 
         self.put_file(script, script_file, sudo, False)
 
@@ -1205,10 +1205,11 @@ class Role(object):
                     self.ensure_line('127.0.0.1     localhost', '/etc/hosts')
         '''
         if not self.has_line(line, file_path):
-            chars_to_escape = ('"', '$', '`')
-            for char in chars_to_escape:
-                line = line.replace(char, r'\%s' % char)
-            self.execute('echo "%s" >> %s' % (line, file_path), stdout=False, sudo=sudo, user=owner)
+
+            remote_file = self.create_remote_temp_file()
+            self.put_file(StringIO(line), remote_file, sudo, stdout=False)
+
+            self.execute('cat "%s" >> %s' % (remote_file, file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
     def using(self, role):
