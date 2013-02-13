@@ -13,7 +13,7 @@ from provy.core.roles import Role, UsingRole, UpdateData
 from tests.unit.tools.helpers import PROJECT_ROOT, ProvyTestCase
 
 
-class _PutFileMatcher(object):
+class FileContentMatcher(object):
 
     """
     Can be used to match first argument of put_file if we expected call like::
@@ -135,7 +135,7 @@ class RoleTest(ProvyTestCase):
             create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file")
-            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, False, stdout=False)
+            put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, False, stdout=False)
             execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
 
     @istest
@@ -148,7 +148,7 @@ class RoleTest(ProvyTestCase):
             create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", sudo=True)
-            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
+            put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
             execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
 
     @istest
@@ -161,7 +161,7 @@ class RoleTest(ProvyTestCase):
             create_remote_temp_file.return_value = REMOTE_TMP_FILE
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", owner="foo")
-            put_file.assert_called_with(_PutFileMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
+            put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
             execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
 
     @istest
