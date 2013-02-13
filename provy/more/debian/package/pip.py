@@ -241,6 +241,13 @@ class PipRole(Role):
 
     def ensure_requeriments_installed(self, requeriments_file_name):
         '''
+        Fix typo without breaking backwards compatibility.
+        '''
+        self.log('"ensure_requeriments_installed" is deprecated, please use "ensure_requirements_installed" instead.')
+        self.ensure_requirements_installed(requeriments_file_name)
+
+    def ensure_requirements_installed(self, requirements_file_name):
+        '''
         Makes sure the requirements file provided is installed.
 
         :param requeriments_file_name: Path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
@@ -255,9 +262,9 @@ class PipRole(Role):
                         role.ensure_requeriments_installed('/path/to/requirements.txt')
         '''
 
-        with open(requeriments_file_name, 'r') as requeriments_file:
-            for requeriment in requeriments_file.readlines():
-                self.ensure_package_installed(requeriment.strip())
+        with open(requirements_file_name, 'r') as requirements_file:
+            for requirement in requirements_file.readlines():
+                self.ensure_package_installed(requirement.strip())
 
     def ensure_package_up_to_date(self, package_name):
         '''
