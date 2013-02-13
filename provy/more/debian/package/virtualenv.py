@@ -25,7 +25,9 @@ class VirtualenvRole(Role):
     :type env_name: :class:`str`
     :param system_site_packages: If :data:`True`, will include system-wide site-packages in the virtual environment. Defaults to :data:`False`.
     :type system_site_packages: :class:`bool`
-    :ivar base_directory: (:class:`str`) Directory where the virtual environment subdirectory will be put at. For example, if you set it as "/home/johndoe/my_envs", and use venv("some_env"), it will create a virtual environment at "/home/johndoe/my_envs/some_env". Defaults to $HOME/.virtualenvs .
+    :ivar base_directory: (:class:`str`) Directory where the virtual environment subdirectory will be put at.
+        For example, if you set it as "/home/johndoe/my_envs", and use venv("some_env"), it will create a virtual environment at "/home/johndoe/my_envs/some_env".
+        Defaults to $HOME/.virtualenvs (or :attr:`venv.user` `/.virtualenvs`, if the user is explicitly set - see below -).
     :ivar user: (:class:`str`) The user with which the virtual environment should be created. Defaults to the context user.
 
     Example:
@@ -52,7 +54,30 @@ class VirtualenvRole(Role):
     def __init__(self, prov, context):
         super(VirtualenvRole, self).__init__(prov, context)
         self.user = context['user']
-        self.base_directory = os.path.join(self.__get_user_dir(), '.virtualenvs')
+        self.base_directory = None
+
+    def get_base_directory(self):
+        '''
+        Gets the base directory that will be used to create the virtual environment.
+
+        By default, it returns a subdir under the current venv user home and ".virtualenvs".
+        If you wish to change the directory where it gets created, just set :attr:`role.base_directory <base_directory>`
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import VirtualenvRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(VirtualenvRole) as venv:
+                        venv.user = 'johndoe'
+                        venv.get_base_directory() # "/home/johndoe/.virtualenvs"
+                        venv.base_directory = '/home/johndoe/Envs'
+                        venv.get_base_directory() # "/home/johndoe/Envs"
+        '''
+        return self.base_directory or os.path.join(self.__get_user_dir(), '.virtualenvs')
 
     def __get_user_dir(self):
         if self.user == 'root':
@@ -82,7 +107,7 @@ class VirtualenvRole(Role):
                     with self.using(VirtualenvRole) as venv, venv('fancylib'):
                         venv.env_dir('fancylib')
         '''
-        return os.path.join(self.base_directory, env_name)
+        return os.path.join(self.get_base_directory(), env_name)
 
     @contextmanager
     def __call__(self, env_name, system_site_packages=False):
