@@ -11,7 +11,7 @@ setup(
     keywords='provisioning devops infrastructure server',
     author='Bernardo Heynemann',
     author_email='heynemann@gmail.com',
-    url='http://provy.me',
+    url='https://provy.readthedocs.org',
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
