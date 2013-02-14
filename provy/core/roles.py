@@ -334,13 +334,12 @@ class Role(object):
     def execute_python_script(self, script, stdout=True, sudo=False):
         """
         Executes python script on remote server. Difference with
-        :func:`execute_python` is that this implementation uploads a file
+        :meth:`execute_python` is that this implementation uploads a file
         with script to remote server and then executes it, so we have no
         problems with shell expansion.
 
-        :param script: Script to be executed on remote server. Can be either
-            a string or a (opened) file like object.
-        :type script:`string or an opened file`
+        :param script: Script to be executed on remote server. Can be either a string or a (opened) file like object.
+        :type script: `string or an opened file`
         :param stdout: If you specify this argument as False, the standard output of the command execution will not be displayed in the console. Defaults to :class:`True`.
         :type stdout: :class:`bool`
         :param sudo: Specifies whether this command needs to be run as the super-user. Doesn't need to be provided if the "user" parameter (below) is provided. Defaults to :class:`False`.
