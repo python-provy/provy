@@ -22,5 +22,5 @@ the webserver role (-r).
 
 ## Documentation
 
-For more documentation on how to use it, go to [the provy page](http://python-provy.github.com/provy/)
+For more documentation on how to use it, go to [the provy page](https://provy.readthedocs.org/)
 
