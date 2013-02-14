@@ -10,6 +10,7 @@ provy
    :hidden:
 
    /whats-provy
+   /changelog
    /installing
    /getting-started
    /provyfile
@@ -37,6 +38,7 @@ Documentation
 (:doc:`Looking for the API? Here's a shortcut! </api/modules>`)
 
 * :doc:`whats-provy`
+* :doc:`changelog`
 * :doc:`installing`
 * :doc:`getting-started`
 * :doc:`provyfile`
