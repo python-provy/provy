@@ -131,7 +131,7 @@ class PipRoleTest(PipRoleTestCase):
                 call('yolk==0.4.1'),
                 call('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
                 call('-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost'),
-                ])
+            ])
 
     @istest
     def doesnt_install_a_package_if_its_already_installed_by_name(self):
