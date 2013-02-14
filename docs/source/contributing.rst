@@ -17,11 +17,16 @@ Therefore, it's very important to keep some things in mind when contributing wit
 * Test everything you can, with automated tests. If possible, please develop code with `TDD <http://en.wikipedia.org/wiki/Test-driven_development>`_.
   If you're having a hard time building tests, don't hesitate to ask for help in the `provy mailing list <http://groups.google.com/group/provy>`_.
   We are happy to help you keep your code well-covered by tests;
+
 * When writing actual code, follow the conventions in `PEP 8 <http://www.python.org/dev/peps/pep-0008/>`_
   (except for `maximum line length <http://www.python.org/dev/peps/pep-0008/#maximum-line-length>`_,
   which we don't follow because there are too many parts of the project that require large strings to be used);
+
 * When writing docstrings, follow the conventions in `PEP 257 <http://www.python.org/dev/peps/pep-0257/>`_
   (take a look at other docstrings in the project to get a feel of how we organize them);
+
+  - Also, when writing docstrings for the API, provide examples of how that method or class works.
+    Having a code example of a part of the API is really helpful for the user.
 
 Setting up your environment
 ***************************
