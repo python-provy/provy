@@ -1208,7 +1208,7 @@ class Role(object):
             remote_file = self.create_remote_temp_file()
             self.put_file(StringIO(line), remote_file, bool(sudo or owner), stdout=False)
 
-            self.execute('cat "%s" >> %s' % (remote_file, file_path), stdout=False, sudo=sudo, user=owner)
+            self.execute('cat {line} >> {target} && echo >> {target}'.format(line=remote_file, target=file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
     def using(self, role):
