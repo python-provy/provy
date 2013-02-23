@@ -136,7 +136,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file")
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, False, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet_with_sudo(self):
@@ -149,7 +149,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", sudo=True)
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet_with_user(self):
@@ -162,7 +162,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", owner="foo")
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
 
     @istest
     def registers_a_template_loader(self):
