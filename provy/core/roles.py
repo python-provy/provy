@@ -4,7 +4,7 @@
 '''
 Module responsible for the base Role and its operations.
 '''
-
+import re
 import codecs
 from contextlib import contextmanager
 import os
@@ -1176,8 +1176,10 @@ class Role(object):
 
         contents = self.read_remote_file(file_path).split('\n')
 
+        stripped_line = re.sub("\s+", '', line)
+
         for current_line in contents:
-            if line.replace(' ', '') == current_line.replace(' ', ''):
+            if stripped_line == re.sub("\s+", '', current_line):
                 return True
         return False
 

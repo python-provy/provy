@@ -914,6 +914,21 @@ class RoleTest(ProvyTestCase):
             self.role.read_remote_file.assert_called_with(file_path)
 
     @istest
+    def checks_that_a_file_has_a_certain_line_metachars(self):
+        content = "some content\r\n127.0.0.1    localhost\r\nsome other content"
+        file_path = '/some/path'
+        line = '127.0.0.1 localhost'
+
+        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+            self.role.remote_exists.return_value = True
+            self.role.read_remote_file.return_value = content
+
+            self.assertTrue(self.role.has_line(line, file_path))
+
+            self.role.remote_exists.assert_called_with(file_path)
+            self.role.read_remote_file.assert_called_with(file_path)
+
+    @istest
     def checks_that_a_file_doesnt_have_a_certain_line(self):
         content = """
         some content
