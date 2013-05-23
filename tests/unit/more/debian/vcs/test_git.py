@@ -6,6 +6,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class GitRoleTest(ProvyTestCase):
     def setUp(self):
+        super(GitRoleTest, self).setUp()
         self.role = GitRole(prov=None, context={})
 
     @istest

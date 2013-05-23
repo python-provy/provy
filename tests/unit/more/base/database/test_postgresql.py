@@ -9,6 +9,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class PostgreSQLRoleTestCase(ProvyTestCase):
     def setUp(self):
+        super(PostgreSQLRoleTestCase, self).setUp()
         self.role = BasePostgreSQLRole(prov=None, context={})
         self.execute = MagicMock(side_effect=self.return_execution_result)
         self.execution_results = []

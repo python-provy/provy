@@ -58,6 +58,7 @@ class PipRoleTestCase(ProvyTestCase):
 
 class PipRoleTest(PipRoleTestCase):
     def setUp(self):
+        super(PipRoleTest, self).setUp()
         self.role = PipRole(prov=None, context={'user': 'johndoe'})
 
     @istest

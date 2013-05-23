@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class SupervisorRoleTest(ProvyTestCase):
     def setUp(self):
+        super(SupervisorRoleTest, self).setUp()
         self.role = SupervisorRole(prov=None, context={})
 
     @istest

@@ -10,6 +10,7 @@ from tests.unit.tools.helpers import ProvyTestCase, PROJECT_ROOT
 
 class SSHRoleTest(ProvyTestCase):
     def setUp(self):
+        super(SSHRoleTest, self).setUp()
         self.role = SSHRole(None, {})
 
         template_dir = os.path.join(PROJECT_ROOT, 'tests', 'unit', 'fixtures')

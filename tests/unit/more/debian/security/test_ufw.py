@@ -6,6 +6,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class UFWRoleTest(ProvyTestCase):
     def setUp(self):
+        super(UFWRoleTest, self).setUp()
         self.role = UFWRole(prov=None, context={'cleanup': []})
 
     @istest

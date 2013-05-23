@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class SELinuxRoleTest(ProvyTestCase):
     def setUp(self):
+        super(SELinuxRoleTest, self).setUp()
         self.role = SELinuxRole(prov=None, context={'cleanup': []})
 
     @istest

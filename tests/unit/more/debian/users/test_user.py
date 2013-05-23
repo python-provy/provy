@@ -33,6 +33,7 @@ foo : foo adm cdrom sudo dip plugdev lpadmin sambashare
 
 class UserRoleTest(ProvyTestCase):
     def setUp(self):
+        super(UserRoleTest, self).setUp()
         self.role = UserRole(None, {})
 
     @istest

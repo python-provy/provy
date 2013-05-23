@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class ApacheRoleTest(ProvyTestCase):
     def setUp(self):
+        super(ApacheRoleTest, self).setUp()
         self.role = ApacheRole(prov=None, context={})
 
     @istest

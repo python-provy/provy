@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class RedisRoleTest(ProvyTestCase):
     def setUp(self):
+        super(RedisRoleTest, self).setUp()
         self.role = RedisRole(prov=None, context={})
 
     @istest

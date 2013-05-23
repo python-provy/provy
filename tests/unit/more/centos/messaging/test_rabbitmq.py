@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class RabbitMqRoleTest(ProvyTestCase):
     def setUp(self):
+        super(RabbitMqRoleTest, self).setUp()
         self.role = RabbitMqRole(prov=None, context={})
 
     @istest

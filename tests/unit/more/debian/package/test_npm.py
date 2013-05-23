@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class NPMRoleTest(ProvyTestCase):
     def setUp(self):
+        super(NPMRoleTest, self).setUp()
         self.role = NPMRole(prov=None, context={})
 
     @istest

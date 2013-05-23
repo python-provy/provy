@@ -9,6 +9,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class MongoDBRoleTest(ProvyTestCase):
     def setUp(self):
+        super(MongoDBRoleTest, self).setUp()
         self.role = MongoDBRole(prov=None, context={})
 
     @contextmanager

@@ -145,16 +145,16 @@ class DjangoRole(Role):
         '''
         self.register_template_loader('provy.more.debian.web')
 
-        with self.using(AptitudeRole) as role:
-            role.ensure_package_installed('python-mysqldb')
+        with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_package_installed('python-mysqldb')
 
-        with self.using(PipRole) as role:
+        with self.using(PipRole) as pip:
             if 'django-version' in self.context:
-                role.ensure_package_installed('django', version=self.context['django-version'])
+                pip.ensure_package_installed('django', version=self.context['django-version'])
             else:
-                role.ensure_package_installed('django')
+                pip.ensure_package_installed('django')
 
-            role.ensure_package_installed('gunicorn')
+            pip.ensure_package_installed('gunicorn')
 
     def create_site(self, name):
         '''

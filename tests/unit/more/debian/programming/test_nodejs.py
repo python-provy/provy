@@ -9,6 +9,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class NodeJsRoleTest(ProvyTestCase):
     def setUp(self):
+        super(NodeJsRoleTest, self).setUp()
         self.role = NodeJsRole(prov=None, context={})
 
     @contextmanager

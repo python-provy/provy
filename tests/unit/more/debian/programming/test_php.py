@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class PHPRoleTest(ProvyTestCase):
     def setUp(self):
+        super(PHPRoleTest, self).setUp()
         self.role = PHPRole(prov=None, context={})
 
     @istest

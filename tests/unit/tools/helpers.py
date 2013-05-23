@@ -13,14 +13,16 @@ PROJECT_ROOT = abspath(join(dirname(__file__), '..', '..', '..'))
 class ProvyTestCase(TestCase):
     def setUp(self):
         self.role = Role(prov=None, context={})
+        self.using_mocks = {}
 
     @contextmanager
     def using_stub(self, role):
         mock_role = MagicMock(spec=role)
+        self.using_mocks[role] = mock_role
 
         @contextmanager
-        def stub_using(self, klass):
-            yield mock_role
+        def stub_using(inner_self, klass):
+            yield self.using_mocks[klass]
 
         with patch('provy.core.roles.Role.using', stub_using):
             yield mock_role

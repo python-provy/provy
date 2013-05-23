@@ -10,6 +10,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class VirtualenvRoleTest(ProvyTestCase):
     def setUp(self):
+        super(VirtualenvRoleTest, self).setUp()
         self.role = VirtualenvRole(prov=None, context={'user': 'johndoe'})
 
     @contextmanager

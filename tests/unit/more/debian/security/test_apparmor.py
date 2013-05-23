@@ -6,6 +6,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class AppArmorRoleTest(ProvyTestCase):
     def setUp(self):
+        super(AppArmorRoleTest, self).setUp()
         self.role = AppArmorRole(prov=None, context={'cleanup': []})
 
     @istest

@@ -14,6 +14,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class MySQLRoleTest(ProvyTestCase):
     def setUp(self):
+        super(MySQLRoleTest, self).setUp()
         self.role = MySQLRole(prov=None, context={})
 
     @istest

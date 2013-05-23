@@ -7,6 +7,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 
 class IPTablesRoleTest(ProvyTestCase):
     def setUp(self):
+        super(IPTablesRoleTest, self).setUp()
         self.role = IPTablesRole(prov=None, context={'cleanup': []})
 
     @istest
