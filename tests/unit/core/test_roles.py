@@ -136,7 +136,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file")
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, False, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user=None)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet_with_sudo(self):
@@ -149,7 +149,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", sudo=True)
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=True, user=None)
 
     @istest
     def inserts_line_if_it_doesnt_exist_yet_with_user(self):
@@ -162,7 +162,7 @@ class RoleTest(ProvyTestCase):
             has_line.return_value = False
             self.role.ensure_line(LINE_CONTENTS, "/some/file", owner="foo")
             put_file.assert_called_with(FileContentMatcher(self, LINE_CONTENTS), REMOTE_TMP_FILE, True, stdout=False)
-            execute.assert_called_with('cat "{}" >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
+            execute.assert_called_with('cat {} >> /some/file && echo >> /some/file'.format(REMOTE_TMP_FILE), stdout=False, sudo=False, user="foo")
 
     @istest
     def registers_a_template_loader(self):
@@ -901,6 +901,21 @@ class RoleTest(ProvyTestCase):
         127.0.0.1    localhost
         some other content
         """
+        file_path = '/some/path'
+        line = '127.0.0.1 localhost'
+
+        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+            self.role.remote_exists.return_value = True
+            self.role.read_remote_file.return_value = content
+
+            self.assertTrue(self.role.has_line(line, file_path))
+
+            self.role.remote_exists.assert_called_with(file_path)
+            self.role.read_remote_file.assert_called_with(file_path)
+
+    @istest
+    def checks_that_a_file_has_a_certain_line_metachars(self):
+        content = "some content\r\n127.0.0.1    localhost\r\nsome other content"
         file_path = '/some/path'
         line = '127.0.0.1 localhost'
 

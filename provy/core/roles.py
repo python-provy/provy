@@ -4,7 +4,7 @@
 '''
 Module responsible for the base Role and its operations.
 '''
-
+import re
 import codecs
 from contextlib import contextmanager
 import os
@@ -1176,8 +1176,10 @@ class Role(object):
 
         contents = self.read_remote_file(file_path).split('\n')
 
+        stripped_line = re.sub("\s+", '', line)
+
         for current_line in contents:
-            if line.replace(' ', '') == current_line.replace(' ', ''):
+            if stripped_line == re.sub("\s+", '', current_line):
                 return True
         return False
 
@@ -1208,7 +1210,7 @@ class Role(object):
             remote_file = self.create_remote_temp_file()
             self.put_file(StringIO(line), remote_file, bool(sudo or owner), stdout=False)
 
-            self.execute('cat "%s" >> %s' % (remote_file, file_path), stdout=False, sudo=sudo, user=owner)
+            self.execute('cat {line} >> {target} && echo >> {target}'.format(line=remote_file, target=file_path), stdout=False, sudo=sudo, user=owner)
             self.log('Line "%s" not found in %s. Adding it.' % (line, file_path))
 
     def using(self, role):
