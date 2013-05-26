@@ -19,10 +19,14 @@ class ProvyTestCase(TestCase):
     def using_stub(self, role):
         mock_role = MagicMock(spec=role)
         self.using_mocks[role] = mock_role
+        self.role.context.setdefault('roles_in_context', {})
 
         @contextmanager
         def stub_using(inner_self, klass):
-            yield self.using_mocks[klass]
+            role_instance = self.using_mocks[klass]
+            self.role.context['roles_in_context'][klass] = role_instance
+            yield role_instance
+            del self.role.context['roles_in_context'][klass]
 
         with patch('provy.core.roles.Role.using', stub_using):
             yield mock_role
