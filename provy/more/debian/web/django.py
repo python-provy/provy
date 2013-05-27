@@ -192,21 +192,21 @@ class DjangoRole(Role):
 
         if SITES_KEY in self.context:
             for website in self.context[SITES_KEY]:
-                updated = self.__update_init_script(website)
-                settings_updated = self.__update_settings(website)
+                updated = self._update_init_script(website)
+                settings_updated = self._update_settings(website)
                 if website.use_supervisor:
-                    self.__update_supervisor_program(website)
+                    self._update_supervisor_program(website)
                 if updated or settings_updated:
-                    self.__ensure_restart(website)
+                    self._ensure_restart(website)
 
         if MUST_RESTART_KEY in self.context and self.context[MUST_RESTART_KEY]:
             if self.restart_supervisor_on_changes:
                 with self.using(SupervisorRole) as role:
                     role.ensure_restart()
             for site in self.context[MUST_RESTART_KEY]:
-                self.__restart(site)
+                self._restart(site)
 
-    def __update_supervisor_program(self, website):
+    def _update_supervisor_program(self, website):
         with self.using(SupervisorRole) as role:
             for process_number in range(website.processes):
                 port = website.starting_port + process_number
@@ -219,12 +219,12 @@ class DjangoRole(Role):
                     program.user = website.user
                     program.log_folder = website.supervisor_log_folder
 
-    def __ensure_restart(self, website):
+    def _ensure_restart(self, website):
         if not MUST_RESTART_KEY in self.context:
             self.context[MUST_RESTART_KEY] = []
         self.context[MUST_RESTART_KEY].append(website)
 
-    def __restart(self, website):
+    def _restart(self, website):
         if not website.auto_start:
             return
         for process_number in range(website.processes):
@@ -234,7 +234,7 @@ class DjangoRole(Role):
                 self.execute('/etc/init.d/%s stop' % script_name, stdout=False, sudo=True)
             self.execute('/etc/init.d/%s start' % script_name, stdout=False, sudo=True)
 
-    def __update_settings(self, website):
+    def _update_settings(self, website):
         local_settings_path = join(dirname(website.settings_path), 'local_settings.py')
         options = {
             'settings_file': splitext(split(website.settings_path)[-1])[0],
@@ -243,7 +243,7 @@ class DjangoRole(Role):
         result = self.update_file('local.settings.template', local_settings_path, owner=website.user, options=options, sudo=True)
         return result
 
-    def __update_init_script(self, website):
+    def _update_init_script(self, website):
         at_least_one_updated = False
         for process_number in range(website.processes):
             port = website.starting_port + process_number

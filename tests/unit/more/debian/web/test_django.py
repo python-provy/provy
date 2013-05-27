@@ -85,3 +85,9 @@ class DjangoRoleTest(ProvyTestCase):
 
         self.assertIn(site, self.role.context[SITES_KEY])
         self.assertFalse(self.role.restart_supervisor_on_changes)
+
+    @istest
+    def does_nothing_on_cleanup_if_nothing_done(self):
+        '''This is just a dumb test to see if cleanup() doesn't break when there's nothing to cleanup.'''
+
+        self.role.cleanup()
