@@ -115,3 +115,21 @@ class DjangoRoleTest(ProvyTestCase):
             self.assertEqual(self.role._restart.mock_calls, [call(foo_site), call(bar_site)])
 
             supervisor_role.ensure_restart.assert_called_with()
+
+    @istest
+    def installs_each_configured_site_without_supervisor(self):
+        with self.role.create_site('foo_site') as foo_site:
+            foo_site.settings_path = '/some/settings.path'
+
+        with self.mock_role_methods('_update_init_script', '_update_settings', '_update_supervisor_program', '_restart'), self.using_stub(SupervisorRole) as supervisor_role:
+            self.role._update_init_script.return_value = True
+            self.role._update_settings.return_value = True
+
+            self.role.cleanup()
+
+            self.role._update_init_script.assert_called_once_with(foo_site)
+            self.role._update_settings.assert_called_once_with(foo_site)
+            self.role._restart.assert_called_once_with(foo_site)
+
+            self.assertFalse(self.role._update_supervisor_program.called)
+            self.assertFalse(supervisor_role.ensure_restart.called)
