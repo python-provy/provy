@@ -127,9 +127,20 @@ class DjangoRoleTest(ProvyTestCase):
 
             self.role.cleanup()
 
-            self.role._update_init_script.assert_called_once_with(foo_site)
-            self.role._update_settings.assert_called_once_with(foo_site)
             self.role._restart.assert_called_once_with(foo_site)
 
             self.assertFalse(self.role._update_supervisor_program.called)
             self.assertFalse(supervisor_role.ensure_restart.called)
+
+    @istest
+    def doesnt_restart_on_cleanup_if_settings_not_updated(self):
+        with self.role.create_site('foo_site') as foo_site:
+            foo_site.settings_path = '/some/settings.path'
+
+        with self.mock_role_methods('_update_init_script', '_update_settings', '_restart'):
+            self.role._update_init_script.return_value = False
+            self.role._update_settings.return_value = False
+
+            self.role.cleanup()
+
+            self.assertFalse(self.role._restart.called)
