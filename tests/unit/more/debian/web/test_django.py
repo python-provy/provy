@@ -1,4 +1,4 @@
-from mock import call
+from mock import call, MagicMock
 from nose.tools import istest
 
 from provy.more.debian import DjangoRole, AptitudeRole, PipRole, SupervisorRole
@@ -144,3 +144,34 @@ class DjangoRoleTest(ProvyTestCase):
             self.role.cleanup()
 
             self.assertFalse(self.role._restart.called)
+
+    @istest
+    def updates_supervisor_program_with_site(self):
+        website = self.role.create_site('foo-site')
+        website.starting_port = 8000
+        website.processes = 2
+        website.settings_path = '/some/settings/path/settings.conf'
+        website.user = 'some-user'
+        website.supervisor_log_folder = '/some/log/folder'
+
+        programs = [MagicMock(), MagicMock()]
+
+        with self.using_stub(SupervisorRole) as supervisor_role:
+            mock_with_program = supervisor_role.with_program.return_value
+            mock_with_program.__enter__.side_effect = programs
+
+            self.role._update_supervisor_program(website)
+
+            self.assertEqual(programs[0].directory, '/some/settings/path')
+            self.assertEqual(programs[0].command, '/etc/init.d/foo-site-8000 start')
+            self.assertEqual(programs[0].name, 'foo-site-8000')
+            self.assertEqual(programs[0].number_of_processes, 1)
+            self.assertEqual(programs[0].user, website.user)
+            self.assertEqual(programs[0].log_folder, website.supervisor_log_folder)
+
+            self.assertEqual(programs[1].directory, '/some/settings/path')
+            self.assertEqual(programs[1].command, '/etc/init.d/foo-site-8001 start')
+            self.assertEqual(programs[1].name, 'foo-site-8001')
+            self.assertEqual(programs[1].number_of_processes, 1)
+            self.assertEqual(programs[1].user, website.user)
+            self.assertEqual(programs[1].log_folder, website.supervisor_log_folder)
