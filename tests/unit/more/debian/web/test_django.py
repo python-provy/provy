@@ -91,3 +91,27 @@ class DjangoRoleTest(ProvyTestCase):
         '''This is just a dumb test to see if cleanup() doesn't break when there's nothing to cleanup.'''
 
         self.role.cleanup()
+
+    @istest
+    def installs_each_configured_site(self):
+        with self.using_stub(SupervisorRole), self.role.using(SupervisorRole) as supervisor_role:
+            supervisor_role.log_folder = '/supervisor/log/folder'
+
+            with self.role.create_site('foo_site') as foo_site:
+                foo_site.settings_path = '/some/settings.path'
+
+            with self.role.create_site('bar_site') as bar_site:
+                bar_site.settings_path = '/some/settings.path'
+
+        with self.mock_role_methods('_update_init_script', '_update_settings', '_update_supervisor_program', '_restart'), self.using_stub(SupervisorRole) as supervisor_role:
+            self.role._update_init_script.return_value = True
+            self.role._update_settings.return_value = True
+
+            self.role.cleanup()
+
+            self.assertEqual(self.role._update_init_script.mock_calls, [call(foo_site), call(bar_site)])
+            self.assertEqual(self.role._update_settings.mock_calls, [call(foo_site), call(bar_site)])
+            self.assertEqual(self.role._update_supervisor_program.mock_calls, [call(foo_site), call(bar_site)])
+            self.assertEqual(self.role._restart.mock_calls, [call(foo_site), call(bar_site)])
+
+            supervisor_role.ensure_restart.assert_called_with()
