@@ -234,3 +234,52 @@ class DjangoRoleTest(ProvyTestCase):
 
             self.assertEqual(result, 'some result')
             self.role.update_file.assert_called_once_with('local.settings.template', '/foo/local_settings.py', owner=None, sudo=True, options={'settings': {}, 'settings_file': 'settings'})
+
+    @istest
+    def updates_init_script(self):
+        with self.role.create_site('bar-site') as website:
+            website.settings_path = '/foo/settings.py'
+
+        with self.mock_role_methods('execute', 'update_file'):
+            self.role.update_file.return_value = True
+
+            result = self.role._update_init_script(website)
+
+            self.assertTrue(result)
+            self.role.update_file.assert_called_once_with('website.init.template', '/etc/init.d/bar-site-8000', options={
+                'pid_file_path': '/var/run',
+                'name': 'bar-site',
+                'threads': 1,
+                'host': '0.0.0.0',
+                'settings_directory': '/foo',
+                'port': 8000,
+                'user': None,
+                'daemon': True
+            }, sudo=True, owner=None)
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('chmod +x /etc/init.d/bar-site-8000', sudo=True, stdout=False),
+                call('update-rc.d bar-site-8000 defaults', sudo=True, stdout=False),
+            ])
+
+    @istest
+    def doesnt_update_init_script_if_update_file_fails(self):
+        with self.role.create_site('bar-site') as website:
+            website.settings_path = '/foo/settings.py'
+
+        with self.mock_role_methods('execute', 'update_file'):
+            self.role.update_file.return_value = False
+
+            result = self.role._update_init_script(website)
+
+            self.assertFalse(result)
+            self.role.update_file.assert_called_once_with('website.init.template', '/etc/init.d/bar-site-8000', options={
+                'pid_file_path': '/var/run',
+                'name': 'bar-site',
+                'threads': 1,
+                'host': '0.0.0.0',
+                'settings_directory': '/foo',
+                'port': 8000,
+                'user': None,
+                'daemon': True
+            }, sudo=True, owner=None)
+            self.assertFalse(self.role.execute.called)
