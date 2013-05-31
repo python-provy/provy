@@ -175,3 +175,49 @@ class DjangoRoleTest(ProvyTestCase):
             self.assertEqual(programs[1].number_of_processes, 1)
             self.assertEqual(programs[1].user, website.user)
             self.assertEqual(programs[1].log_folder, website.supervisor_log_folder)
+
+    @istest
+    def restarts_site_when_running(self):
+        website = self.role.create_site('bar-site')
+        website.pid_file_path = '/foo/'
+
+        with self.mock_role_methods('execute', 'remote_exists'):
+            self.role.remote_exists.return_value = True
+
+            self.role._restart(website)
+
+            self.assertEqual(self.role.remote_exists.mock_calls, [
+                call('/foo/bar-site_8000.pid'),
+            ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('/etc/init.d/bar-site-8000 stop', stdout=False, sudo=True),
+                call('/etc/init.d/bar-site-8000 start', stdout=False, sudo=True),
+            ])
+
+    @istest
+    def restarts_site_when_not_running(self):
+        website = self.role.create_site('bar-site')
+        website.pid_file_path = '/foo/'
+
+        with self.mock_role_methods('execute', 'remote_exists'):
+            self.role.remote_exists.return_value = False
+
+            self.role._restart(website)
+
+            self.assertEqual(self.role.remote_exists.mock_calls, [
+                call('/foo/bar-site_8000.pid'),
+            ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('/etc/init.d/bar-site-8000 start', stdout=False, sudo=True),
+            ])
+
+    @istest
+    def doesnt_restart_when_not_autostarting(self):
+        website = self.role.create_site('bar-site')
+        website.auto_start = False
+
+        with self.mock_role_methods('execute', 'remote_exists'):
+            self.role._restart(website)
+
+            self.assertFalse(self.role.remote_exists.called)
+            self.assertFalse(self.role.execute.called)
