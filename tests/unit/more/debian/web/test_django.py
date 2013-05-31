@@ -221,3 +221,16 @@ class DjangoRoleTest(ProvyTestCase):
 
             self.assertFalse(self.role.remote_exists.called)
             self.assertFalse(self.role.execute.called)
+
+    @istest
+    def updates_settings(self):
+        with self.role.create_site('bar-site') as website:
+            website.settings_path = '/foo/settings.py'
+
+        with self.mock_role_method('update_file'):
+            self.role.update_file.return_value = 'some result'
+
+            result = self.role._update_settings(website)
+
+            self.assertEqual(result, 'some result')
+            self.role.update_file.assert_called_once_with('local.settings.template', '/foo/local_settings.py', owner=None, sudo=True, options={'settings': {}, 'settings_file': 'settings'})
