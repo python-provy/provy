@@ -127,3 +127,10 @@ class NginxRoleTest(ProvyTestCase):
         self.role.ensure_restart()
 
         self.assertTrue(self.role.context['must-restart-nginx'])
+
+    @istest
+    def restarts_nginx(self):
+        with self.execute_mock():
+            self.role.restart()
+
+            self.role.execute.assert_called_once_with('/etc/init.d/nginx restart', sudo=True)
