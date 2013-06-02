@@ -27,7 +27,35 @@ class NginxRoleTest(ProvyTestCase):
     @istest
     def restart_if_necessary_upon_cleanup(self):
         self.role.context['must-restart-nginx'] = True
+
         with self.mock_role_method('restart'):
             self.role.cleanup()
 
             self.assertTrue(self.role.restart.called)
+
+    @istest
+    def updates_configuration_and_restarts(self):
+        conf_template = 'some-template'
+        nginx_conf_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.ensure_conf(conf_template, options, nginx_conf_path)
+
+            self.role.update_file.assert_called_once_with(conf_template, nginx_conf_path, options=options, sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def doesnt_restart_if_configuration_wasnt_updated(self):
+        conf_template = 'some-template'
+        nginx_conf_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = False
+
+            self.role.ensure_conf(conf_template, options, nginx_conf_path)
+
+            self.assertFalse(self.role.ensure_restart.called)
