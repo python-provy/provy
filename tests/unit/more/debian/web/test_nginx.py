@@ -105,3 +105,17 @@ class NginxRoleTest(ProvyTestCase):
             self.role.ensure_site_enabled(site)
 
             self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
+    def ensures_site_is_created_and_restarted(self):
+        site = 'some-site'
+        template = 'some-template'
+        options = {'foo': 'bar'}
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.create_site(site, template, options=options)
+
+            self.role.update_file.assert_called_once_with('some-template', '/etc/nginx/sites-available/some-site', options={'foo': 'bar'}, sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
