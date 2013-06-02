@@ -1,4 +1,3 @@
-from mock import patch
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, NginxRole
@@ -20,7 +19,7 @@ class NginxRoleTest(ProvyTestCase):
 
     @istest
     def doesnt_restart_if_not_necessary_upon_cleanup(self):
-        with patch.object(self.role, 'restart'):
+        with self.mock_role_method('restart'):
             self.role.cleanup()
 
             self.assertFalse(self.role.restart.called)
@@ -28,7 +27,7 @@ class NginxRoleTest(ProvyTestCase):
     @istest
     def restart_if_necessary_upon_cleanup(self):
         self.role.context['must-restart-nginx'] = True
-        with patch.object(self.role, 'restart'):
+        with self.mock_role_method('restart'):
             self.role.cleanup()
 
             self.assertTrue(self.role.restart.called)
