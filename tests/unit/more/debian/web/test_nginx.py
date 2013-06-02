@@ -119,3 +119,11 @@ class NginxRoleTest(ProvyTestCase):
 
             self.role.update_file.assert_called_once_with('some-template', '/etc/nginx/sites-available/some-site', options={'foo': 'bar'}, sudo=True)
             self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def ensures_nginx_is_restarted(self):
+        self.role.context['must-restart-nginx'] = False
+
+        self.role.ensure_restart()
+
+        self.assertTrue(self.role.context['must-restart-nginx'])
