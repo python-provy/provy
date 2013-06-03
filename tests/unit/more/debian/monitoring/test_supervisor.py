@@ -1,6 +1,6 @@
 import os
 
-from mock import patch, call
+from mock import call
 from nose.tools import istest
 
 from provy.more.debian import PipRole, SupervisorRole
@@ -14,15 +14,11 @@ class SupervisorRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        with self.using_stub(PipRole) as mock_pip, patch('provy.core.roles.Role.register_template_loader'):
+        with self.using_stub(PipRole) as mock_pip, self.mock_role_method('register_template_loader'):
             self.role.provision()
 
-            mock_pip.ensure_package_installed.assert_called_with('supervisor')
-
-    @istest
-    def forces_as_sudo_to_install(self):
-        with self.using_stub(PipRole) as mock_pip, patch('provy.core.roles.Role.register_template_loader'):
-            self.role.provision()
+            self.role.register_template_loader.assert_called_once_with('provy.more.debian.monitoring')
+            mock_pip.ensure_package_installed.assert_called_once_with('supervisor')
             self.assertTrue(mock_pip.set_sudo.called)
 
     @istest
