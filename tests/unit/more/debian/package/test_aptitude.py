@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 from base64 import b64encode
 
@@ -5,6 +6,7 @@ from mock import MagicMock, patch
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, PackageNotFound
+from provy.more.debian.package import aptitude
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -115,3 +117,14 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.remote_temp_dir.return_value = '/foo/bar'
 
             self.assertEqual(self.role.update_date_file, '/foo/bar/last_aptitude_update')
+
+    @istest
+    def stores_update_date(self):
+        with self.mock_role_methods('update_date_file', 'execute'), patch.object(aptitude, 'datetime') as mock_datetime:
+            self.role.update_date_file = '/foo/bar'
+            when = datetime.strptime('2013-01-01', '%Y-%m-%d')
+            mock_datetime.now.return_value = when
+
+            self.role.store_update_date()
+
+            self.role.execute.assert_called_once_with('echo "01-01-13 00:00:00" > /foo/bar', stdout=False)
