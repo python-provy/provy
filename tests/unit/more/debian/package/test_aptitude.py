@@ -54,6 +54,15 @@ class AptitudeRoleTest(ProvyTestCase):
             self.assertTrue(package_exists.called)
 
     @istest
+    def doesnt_install_package_if_already_installed(self):
+        with self.mock_role_method('is_package_installed'):
+            self.role.is_package_installed.return_value = True
+
+            result = self.role.ensure_package_installed('python')
+
+            self.assertFalse(result)
+
+    @istest
     def ensure_source_must_generate_correct_source_file(self):
         source_line = 'deb http://example.org/pub/ubuntu natty main restricted'
         expected_file = '%s_%s' % (b64encode(source_line)[:12], 'example.org')
