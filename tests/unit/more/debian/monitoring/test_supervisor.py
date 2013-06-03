@@ -154,3 +154,23 @@ class SupervisorRoleTest(ProvyTestCase):
             self.role.cleanup()
 
             self.role.restart.assert_called_once_with()
+
+    @istest
+    def restarts_supervisor_if_already_running_upon_restart(self):
+        with self.mock_role_methods('is_process_running', 'execute'):
+            self.role.is_process_running.return_value = True
+
+            self.role.restart()
+
+            self.role.is_process_running.assert_called_once_with('supervisord')
+            self.role.execute.assert_called_once_with('/etc/init.d/supervisord restart', sudo=True)
+
+    @istest
+    def starts_supervisor_if_not_running_yet_upon_restart(self):
+        with self.mock_role_methods('is_process_running', 'execute'):
+            self.role.is_process_running.return_value = False
+
+            self.role.restart()
+
+            self.role.is_process_running.assert_called_once_with('supervisord')
+            self.role.execute.assert_called_once_with('/etc/init.d/supervisord start', sudo=True)
