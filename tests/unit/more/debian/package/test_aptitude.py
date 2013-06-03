@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 from base64 import b64encode
 
@@ -152,3 +152,28 @@ class AptitudeRoleTest(ProvyTestCase):
 
             self.assertIsNone(result)
             self.assertFalse(self.role.read_remote_file.called)
+
+    @istest
+    def updates_aptitude_when_passed_time_limit(self):
+        with patch.object(aptitude, 'datetime') as mock_datetime, self.mock_role_methods('get_last_update_date', 'force_update'):
+            now = datetime.strptime('2013-01-01', '%Y-%m-%d')
+            then = now - timedelta(minutes=31)
+            mock_datetime.now.return_value = now
+            self.role.get_last_update_date.return_value = then
+
+            self.role.ensure_up_to_date()
+
+            self.role.get_last_update_date.assert_called_once_with()
+            self.role.force_update.assert_called_once_with()
+
+    @istest
+    def doesnt_update_if_not_passed_from_time_limit(self):
+        with patch.object(aptitude, 'datetime') as mock_datetime, self.mock_role_methods('get_last_update_date', 'force_update'):
+            now = datetime.strptime('2013-01-01', '%Y-%m-%d')
+            then = now - timedelta(minutes=29)
+            mock_datetime.now.return_value = now
+            self.role.get_last_update_date.return_value = then
+
+            self.role.ensure_up_to_date()
+
+            self.assertFalse(self.role.force_update.called)
