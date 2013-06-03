@@ -4,6 +4,7 @@ from mock import call
 from nose.tools import istest
 
 from provy.more.debian import PipRole, SupervisorRole
+from provy.more.debian.monitoring.supervisor import MUST_UPDATE_CONFIG_KEY
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -49,3 +50,11 @@ class SupervisorRoleTest(ProvyTestCase):
 
             self.assertFalse(self.role.execute.called)
             self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
+    def ensures_config_will_be_updated(self):
+        self.role.context[MUST_UPDATE_CONFIG_KEY] = False
+
+        self.role.ensure_config_update()
+
+        self.assertTrue(self.role.context[MUST_UPDATE_CONFIG_KEY])
