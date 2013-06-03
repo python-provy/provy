@@ -49,6 +49,25 @@ class VarnishRole(Role):
                 role.force_update()
             role.ensure_package_installed('varnish')
 
+    def provision_to_ubuntu(self):
+        '''
+        Installs Varnish and its dependencies via Ubuntu-specific repository.
+        It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
+
+        Example:
+        ::
+
+            from provy.core import Role
+            from provy.more.debian import VarnishRole
+
+            class MySampleRole(Role):
+                def provision(self):
+                    with self.using(VarnishRole) as varnish:
+                        varnish.provision_to_ubuntu()
+        '''
+        with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_package_installed('varnish')
+
     def ensure_vcl(self, template, varnish_vcl_path='/etc/varnish/default.vcl', options={}, owner=None):
         '''
         Ensures that the VCL file at the specified path is up-to-date.
