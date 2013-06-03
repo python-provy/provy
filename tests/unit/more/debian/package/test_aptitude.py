@@ -128,3 +128,27 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.store_update_date()
 
             self.role.execute.assert_called_once_with('echo "01-01-13 00:00:00" > /foo/bar', stdout=False)
+
+    @istest
+    def gets_last_update_date(self):
+        with self.mock_role_methods('remote_exists', 'update_date_file', 'read_remote_file'):
+            self.role.update_date_file = '/foo/bar'
+            self.role.remote_exists.return_value = True
+            self.role.read_remote_file.return_value = '01-01-13 00:00:00'
+
+            result = self.role.get_last_update_date()
+
+            self.assertEqual(result, datetime.strptime('2013-01-01', '%Y-%m-%d'))
+            self.role.remote_exists.assert_called_once_with(self.role.update_date_file)
+            self.role.read_remote_file.assert_called_once_with(self.role.update_date_file)
+
+    @istest
+    def gets_none_as_last_update_if_there_was_no_update_yet(self):
+        with self.mock_role_methods('remote_exists', 'update_date_file', 'read_remote_file'):
+            self.role.update_date_file = '/foo/bar'
+            self.role.remote_exists.return_value = False
+
+            result = self.role.get_last_update_date()
+
+            self.assertIsNone(result)
+            self.assertFalse(self.role.read_remote_file.called)
