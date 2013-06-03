@@ -86,3 +86,12 @@ class SupervisorRoleTest(ProvyTestCase):
         self.assertEqual(program.name, 'foo-program')
         self.assertEqual(program.supervisor, self.role)
         self.role.context[PROGRAMS_KEY][0]['environment'] = 'FOO1="BAR1",FOO2="BAR2"'
+
+    @istest
+    def requires_directory_and_command_to_create_program(self):
+
+        def create_program():
+            with self.role.with_program('foo-program'):
+                '''Forgot directory or command...'''
+
+        self.assertRaises(RuntimeError, create_program)
