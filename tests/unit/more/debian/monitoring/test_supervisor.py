@@ -100,6 +100,8 @@ class SupervisorRoleTest(ProvyTestCase):
     @istest
     def updates_config_file(self):
         with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
             with self.role.with_program('foo-program') as program:
                 program.directory = '/foo/bar'
                 program.command = 'baz.sh'
@@ -113,3 +115,22 @@ class SupervisorRoleTest(ProvyTestCase):
 
             self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
             self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def configures_itself_if_needed_before_updating_config_file(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            with self.role.with_program('foo-program') as program:
+                program.directory = '/foo/bar'
+                program.command = 'baz.sh'
+
+            self.assertNotIn(CONFIG_KEY, self.role.context)
+
+            self.role.update_config_file()
+
+            options = deepcopy(self.role.context[CONFIG_KEY])
+            options['programs'] = self.role.context[PROGRAMS_KEY]
+            conf_path = os.path.join(options['config_file_directory'], 'supervisord.conf')
+
+            self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
