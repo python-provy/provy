@@ -75,3 +75,27 @@ class MemcachedRoleTest(ProvyTestCase):
                                                               'error_when_memory_exhausted': True,
                                                           })
             self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def doesnt_restart_if_not_necessary_upon_cleanup(self):
+        with self.mock_role_method('restart'):
+            self.role.cleanup()
+
+            self.assertFalse(self.role.restart.called)
+
+    @istest
+    def restart_if_necessary_upon_cleanup(self):
+        self.role.context['must-restart-memcached'] = True
+
+        with self.mock_role_method('restart'):
+            self.role.cleanup()
+
+            self.assertTrue(self.role.restart.called)
+
+    @istest
+    def ensures_memcached_is_restarted(self):
+        self.role.context['must-restart-memcached'] = False
+
+        self.role.ensure_restart()
+
+        self.assertTrue(self.role.context['must-restart-memcached'])
