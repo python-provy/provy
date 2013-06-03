@@ -134,3 +134,23 @@ class SupervisorRoleTest(ProvyTestCase):
             conf_path = os.path.join(options['config_file_directory'], 'supervisord.conf')
 
             self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
+
+    @istest
+    def updates_files_upon_cleanup(self):
+        with self.mock_role_methods('update_init_script', 'update_config_file'):
+            self.role.config()
+            self.role.ensure_config_update()
+
+            self.role.cleanup()
+
+            self.role.update_init_script.assert_called_once_with(self.role.context[CONFIG_KEY]['config_file_directory'])
+            self.role.update_config_file.assert_called_once_with()
+
+    @istest
+    def restarts_upon_cleanup(self):
+        with self.mock_role_methods('restart'):
+            self.role.ensure_restart()
+
+            self.role.cleanup()
+
+            self.role.restart.assert_called_once_with()
