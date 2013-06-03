@@ -8,7 +8,7 @@ from tests.unit.tools.helpers import ProvyTestCase
 class MemcachedRoleTest(ProvyTestCase):
     def setUp(self):
         super(MemcachedRoleTest, self).setUp()
-        self.role = MemcachedRole(prov=None, context={})
+        self.role = MemcachedRole(prov=None, context={'owner': 'some-owner'})
 
     @istest
     def installs_necessary_packages_to_provision(self):
@@ -20,3 +20,58 @@ class MemcachedRoleTest(ProvyTestCase):
                 call('memcached'),
                 call('libmemcached-dev'),
             ])
+
+    @istest
+    def ensures_configuration_with_defaults(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.ensure_conf()
+
+            self.role.update_file.assert_called_once_with('memcached.conf.template', '/etc/memcached.conf', sudo=True, owner='some-owner',
+                                                          options={
+                                                              'host': '127.0.0.1',
+                                                              'memory_in_mb': 64,
+                                                              'verbose_level': 0,
+                                                              'log_folder': '/var/log/memcached',
+                                                              'simultaneous_connections': 1024,
+                                                              'port': 11211,
+                                                              'lock_down': False,
+                                                              'user': 'nobody',
+                                                              'maximize_core_file_limit': False,
+                                                              'error_when_memory_exhausted': False
+                                                          })
+            self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def ensures_configuration_with_custom_config(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.ensure_conf(owner='root',
+                                  log_folder='/foo/bar',
+                                  verbose_level=123,
+                                  memory_in_mb=234,
+                                  host='192.168.1.1',
+                                  port=12345,
+                                  user='somebody',
+                                  simultaneous_connections=65432,
+                                  lock_down=True,
+                                  error_when_memory_exhausted=True,
+                                  maximize_core_file_limit=True,
+                                  conf_path='/bar/foo.conf')
+
+            self.role.update_file.assert_called_once_with('memcached.conf.template', '/bar/foo.conf', sudo=True, owner='root',
+                                                          options={
+                                                              'host': '192.168.1.1',
+                                                              'memory_in_mb': 234,
+                                                              'verbose_level': 123,
+                                                              'log_folder': '/foo/bar',
+                                                              'simultaneous_connections': 65432,
+                                                              'port': 12345,
+                                                              'lock_down': True,
+                                                              'user': 'somebody',
+                                                              'maximize_core_file_limit': True,
+                                                              'error_when_memory_exhausted': True,
+                                                          })
+            self.role.ensure_restart.assert_called_once_with()

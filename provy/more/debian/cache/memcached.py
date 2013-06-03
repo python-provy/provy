@@ -48,7 +48,7 @@ class MemcachedRole(Role):
             role.ensure_package_installed('libmemcached-dev')
 
     def ensure_conf(self,
-                    owner='root',
+                    owner=None,
                     log_folder='/var/log/memcached',
                     verbose_level=0,
                     memory_in_mb=64,
@@ -103,6 +103,9 @@ class MemcachedRole(Role):
                         role.ensure_conf()
         '''
 
+        if owner is None:
+            owner = self.context['owner']
+
         options = {
             'log_folder': log_folder.rstrip('/'),
             'verbose_level': verbose_level,
@@ -116,7 +119,7 @@ class MemcachedRole(Role):
             'maximize_core_file_limit': maximize_core_file_limit
         }
 
-        result = self.update_file('memcached.conf.template', conf_path, options=options, owner=self.context['owner'], sudo=True)
+        result = self.update_file('memcached.conf.template', conf_path, options=options, owner=owner, sudo=True)
         if result:
             self.log('memcached conf updated!')
             self.ensure_restart()
