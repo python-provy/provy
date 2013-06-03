@@ -4,7 +4,7 @@ from mock import call
 from nose.tools import istest
 
 from provy.more.debian import PipRole, SupervisorRole
-from provy.more.debian.monitoring.supervisor import MUST_UPDATE_CONFIG_KEY, CONFIG_KEY
+from provy.more.debian.monitoring.supervisor import MUST_UPDATE_CONFIG_KEY, CONFIG_KEY, PROGRAMS_KEY
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -74,3 +74,15 @@ class SupervisorRoleTest(ProvyTestCase):
             'pidfile': '/var/run/supervisord.pid',
             'user': 'some-owner',
         })
+
+    @istest
+    def enters_a_new_program_context(self):
+        with self.role.with_program('foo-program') as program:
+            program.directory = '/foo/bar'
+            program.command = 'baz.sh'
+            program.environment['FOO1'] = 'BAR1'
+            program.environment['FOO2'] = 'BAR2'
+
+        self.assertEqual(program.name, 'foo-program')
+        self.assertEqual(program.supervisor, self.role)
+        self.role.context[PROGRAMS_KEY][0]['environment'] = 'FOO1="BAR1",FOO2="BAR2"'
