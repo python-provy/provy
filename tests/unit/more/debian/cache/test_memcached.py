@@ -99,3 +99,10 @@ class MemcachedRoleTest(ProvyTestCase):
         self.role.ensure_restart()
 
         self.assertTrue(self.role.context['must-restart-memcached'])
+
+    @istest
+    def restarts_memcached(self):
+        with self.execute_mock():
+            self.role.restart()
+
+            self.role.execute.assert_called_once_with('/etc/init.d/memcached restart', sudo=True)
