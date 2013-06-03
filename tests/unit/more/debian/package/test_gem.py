@@ -17,3 +17,32 @@ class GemRoleTest(ProvyTestCase):
 
             self.role.provision_role.assert_called_once_with(RubyRole)
             aptitude.ensure_package_installed.assert_called_once_with('rubygems')
+
+    @istest
+    def checks_that_a_package_is_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'some foo is installed'
+
+            result = self.role.is_package_installed('foo')
+
+            self.assertTrue(result)
+            execute.assert_called_once_with("gem list --local | tr '[A-Z]' '[a-z]' | grep foo", stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_package_is_not_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'some bar is installed'
+
+            result = self.role.is_package_installed('foo')
+
+            self.assertFalse(result)
+
+    @istest
+    def checks_that_a_package_is_installed_with_version(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'some foo is installed'
+
+            result = self.role.is_package_installed('foo', '1.8')
+
+            self.assertTrue(result)
+            execute.assert_called_once_with("gem list --local | tr '[A-Z]' '[a-z]' | grep foo(1.8)", stdout=False, sudo=True)
