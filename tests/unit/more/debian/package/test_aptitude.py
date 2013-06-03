@@ -72,3 +72,10 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.execute.assert_called_once_with('apt-get install aptitude', stdout=False, sudo=True)
             self.role.ensure_up_to_date.assert_called_once_with()
             self.role.ensure_package_installed.assert_called_once_with('curl')
+
+    @istest
+    def ensures_gpg_key_is_added(self):
+        with self.execute_mock():
+            self.role.ensure_gpg_key('http://some.repo')
+
+            self.role.execute.assert_called_once_with('curl http://some.repo | apt-key add -', stdout=False, sudo=True)
