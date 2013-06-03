@@ -177,3 +177,12 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.ensure_up_to_date()
 
             self.assertFalse(self.role.force_update.called)
+
+    @istest
+    def forces_an_update(self):
+        with self.mock_role_methods('execute', 'store_update_date'):
+            self.role.force_update()
+
+            self.assertTrue(self.role.context['aptitude-up-to-date'])
+            self.role.execute.assert_called_once_with('aptitude update', stdout=False, sudo=True)
+            self.role.store_update_date.assert_called_once_with()
