@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 
 from mock import call
@@ -95,3 +96,20 @@ class SupervisorRoleTest(ProvyTestCase):
                 '''Forgot directory or command...'''
 
         self.assertRaises(RuntimeError, create_program)
+
+    @istest
+    def updates_config_file(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            with self.role.with_program('foo-program') as program:
+                program.directory = '/foo/bar'
+                program.command = 'baz.sh'
+
+            self.role.config()
+            options = deepcopy(self.role.context[CONFIG_KEY])
+            options['programs'] = self.role.context[PROGRAMS_KEY]
+            conf_path = os.path.join(options['config_file_directory'], 'supervisord.conf')
+
+            self.role.update_config_file()
+
+            self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
