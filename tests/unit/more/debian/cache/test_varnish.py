@@ -28,3 +28,15 @@ class VarnishRoleTest(ProvyTestCase):
             aptitude.ensure_aptitude_source.assert_called_with('deb http://repo.varnish-cache.org/debian/ wheezy varnish-3.0')
             aptitude.force_update.assert_called_with()
             aptitude.ensure_package_installed.assert_called_with('varnish')
+
+    @istest
+    def provisions_to_debian_if_is_debian(self):
+        with self.provisioning_to('debian'), self.mock_role_method('provision_to_debian') as provision_to_debian:
+            self.role.provision()
+            provision_to_debian.assert_called_with()
+
+    @istest
+    def provisions_to_ubuntu_if_is_ubuntu(self):
+        with self.provisioning_to('ubuntu'), self.mock_role_method('provision_to_ubuntu') as provision_to_ubuntu:
+            self.role.provision()
+            provision_to_ubuntu.assert_called_with()

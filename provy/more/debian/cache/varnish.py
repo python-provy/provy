@@ -42,12 +42,16 @@ class VarnishRole(Role):
                     self.provision_role(VarnishRole) # does not need to be called if using with block.
         '''
 
-        with self.using(AptitudeRole) as role:
-            role.ensure_gpg_key("http://repo.varnish-cache.org/debian/GPG-key.txt")
-            result = role.ensure_aptitude_source("deb http://repo.varnish-cache.org/ubuntu/ lucid varnish-3.0")
-            if result:
-                role.force_update()
-            role.ensure_package_installed('varnish')
+        distro_info = self.get_distro_info()
+
+        self.log('Installing Varnish via packages')
+
+        if distro_info.distributor_id == 'Ubuntu':
+            self.provision_to_ubuntu()
+        else:
+            self.provision_to_debian()
+
+        self.log('Varnish installed')
 
     def provision_to_ubuntu(self):
         '''
