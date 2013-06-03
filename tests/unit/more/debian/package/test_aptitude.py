@@ -62,6 +62,16 @@ class AptitudeRoleTest(ProvyTestCase):
             execute.assert_called_with('echo "%s" >> /etc/apt/sources.list.d/%s.list' % (source_line, expected_file), stdout=False, sudo=True)
 
     @istest
+    def doesnt_add_source_if_it_already_exists(self):
+        source_line = 'deb http://example.org/pub/ubuntu natty main restricted'
+        with self.execute_mock() as execute, self.mock_role_method('has_source') as has_source:
+            has_source.return_value = True
+
+            self.assertFalse(self.role.ensure_aptitude_source(source_line))
+
+            self.assertFalse(execute.called)
+
+    @istest
     def installs_necessary_packages_to_provision(self):
         with self.mock_role_methods('execute', 'ensure_up_to_date', 'ensure_package_installed', 'is_package_installed'):
             self.role.is_package_installed.return_value = False
