@@ -60,3 +60,15 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.ensure_aptitude_source(source_line)
             self.assertTrue(has_source.called)
             execute.assert_called_with('echo "%s" >> /etc/apt/sources.list.d/%s.list' % (source_line, expected_file), stdout=False, sudo=True)
+
+    @istest
+    def installs_necessary_packages_to_provision(self):
+        with self.mock_role_methods('execute', 'ensure_up_to_date', 'ensure_package_installed', 'is_package_installed'):
+            self.role.is_package_installed.return_value = False
+
+            self.role.provision()
+
+            self.role.is_package_installed.assert_called_once_with('aptitude')
+            self.role.execute.assert_called_once_with('apt-get install aptitude', stdout=False, sudo=True)
+            self.role.ensure_up_to_date.assert_called_once_with()
+            self.role.ensure_package_installed.assert_called_once_with('curl')
