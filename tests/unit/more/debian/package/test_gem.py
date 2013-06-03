@@ -46,3 +46,32 @@ class GemRoleTest(ProvyTestCase):
 
             self.assertTrue(result)
             execute.assert_called_once_with("gem list --local | tr '[A-Z]' '[a-z]' | grep foo(1.8)", stdout=False, sudo=True)
+
+    @istest
+    def installs_a_package_if_its_not_installed_yet_by_name(self):
+        with self.execute_mock() as execute, self.mock_role_method('is_package_installed') as is_package_installed:
+            is_package_installed.return_value = False
+
+            result = self.role.ensure_package_installed('runit')
+
+            self.assertTrue(result)
+            execute.assert_called_with('gem install runit', stdout=False, sudo=True)
+
+    @istest
+    def doesnt_install_a_package_if_its_already_installed_yet_by_name(self):
+        with self.execute_mock() as execute, self.mock_role_method('is_package_installed') as is_package_installed:
+            is_package_installed.return_value = True
+
+            result = self.role.ensure_package_installed('runit')
+
+            self.assertFalse(result)
+            self.assertFalse(execute.called)
+
+    @istest
+    def installs_a_package_if_its_not_installed_yet_by_name_and_version(self):
+        with self.execute_mock() as execute, self.mock_role_method('is_package_installed') as is_package_installed:
+            is_package_installed.return_value = False
+
+            self.role.ensure_package_installed('runit', '123')
+
+            execute.assert_called_with('gem install runit(123)', sudo=True, stdout=False)
