@@ -79,3 +79,22 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.ensure_gpg_key('http://some.repo')
 
             self.role.execute.assert_called_once_with('curl http://some.repo | apt-key add -', stdout=False, sudo=True)
+
+    @istest
+    def checks_that_repository_exists_in_apt_source(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '1'
+
+            result = self.role.has_source('foo-bar')
+
+            self.assertTrue(result)
+            execute.assert_called_once_with("grep -ilR '^foo-bar' /etc/apt/sources.list /etc/apt/sources.list.d | wc -l", sudo=True, stdout=False)
+
+    @istest
+    def checks_that_repository_doesnt_exist_in_apt_source(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '0'
+
+            result = self.role.has_source('foo-bar')
+
+            self.assertFalse(result)
