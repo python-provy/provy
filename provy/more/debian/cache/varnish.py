@@ -42,60 +42,8 @@ class VarnishRole(Role):
                     self.provision_role(VarnishRole) # does not need to be called if using with block.
         '''
 
-        distro_info = self.get_distro_info()
-
-        self.log('Installing Varnish via packages')
-
-        if distro_info.distributor_id == 'Ubuntu':
-            self.provision_to_ubuntu()
-        else:
-            self.provision_to_debian()
-
-        self.log('Varnish installed')
-
-    def provision_to_ubuntu(self):
-        '''
-        Installs Varnish and its dependencies via Ubuntu-specific repository.
-        It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
-
-        Example:
-        ::
-
-            from provy.core import Role
-            from provy.more.debian import VarnishRole
-
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as varnish:
-                        varnish.provision_to_ubuntu()
-        '''
-
         with self.using(AptitudeRole) as aptitude:
             aptitude.ensure_package_installed('varnish')
-
-    def provision_to_debian(self):
-        '''
-        Installs Varnish and its dependencies via Debian-specific repository.
-        It's not recommended that you use this method directly; Instead, provision this role directly and it will find out the best way to provision.
-
-        Example:
-        ::
-
-            from provy.core import Role
-            from provy.more.debian import VarnishRole
-
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(VarnishRole) as varnish:
-                        varnish.provision_to_debian()
-        '''
-
-        with self.using(AptitudeRole) as role:
-            role.ensure_gpg_key("http://repo.varnish-cache.org/debian/GPG-key.txt")
-            result = role.ensure_aptitude_source("deb http://repo.varnish-cache.org/debian/ wheezy varnish-3.0")
-            if result:
-                role.force_update()
-            role.ensure_package_installed('varnish')
 
     def ensure_vcl(self, template, varnish_vcl_path='/etc/varnish/default.vcl', options={}, owner=None):
         '''
