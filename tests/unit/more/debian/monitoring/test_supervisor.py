@@ -4,7 +4,7 @@ from mock import call
 from nose.tools import istest
 
 from provy.more.debian import PipRole, SupervisorRole
-from provy.more.debian.monitoring.supervisor import MUST_UPDATE_CONFIG_KEY
+from provy.more.debian.monitoring.supervisor import MUST_UPDATE_CONFIG_KEY, CONFIG_KEY
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -58,3 +58,19 @@ class SupervisorRoleTest(ProvyTestCase):
         self.role.ensure_config_update()
 
         self.assertTrue(self.role.context[MUST_UPDATE_CONFIG_KEY])
+
+    @istest
+    def configures_supervisor(self):
+        self.role.context[CONFIG_KEY] = None
+
+        self.role.config()
+
+        self.assertEqual(self.role.context[CONFIG_KEY], {
+            'config_file_directory': '/home/some-owner',
+            'log_file': '/var/log/supervisord.log',
+            'log_file_backups': 10,
+            'log_file_max_mb': 50,
+            'log_level': 'info',
+            'pidfile': '/var/run/supervisord.pid',
+            'user': 'some-owner',
+        })
