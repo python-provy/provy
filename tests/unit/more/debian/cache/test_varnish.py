@@ -98,3 +98,34 @@ class VarnishRoleTest(ProvyTestCase):
             self.role.ensure_conf(template, varnish_conf_path=varnish_conf_path, options=options, owner=owner)
 
             self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
+    def doesnt_restart_if_not_necessary_upon_cleanup(self):
+        with self.mock_role_method('restart'):
+            self.role.cleanup()
+
+            self.assertFalse(self.role.restart.called)
+
+    @istest
+    def restart_if_necessary_upon_cleanup(self):
+        self.role.context['must-restart-varnish'] = True
+
+        with self.mock_role_method('restart'):
+            self.role.cleanup()
+
+            self.assertTrue(self.role.restart.called)
+
+    @istest
+    def ensures_varnish_is_restarted(self):
+        self.role.context['must-restart-varnish'] = False
+
+        self.role.ensure_restart()
+
+        self.assertTrue(self.role.context['must-restart-varnish'])
+
+    @istest
+    def restarts_varnish(self):
+        with self.execute_mock():
+            self.role.restart()
+
+            self.role.execute.assert_called_once_with('START=yes /etc/init.d/varnish restart', sudo=True)
