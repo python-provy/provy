@@ -40,3 +40,61 @@ class VarnishRoleTest(ProvyTestCase):
         with self.provisioning_to('ubuntu'), self.mock_role_method('provision_to_ubuntu') as provision_to_ubuntu:
             self.role.provision()
             provision_to_ubuntu.assert_called_with()
+
+    @istest
+    def updates_vcl_and_restarts(self):
+        template = 'some-template'
+        varnish_vcl_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+        owner = 'some-owner'
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.ensure_vcl(template, varnish_vcl_path=varnish_vcl_path, options=options, owner=owner)
+
+            self.role.update_file.assert_called_once_with(template, varnish_vcl_path, options=options, owner=owner, sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def doesnt_restart_if_vcl_wasnt_updated(self):
+        template = 'some-template'
+        varnish_vcl_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+        owner = 'some-owner'
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = False
+
+            self.role.ensure_vcl(template, varnish_vcl_path=varnish_vcl_path, options=options, owner=owner)
+
+            self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
+    def updates_configuration_and_restarts(self):
+        template = 'some-template'
+        varnish_conf_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+        owner = 'some-owner'
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.ensure_conf(template, varnish_conf_path=varnish_conf_path, options=options, owner=owner)
+
+            self.role.update_file.assert_called_once_with(template, varnish_conf_path, options=options, owner=owner, sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def doesnt_restart_if_configuration_wasnt_updated(self):
+        template = 'some-template'
+        varnish_conf_path = 'some-conf-path'
+        options = {'foo': 'bar'}
+        owner = 'some-owner'
+
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = False
+
+            self.role.ensure_conf(template, varnish_conf_path=varnish_conf_path, options=options, owner=owner)
+
+            self.assertFalse(self.role.ensure_restart.called)
