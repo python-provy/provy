@@ -1,3 +1,4 @@
+from mock import call
 from nose.tools import istest
 
 from provy.more.debian import UserRole
@@ -130,3 +131,16 @@ class UserRoleTest(ProvyTestCase):
             self.role.ensure_group('foo')
 
             self.assertFalse(self.role.execute.called)
+
+    @istest
+    def ensures_the_user_enters_the_provided_groups_when_not_there_already(self):
+        with self.mock_role_methods('user_in_group', 'execute'):
+            self.role.user_in_group.side_effect = [True, False]
+
+            self.role.ensure_user_groups('foo', ['bar', 'baz'])
+
+            self.assertEqual(self.role.user_in_group.mock_calls, [
+                call('foo', 'bar'),
+                call('foo', 'baz'),
+            ])
+            self.role.execute.assert_called_once_with('usermod -G baz foo', sudo=True, stdout=False)
