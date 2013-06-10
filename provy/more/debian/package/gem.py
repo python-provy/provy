@@ -20,6 +20,9 @@ class GemRole(Role):
     '''
     This role provides package management operations with `gem <http://docs.rubygems.org/>`_ within Debian distributions.
 
+    If you wish to use a different Ruby version other than the default in provy, remember to set `version` and `priority` in the
+    :class:`RubyRole <provy.more.debian.programming.ruby.RubyRole>` class.
+
     Example:
     ::
 

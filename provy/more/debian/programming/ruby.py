@@ -29,6 +29,11 @@ class RubyRole(Role):
     '''
     This role provides `Ruby <http://www.ruby-lang.org/>`_ utilities for Debian distributions.
 
+    :var version: Ruby version to install. By default, install package "1.9.1" - which, in effect, refers to "1.9.2" (only uses the "1.9.1" name for compatibility reasons).
+    :type version: :class:`str`
+    :var priority: Priority to attribute to this Ruby version in the server. By default, it's 400 - which is already higher than the default Ruby installation in some Debian-like systems -.
+    :type priority: :class:`int`
+
     Example:
     ::
 
@@ -38,6 +43,15 @@ class RubyRole(Role):
         class MySampleRole(Role):
             def provision(self):
                 self.provision_role(RubyRole)
+
+                # Now, suppose we want the new Ruby installed, but not as the default one:
+                RubyRole.version = 1.8
+                RubyRole.priority = 10
+                self.provision_role(RubyRole)
+                RubyRole.version = 1.9.1
+                RubyRole.priority = 1
+                self.provision_role(RubyRole)
+                # As priority 10 wins over 1, Ruby 1.8 will be used as the default "ruby" executable.
     '''
 
     version = '1.9.1'
