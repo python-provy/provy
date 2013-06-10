@@ -1,7 +1,8 @@
+from mock import call
 from nose.tools import istest
 
-from provy.more.debian import AptitudeRole, RubyRole
-from provy.more.debian.package.gem import GemRole
+from provy.more.debian import GemRole, RubyRole
+from provy.more.debian.package.gem import UPDATE_ALTERNATIVES_COMMAND
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -12,11 +13,20 @@ class GemRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self):
-        with self.using_stub(AptitudeRole) as aptitude, self.mock_role_method('provision_role'):
+        with self.mock_role_method('provision_role'), self.execute_mock() as execute:
             self.role.provision()
 
+            update_alternatives_command = UPDATE_ALTERNATIVES_COMMAND.format(
+                version=RubyRole.version,
+                priority=RubyRole.priority,
+            )
+            completion_command = 'ln - sf /etc/bash_completion.d/gem{version} /etc/alternatives/bash_completion_gem'.format(version=RubyRole.version)
+
             self.role.provision_role.assert_called_once_with(RubyRole)
-            aptitude.ensure_package_installed.assert_called_once_with('rubygems')
+            self.assertEqual(execute.mock_calls, [
+                call(update_alternatives_command, sudo=True),
+                call(completion_command, sudo=True),
+            ])
 
     @istest
     def checks_that_a_package_is_installed(self):

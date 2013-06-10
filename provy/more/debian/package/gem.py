@@ -8,8 +8,12 @@ Roles in this namespace are meant to provision packages installed via the `gem <
 from fabric.api import settings
 
 from provy.core import Role
-from provy.more.debian import AptitudeRole
-from provy.more.debian.programming.ruby import RubyRole
+
+
+UPDATE_ALTERNATIVES_COMMAND = """
+update-alternatives --force --install /usr/bin/gem gem /usr/bin/gem{version} {priority} \
+  --slave   /usr/share/man/man1/gem.1.gz gem.1.gz /usr/share/man/man1/gem{version}.1.gz
+"""
 
 
 class GemRole(Role):
@@ -44,9 +48,17 @@ class GemRole(Role):
                 def provision(self):
                     self.provision_role(PipRole) # does not need to be called if using with block.
         '''
+        from provy.more.debian.programming.ruby import RubyRole
         self.provision_role(RubyRole)
-        with self.using(AptitudeRole) as aptitude:
-            aptitude.ensure_package_installed('rubygems')
+
+        update_alternatives_command = UPDATE_ALTERNATIVES_COMMAND.format(
+            version=RubyRole.version,
+            priority=RubyRole.priority,
+        )
+        completion_command = 'ln - sf /etc/bash_completion.d/gem{version} /etc/alternatives/bash_completion_gem'.format(version=RubyRole.version)
+
+        self.execute(update_alternatives_command, sudo=True)
+        self.execute(completion_command, sudo=True)
 
     def is_package_installed(self, package_name, version=None):
         '''
