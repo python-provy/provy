@@ -113,7 +113,7 @@ class UserRoleTest(ProvyTestCase):
             self.assertRaises(ValueError, self.role.user_in_group, 'foo', 'bar')
 
     @istest
-    def ensures_that_a_group_is_created(self):
+    def ensures_a_group_is_created(self):
         with self.mock_role_methods('group_exists', 'execute'):
             self.role.group_exists.return_value = False
 
