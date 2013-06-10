@@ -111,3 +111,22 @@ class UserRoleTest(ProvyTestCase):
             execute.return_value = 'groups: foo: User unexistant'
 
             self.assertRaises(ValueError, self.role.user_in_group, 'foo', 'bar')
+
+    @istest
+    def ensures_that_a_group_is_created(self):
+        with self.mock_role_methods('group_exists', 'execute'):
+            self.role.group_exists.return_value = False
+
+            self.role.ensure_group('foo')
+
+            self.role.group_exists.assert_called_once_with('foo')
+            self.role.execute.assert_called_once_with('groupadd foo', sudo=True, stdout=False)
+
+    @istest
+    def doesnt_create_group_if_it_already_exists(self):
+        with self.mock_role_methods('group_exists', 'execute'):
+            self.role.group_exists.return_value = True
+
+            self.role.ensure_group('foo')
+
+            self.assertFalse(self.role.execute.called)
