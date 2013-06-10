@@ -11,17 +11,17 @@ from provy.more.debian import AptitudeRole
 
 UPDATE_ALTERNATIVES_COMMAND = """
 update-alternatives --force --install /usr/bin/ruby ruby /usr/bin/ruby{version} {priority} \
-  --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby{revision}.gz \
+  --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby{version}.1.gz \
   --slave   /usr/bin/ri ri /usr/bin/ri{version} \
-  --slave   /usr/share/man/man1/ri.1.gz ri.1.gz /usr/share/man/man1/ri{revision}.gz \
+  --slave   /usr/share/man/man1/ri.1.gz ri.1.gz /usr/share/man/man1/ri{version}.1.gz \
   --slave   /usr/bin/irb irb /usr/bin/irb{version} \
-  --slave   /usr/share/man/man1/irb.1.gz irb.1.gz /usr/share/man/man1/irb{revision}.gz \
+  --slave   /usr/share/man/man1/irb.1.gz irb.1.gz /usr/share/man/man1/irb{version}.1.gz \
   --slave   /usr/bin/erb erb /usr/bin/erb{version} \
-  --slave   /usr/share/man/man1/erb.1.gz erb.1.gz /usr/share/man/man1/erb{revision}.gz \
+  --slave   /usr/share/man/man1/erb.1.gz erb.1.gz /usr/share/man/man1/erb{version}.1.gz \
   --slave   /usr/bin/rdoc rdoc /usr/bin/rdoc{version} \
-  --slave   /usr/share/man/man1/rdoc.1.gz rdoc.1.gz /usr/share/man/man1/rdoc{revision}.gz \
+  --slave   /usr/share/man/man1/rdoc.1.gz rdoc.1.gz /usr/share/man/man1/rdoc{version}.1.gz \
   --slave   /usr/bin/testrb testrb /usr/bin/testrb{version} \
-  --slave   /usr/share/man/man1/testrb.1.gz testrb.1.gz /usr/share/man/man1/testrb{revision}.gz
+  --slave   /usr/share/man/man1/testrb.1.gz testrb.1.gz /usr/share/man/man1/testrb{version}.1.gz
 """
 
 
@@ -41,7 +41,6 @@ class RubyRole(Role):
     '''
 
     version = '1.9.1'
-    revision = '1.9.1.1'
     priority = 400
 
     def provision(self):
@@ -64,7 +63,6 @@ class RubyRole(Role):
 
             update_alternatives_command = UPDATE_ALTERNATIVES_COMMAND.format(
                 version=self.version,
-                revision=self.revision,
                 priority=self.priority,
             )
             self.execute(update_alternatives_command, sudo=True)
