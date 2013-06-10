@@ -5,10 +5,24 @@
 Roles in this namespace are meant to provide `Ruby <http://www.ruby-lang.org/>`_ utility methods for Debian distributions.
 '''
 
-from fabric.api import settings
-
 from provy.core import Role
 from provy.more.debian import AptitudeRole
+
+
+UPDATE_ALTERNATIVES_COMMAND = """
+update-alternatives --force --install /usr/bin/ruby ruby /usr/bin/ruby{version} {priority} \
+  --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby{revision}.gz \
+  --slave   /usr/bin/ri ri /usr/bin/ri{version} \
+  --slave   /usr/share/man/man1/ri.1.gz ri.1.gz /usr/share/man/man1/ri{revision}.gz \
+  --slave   /usr/bin/irb irb /usr/bin/irb{version} \
+  --slave   /usr/share/man/man1/irb.1.gz irb.1.gz /usr/share/man/man1/irb{revision}.gz \
+  --slave   /usr/bin/erb erb /usr/bin/erb{version} \
+  --slave   /usr/share/man/man1/erb.1.gz erb.1.gz /usr/share/man/man1/erb{revision}.gz \
+  --slave   /usr/bin/rdoc rdoc /usr/bin/rdoc{version} \
+  --slave   /usr/share/man/man1/rdoc.1.gz rdoc.1.gz /usr/share/man/man1/rdoc{revision}.gz \
+  --slave   /usr/bin/testrb testrb /usr/bin/testrb{version} \
+  --slave   /usr/share/man/man1/testrb.1.gz testrb.1.gz /usr/share/man/man1/testrb{revision}.gz
+"""
 
 
 class RubyRole(Role):
@@ -26,16 +40,9 @@ class RubyRole(Role):
                 self.provision_role(RubyRole)
     '''
 
-    version = "1.9.2"
-    patch = 290
-    url = "http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-%s-p%d.tar.gz"
-
-    def __symlink_from_local(self):
-        commands = "erb gem irb rake rdoc ri ruby testrb"
-
-        for command in commands.split():
-            self.remove_file('/usr/bin/%s' % command, sudo=True)
-            self.remote_symlink('/usr/local/bin/%s' % command, '/usr/bin/%s' % command, sudo=True)
+    version = '1.9.1'
+    revision = '1.9.1.1'
+    priority = 400
 
     def provision(self):
         '''
@@ -52,24 +59,12 @@ class RubyRole(Role):
                 def provision(self):
                     self.provision_role(RubyRole) # no need to call this if using with block.
         '''
-        with self.using(AptitudeRole) as role:
-            for package in 'build-essential zlib1g zlib1g-dev libreadline5 libreadline5-dev libssl-dev libyaml-dev'.split():
-                role.ensure_package_installed(package)
+        with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_package_installed('ruby{version}-full'.format(version=self.version))
 
-            with settings(warn_only=True):
-                result = self.execute('ruby --version | egrep %sp%d' % (self.version, self.patch), stdout=False)
-
-            if not result or 'command not found' in result.lower():
-                self.log('ruby %sp%d not found! Installing...' % (self.version, self.patch))
-                ruby_url = self.url % (self.version, self.patch)
-                ruby_file = 'ruby-%s-p%d' % (self.version, self.patch)
-
-                self.remove_file('/tmp/%s.tar.gz' % ruby_file, sudo=True)
-                self.remove_dir('/tmp/%s' % ruby_file, sudo=True)
-
-                self.execute('cd /tmp && wget %s && tar xzf %s.tar.gz && cd %s && ./configure && make && make install' %
-                             (ruby_url, ruby_file, ruby_file), sudo=True, stdout=False)
-
-                self.__symlink_from_local()
-
-                self.log('ruby %sp%d installed!' % (self.version, self.patch))
+            update_alternatives_command = UPDATE_ALTERNATIVES_COMMAND.format(
+                version=self.version,
+                revision=self.revision,
+                priority=self.priority,
+            )
+            self.execute(update_alternatives_command, sudo=True)
