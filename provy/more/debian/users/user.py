@@ -143,7 +143,7 @@ class UserRole(Role):
         :type default_script: :class:`str`
         :param groups: Groups that this user belongs to. If the groups do not exist they are created prior to user creation. Defaults to the name of the user.
         :type groups: :class:`iterable`
-        :param is_admin: If set to :data:`True` the user is added to the 'admin' user group as well. Defaults to :data:`False`.
+        :param is_admin: If set to :data:`True` the user is added to the 'admin' (or 'sudo' if provisioning to Ubuntu) user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
 
         Example:
@@ -158,36 +158,13 @@ class UserRole(Role):
                         role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         '''
 
-        distro_info = self.get_distro_info()
-        if distro_info.distributor_id == 'Ubuntu':
-            admin_group = 'sudo'
-        else:
-            admin_group = 'admin'
-
-        for user_group in groups:
-            self.ensure_group(user_group)
-        if not groups:
-            self.ensure_group(username)
+        admin_group = self.__get_admin_group()
+        self.__ensure_initial_groups(groups, username)
 
         if not self.user_exists(username):
-            is_admin_command = " -G admin"
-            command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
-            home_folder = home_folder or '/home/%s' % username
-            group = groups and groups[0] or username
-            self.log("User %s not found! Creating..." % username)
-            self.execute(command % {
-                'group': group or username,
-                'is_admin_command': is_admin and is_admin_command or '',
-                'password': identified_by or 'none',
-                'home_folder': home_folder,
-                'default_script': default_script,
-                'username': username
-            }, stdout=False, sudo=True)
-            self.log("User %s created!" % username)
+            self.__create_new_user(username, home_folder, groups, identified_by, default_script, is_admin)
         elif is_admin and not self.user_in_group(username, admin_group):
-            self.log("User %s should be admin! Rectifying that..." % username)
-            self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
-            self.log("User %s is admin now!" % username)
+            self.__set_user_as_admin(username, admin_group)
 
         self.ensure_user_groups(username, groups)
 
@@ -195,3 +172,40 @@ class UserRole(Role):
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
         self.context['owner'] = username
+
+    def __set_user_as_admin(self, username, admin_group):
+        self.log("User %s should be admin! Rectifying that..." % username)
+        self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
+        self.log("User %s is admin now!" % username)
+
+    def __create_new_user(self, username, home_folder, groups, identified_by, default_script, is_admin):
+        is_admin_command = " -G admin"
+        command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
+        home_folder = home_folder or '/home/%s' % username
+        group = groups and groups[0] or username
+        self.log("User %s not found! Creating..." % username)
+        self.execute(command % {
+            'group': group or username,
+            'is_admin_command': is_admin and is_admin_command or '',
+            'password': identified_by or 'none',
+            'home_folder': home_folder,
+            'default_script': default_script,
+            'username': username
+        }, stdout=False, sudo=True)
+        self.log("User %s created!" % username)
+
+    def __ensure_initial_groups(self, groups, username):
+
+        for user_group in groups:
+            self.ensure_group(user_group)
+        if not groups:
+            self.ensure_group(username)
+
+    def __get_admin_group(self):
+
+        distro_info = self.get_distro_info()
+        if distro_info.distributor_id == 'Ubuntu':
+            admin_group = 'sudo'
+        else:
+            admin_group = 'admin'
+        return admin_group
