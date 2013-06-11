@@ -158,18 +158,22 @@ class UserRole(Role):
                         role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         '''
 
-        is_admin_command = "-G admin"
-        command = "useradd -g %(group)s %(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
-
-        home_folder = home_folder or '/home/%s' % username
-
-        group = groups and groups[0] or username
+        distro_info = self.get_distro_info()
+        if distro_info.distributor_id == 'Ubuntu':
+            admin_group = 'sudo'
+        else:
+            admin_group = 'admin'
 
         for user_group in groups:
             self.ensure_group(user_group)
-        self.ensure_group(group)
+        if not groups:
+            self.ensure_group(username)
 
         if not self.user_exists(username):
+            is_admin_command = " -G admin"
+            command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
+            home_folder = home_folder or '/home/%s' % username
+            group = groups and groups[0] or username
             self.log("User %s not found! Creating..." % username)
             self.execute(command % {
                 'group': group or username,
@@ -180,9 +184,9 @@ class UserRole(Role):
                 'username': username
             }, stdout=False, sudo=True)
             self.log("User %s created!" % username)
-        elif is_admin and not self.user_in_group(username, 'admin'):
+        elif is_admin and not self.user_in_group(username, admin_group):
             self.log("User %s should be admin! Rectifying that..." % username)
-            self.execute('usermod -G admin %s' % username, stdout=False, sudo=True)
+            self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
             self.log("User %s is admin now!" % username)
 
         self.ensure_user_groups(username, groups)
