@@ -19,5 +19,6 @@ class RubyRoleTest(ProvyTestCase):
                 version=self.role.version,
                 priority=self.role.priority,
             )
+            aptitude.ensure_up_to_date.assert_called_once_with()
             aptitude.ensure_package_installed.assert_called_once_with('ruby{version}-full'.format(version=self.role.version))
             execute.assert_called_once_with(update_alternatives_command, sudo=True)

@@ -73,6 +73,7 @@ class RubyRole(Role):
                     self.provision_role(RubyRole) # no need to call this if using with block.
         '''
         with self.using(AptitudeRole) as aptitude:
+            aptitude.ensure_up_to_date()
             aptitude.ensure_package_installed('ruby{version}-full'.format(version=self.version))
 
             update_alternatives_command = UPDATE_ALTERNATIVES_COMMAND.format(
