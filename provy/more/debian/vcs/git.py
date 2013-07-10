@@ -91,7 +91,7 @@ class GitRole(Role):
         if branch and not branch_name in self.execute("git --git-dir=\"%s/.git\" --work-tree=\"%s\" status" % (path, path),
                                                       sudo=True, stdout=False):
             self.log("Repository for %s is not in branch %s ! Switching..." % (repo, branch))
-            self.execute("git --git-dir=\"%s/.git\" --work-tree=\"%s\" checkout %s" % (path, path, branch))
+            self.execute("git --git-dir=\"%s/.git\" --work-tree=\"%s\" checkout %s" % (path, path, branch), sudo=sudo, user=owner)
             self.log("Repository %s currently in branch %s!" % (repo, branch))
 
         if owner:

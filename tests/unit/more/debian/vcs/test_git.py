@@ -1,3 +1,4 @@
+from mock import call
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, GitRole
@@ -38,3 +39,19 @@ class GitRoleTest(ProvyTestCase):
 
             aptitude.ensure_up_to_date.assert_called_once_with()
             aptitude.ensure_package_installed.assert_called_once_with('git-core')
+
+    @istest
+    def ensures_a_branch_is_checked_out_if_needed(self):
+        sudo = 'is it sudo?'
+        owner = 'foo-owner'
+        branch = 'some-branch'
+        with self.mock_role_methods('remote_exists_dir', 'execute', 'change_dir_owner'):
+            self.role.remote_exists_dir.return_value = True
+            self.role.execute.return_value = '# On branch master'
+
+            self.role.ensure_repository('some-repo-url', 'working-tree-path', sudo=sudo, branch=branch, owner=owner)
+
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('git --git-dir="working-tree-path/.git" --work-tree="working-tree-path" status', sudo=True, stdout=False),
+                call('git --git-dir="working-tree-path/.git" --work-tree="working-tree-path" checkout some-branch', sudo=sudo, user=owner),
+            ])
