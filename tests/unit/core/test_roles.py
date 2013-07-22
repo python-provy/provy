@@ -698,6 +698,7 @@ class RoleTest(ProvyTestCase):
         temp_file = self.role.write_to_temp_file(content)
         try:
             self.assertEqual(os.path.dirname(temp_file), tempfile.gettempdir())
+            self.assertTrue(os.path.isfile(temp_file))
 
             with open(temp_file) as f:
                 saved_content = f.read().strip()
@@ -713,6 +714,7 @@ class RoleTest(ProvyTestCase):
 
         try:
             self.assertEqual(os.path.dirname(temp_file), tempfile.gettempdir())
+            self.assertTrue(os.path.isfile(temp_file))
 
             with open(temp_file) as f:
                 saved_content = f.read().decode('utf-8').strip()
