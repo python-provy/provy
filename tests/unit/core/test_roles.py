@@ -351,7 +351,7 @@ class RoleTest(ProvyTestCase):
 
     @istest
     def creates_a_local_temp_dir(self):
-        self.assertTrue(self.role.local_temp_dir().startswith('/tmp'))
+        self.assertTrue(self.role.local_temp_dir().startswith(tempfile.gettempdir()))
 
     @istest
     def creates_a_remote_temp_dir(self):
@@ -697,7 +697,8 @@ class RoleTest(ProvyTestCase):
 
         temp_file = self.role.write_to_temp_file(content)
         try:
-            self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
+            self.assertEqual(os.path.dirname(temp_file), tempfile.gettempdir())
+            self.assertTrue(os.path.isfile(temp_file))
 
             with open(temp_file) as f:
                 saved_content = f.read().strip()
@@ -712,7 +713,8 @@ class RoleTest(ProvyTestCase):
         temp_file = self.role.write_to_temp_file(content)
 
         try:
-            self.assertRegexpMatches(temp_file, r'%s/.+' % tempfile.gettempdir())
+            self.assertEqual(os.path.dirname(temp_file), tempfile.gettempdir())
+            self.assertTrue(os.path.isfile(temp_file))
 
             with open(temp_file) as f:
                 saved_content = f.read().decode('utf-8').strip()
