@@ -8,6 +8,7 @@ Roles in this namespace are meant to provide `Ruby on Rails <http://rubyonrails.
 from provy.core import Role
 from provy.more.debian.package.aptitude import AptitudeRole
 from provy.more.debian.package.gem import GemRole
+from provy.more.debian.web.nginx import NginxRole
 
 
 PACKAGES_TO_INSTALL = (
@@ -130,10 +131,8 @@ class RailsRole(Role):
                     with self.using(RailsRole) as role:
                         role.ensure_site_disabled('default')
         '''
-        result = self.remove_file(self.__enabled_site_for(site), sudo=True)
-        if result:
-            self.log('%s nginx site is disabled!' % site)
-            self.ensure_restart()
+        with self.using(NginxRole) as nginx:
+            nginx.ensure_site_disabled(site)
 
     def ensure_site_enabled(self, site):
         '''
@@ -153,13 +152,8 @@ class RailsRole(Role):
                     with self.using(RailsRole) as role:
                         role.ensure_site_enabled('my-site')
         '''
-
-        result = self.remote_symlink(self.__available_site_for(site),
-                                     self.__enabled_site_for(site),
-                                     sudo=True)
-        if result:
-            self.log('%s nginx site is enabled!' % site)
-            self.ensure_restart()
+        with self.using(NginxRole) as nginx:
+            nginx.ensure_site_enabled(site)
 
     def create_site(self, site, host, path, port=80, options={}):
         '''

@@ -1,7 +1,7 @@
 from mock import call, patch
 from nose.tools import istest
 
-from provy.more.debian import RailsRole, AptitudeRole, GemRole, SupervisorRole
+from provy.more.debian import RailsRole, AptitudeRole, GemRole, SupervisorRole, NginxRole
 from provy.more.debian.web.rails import PACKAGES_TO_INSTALL
 from tests.unit.tools.helpers import ProvyTestCase
 
@@ -78,3 +78,21 @@ class RailsRoleTest(ProvyTestCase):
             self.role.cleanup()
 
             self.assertFalse(restart.called)
+
+    @istest
+    def ensures_site_is_disabled(self):
+        site = 'some-site'
+
+        with self.using_stub(NginxRole) as nginx:
+            self.role.ensure_site_disabled(site)
+
+            nginx.ensure_site_disabled.assert_called_once_with(site)
+
+    @istest
+    def ensures_site_is_enabled(self):
+        site = 'some-site'
+
+        with self.using_stub(NginxRole) as nginx:
+            self.role.ensure_site_enabled(site)
+
+            nginx.ensure_site_enabled.assert_called_once_with(site)
