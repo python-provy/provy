@@ -1,4 +1,4 @@
-from mock import call
+from mock import call, patch
 from nose.tools import istest
 
 from provy.more.debian import RailsRole, AptitudeRole, GemRole, SupervisorRole
@@ -63,3 +63,18 @@ class RailsRoleTest(ProvyTestCase):
                 call('/etc/nginx/sites-enabled', sudo=True),
                 call('/etc/nginx/conf.d', sudo=True),
             ])
+
+    @istest
+    def restarts_on_cleanup_if_must_be_restarted(self):
+        with patch('provy.more.debian.RailsRole.restart') as restart:
+            self.role.ensure_restart()
+            self.role.cleanup()
+
+            self.assertTrue(restart.called)
+
+    @istest
+    def doesnt_restart_on_cleanup_if_doesnt_need_to_be_restarted(self):
+        with patch('provy.more.debian.RailsRole.restart') as restart:
+            self.role.cleanup()
+
+            self.assertFalse(restart.called)
