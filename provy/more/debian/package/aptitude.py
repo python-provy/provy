@@ -49,8 +49,9 @@ class AptitudeRole(Role):
                 def provision(self):
                     self.provision_role(AptitudeRole) # does not need to be called if using with block.
         '''
+
         if not self.is_package_installed('aptitude'):
-            self.execute('apt-get install aptitude', stdout=False, sudo=True)
+            self.execute('apt-get install aptitude -y', stdout=False, sudo=True)
 
         self.ensure_up_to_date()
         self.ensure_package_installed('curl')

@@ -90,7 +90,7 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.provision()
 
             self.role.is_package_installed.assert_called_once_with('aptitude')
-            self.role.execute.assert_called_once_with('apt-get install aptitude', stdout=False, sudo=True)
+            self.role.execute.assert_called_once_with('apt-get install aptitude -y', stdout=False, sudo=True)
             self.role.ensure_up_to_date.assert_called_once_with()
             self.role.ensure_package_installed.assert_called_once_with('curl')
 
