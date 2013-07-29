@@ -96,3 +96,37 @@ class RailsRoleTest(ProvyTestCase):
             self.role.ensure_site_enabled(site)
 
             nginx.ensure_site_enabled.assert_called_once_with(site)
+
+    @istest
+    def ensures_site_is_created_and_restarted(self):
+        site = 'some-site'
+        host = 'some-host'
+        path = 'some-path'
+        options = {'foo': 'bar'}
+        expected_options = {'foo': 'bar', 'host': host, 'path': path}
+
+        with self.mock_role_methods('update_file', 'ensure_restart', 'execute'):
+            self.role.update_file.return_value = True
+
+            self.role.create_site(site, host, path, options=options)
+
+            self.role.update_file.assert_called_once_with('rails-nginx.template', '/etc/nginx/sites-available/some-site', options=expected_options, sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
+            self.role.execute.assert_called_once_with('su -l some-owner -c "cd some-path && bundle install --without development test --deployment"', sudo=True, stdout=True)
+
+    @istest
+    def ensures_site_is_created_without_restart_when_already_existant(self):
+        site = 'some-site'
+        host = 'some-host'
+        path = 'some-path'
+        options = {'foo': 'bar'}
+        expected_options = {'foo': 'bar', 'host': host, 'path': path}
+
+        with self.mock_role_methods('update_file', 'ensure_restart', 'execute'):
+            self.role.update_file.return_value = False
+
+            self.role.create_site(site, host, path, options=options)
+
+            self.role.update_file.assert_called_once_with('rails-nginx.template', '/etc/nginx/sites-available/some-site', options=expected_options, sudo=True)
+            self.assertFalse(self.role.ensure_restart.called)
+            self.role.execute.assert_called_once_with('su -l some-owner -c "cd some-path && bundle install --without development test --deployment"', sudo=True, stdout=True)
