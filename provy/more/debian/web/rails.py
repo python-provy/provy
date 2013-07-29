@@ -50,9 +50,6 @@ class RailsRole(Role):
     def __available_site_for(self, name):
         return '/etc/nginx/sites-available/%s' % name
 
-    def __enabled_site_for(self, name):
-        return '/etc/nginx/sites-enabled/%s' % name
-
     def provision(self):
         '''
         Installs `Ruby on Rails <http://rubyonrails.org/>`_ dependencies.
