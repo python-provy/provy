@@ -194,7 +194,7 @@ class RailsRole(Role):
                                   self.__available_site_for(site),
                                   options=options, sudo=True)
 
-        self.execute('su -l %s -c "cd %s && bundle install --without development test --deployment"' % (self.context['owner'], path), sudo=True, stdout=True)
+        self.execute('cd %s && bundle install --without development test --deployment' % path, user=self.context['owner'], stdout=True)
         if result:
             self.log('Installing gems with bundler')
             self.log('%s nginx site created!' % site)

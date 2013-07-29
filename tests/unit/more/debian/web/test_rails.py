@@ -99,6 +99,7 @@ class RailsRoleTest(ProvyTestCase):
 
     @istest
     def ensures_site_is_created_and_restarted(self):
+        owner = self.role.context['owner']
         site = 'some-site'
         host = 'some-host'
         path = 'some-path'
@@ -112,10 +113,11 @@ class RailsRoleTest(ProvyTestCase):
 
             self.role.update_file.assert_called_once_with('rails-nginx.template', '/etc/nginx/sites-available/some-site', options=expected_options, sudo=True)
             self.role.ensure_restart.assert_called_once_with()
-            self.role.execute.assert_called_once_with('su -l some-owner -c "cd some-path && bundle install --without development test --deployment"', sudo=True, stdout=True)
+            self.role.execute.assert_called_once_with('cd some-path && bundle install --without development test --deployment', stdout=True, user=owner)
 
     @istest
     def ensures_site_is_created_without_restart_when_already_existant(self):
+        owner = self.role.context['owner']
         site = 'some-site'
         host = 'some-host'
         path = 'some-path'
@@ -129,4 +131,4 @@ class RailsRoleTest(ProvyTestCase):
 
             self.role.update_file.assert_called_once_with('rails-nginx.template', '/etc/nginx/sites-available/some-site', options=expected_options, sudo=True)
             self.assertFalse(self.role.ensure_restart.called)
-            self.role.execute.assert_called_once_with('su -l some-owner -c "cd some-path && bundle install --without development test --deployment"', sudo=True, stdout=True)
+            self.role.execute.assert_called_once_with('cd some-path && bundle install --without development test --deployment', stdout=True, user=owner)
