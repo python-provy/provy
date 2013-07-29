@@ -208,11 +208,11 @@ class RailsRole(Role):
         ::
 
             from provy.core import Role
-            from provy.more.debian import NginxRole
+            from provy.more.debian import RailsRole
 
             class MySampleRole(Role):
                 def provision(self):
-                    with self.using(NginxRole) as role:
+                    with self.using(RailsRole) as role:
                         role.ensure_restart()
         '''
         self.context['must-restart-nginx'] = True
@@ -225,12 +225,12 @@ class RailsRole(Role):
         ::
 
             from provy.core import Role
-            from provy.more.debian import NginxRole
+            from provy.more.debian import RailsRole
 
             class MySampleRole(Role):
                 def provision(self):
-                    with self.using(NginxRole) as role:
+                    with self.using(RailsRole) as role:
                         role.restart()
         '''
-        command = '/etc/init.d/nginx restart'
-        self.execute(command, sudo=True)
+        with self.using(NginxRole) as nginx:
+            nginx.restart()

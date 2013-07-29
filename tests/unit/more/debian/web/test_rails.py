@@ -132,3 +132,10 @@ class RailsRoleTest(ProvyTestCase):
             self.role.update_file.assert_called_once_with('rails-nginx.template', '/etc/nginx/sites-available/some-site', options=expected_options, sudo=True)
             self.assertFalse(self.role.ensure_restart.called)
             self.role.execute.assert_called_once_with('cd some-path && bundle install --without development test --deployment', stdout=True, user=owner)
+
+    @istest
+    def restarts_nginx(self):
+        with self.using_stub(NginxRole) as nginx:
+            self.role.restart()
+
+            nginx.restart.assert_called_once_with()
