@@ -1,7 +1,8 @@
-from mock import call
+from mock import call, patch
 from nose.tools import istest
 
 from provy.more.centos import RabbitMqRole, YumRole
+from provy.more.centos.messaging.rabbitmq import GUEST_USER_WARNING
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -67,3 +68,13 @@ class RabbitMqRoleTest(ProvyTestCase):
                 call('chkconfig --add rabbitmq-server', stdout=False, sudo=True),
                 call('chkconfig rabbitmq-server on', stdout=False, sudo=True),
             ])
+
+    @istest
+    def warns_about_guest_user(self, **mocks):
+        with self.using_stub(YumRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'), patch('provy.more.centos.messaging.rabbitmq.warn') as warn:
+            self.role.is_process_running.return_value = True
+            self.role.user_exists.return_value = True
+
+            self.role.provision()
+
+            warn.assert_called_once_with(GUEST_USER_WARNING)

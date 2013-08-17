@@ -11,6 +11,11 @@ from provy.more.centos.package.yum import YumRole
 from fabric.utils import warn
 
 
+GUEST_USER_WARNING = ('It is advisable to delete the guest user or change the'
+                      ' password to something private, particularly if your broker'
+                      ' is accessible publicly.')
+
+
 class RabbitMqRole(Role):
     '''
     This role provides utility methods for `RabbitMQ <http://www.rabbitmq.com/>`_ utilities within CentOS distributions.
@@ -80,9 +85,7 @@ class RabbitMqRole(Role):
             )
 
         if self.user_exists('guest'):
-            warn('It is advisable to delete the guest user or change the'
-                 ' password to something private, particularly if your broker'
-                 ' is accessible publicly.')
+            warn(GUEST_USER_WARNING)
 
     def user_exists(self, username):
         '''
