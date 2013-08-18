@@ -10,4 +10,4 @@ xtraceback
 configobj
 pygments
 sphinx
-coveralls
+python-coveralls
