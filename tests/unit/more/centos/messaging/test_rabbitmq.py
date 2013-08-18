@@ -11,6 +11,10 @@ class RabbitMqRoleTest(ProvyTestCase):
         super(RabbitMqRoleTest, self).setUp()
         self.role = RabbitMqRole(prov=None, context={})
 
+    def output_list_vhosts(self, vhosts):
+        all_strings = ['Listing vhosts ...'] + vhosts + ['...done.']
+        return '\r\n'.join(all_strings)
+
     @istest
     def checks_that_a_user_exists(self):
         with self.execute_mock() as execute:
@@ -78,3 +82,25 @@ class RabbitMqRoleTest(ProvyTestCase):
             self.role.provision()
 
             warn.assert_called_once_with(GUEST_USER_WARNING)
+
+    @istest
+    def checks_that_a_vhost_exists(self):
+        with self.execute_mock() as execute:
+            execute.return_value = self.output_list_vhosts([
+                'foo',
+                'bar',
+            ])
+
+            self.assertTrue(self.role.vhost_exists('foo'))
+            execute.assert_called_once_with('rabbitmqctl list_vhosts', stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_vhost_doesnt_exist(self):
+        with self.execute_mock() as execute:
+            execute.return_value = self.output_list_vhosts([
+                'foo',
+                'bar',
+            ])
+
+            self.assertFalse(self.role.vhost_exists('baz'))
+            execute.assert_called_once_with('rabbitmqctl list_vhosts', stdout=False, sudo=True)
