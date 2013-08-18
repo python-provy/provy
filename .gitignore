@@ -10,3 +10,4 @@ provy.egg-info
 .vagrant
 .coverage
 .idea/
+setup.cfg
