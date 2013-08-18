@@ -239,12 +239,12 @@ class RabbitMqRole(Role):
                         )
         '''
         if not self.user_exists(username):
-            msg = 'Cannot set permission: User %s doesn\'t exists' % username
+            msg = 'Cannot set permission: User %s doesn\'t exist' % username
             self.log(msg)
             return False
 
         if not self.vhost_exists(vhost):
-            self.log('Cannot set permission: vhost %s doesn\'t exists' % vhost)
+            self.log('Cannot set permission: vhost %s doesn\'t exist' % vhost)
             return False
 
         msg = 'Setting up permissions for user %s on vhost %s'
