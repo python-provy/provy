@@ -168,3 +168,41 @@ class RabbitMqRoleTest(ProvyTestCase):
             self.assertFalse(result)
             self.role.vhost_exists.assert_called_once_with('foo-vhost')
             self.assertFalse(self.role.execute.called)
+
+    @istest
+    def ensures_permission_is_given(self):
+        with self.mock_role_methods('user_exists', 'vhost_exists', 'execute'):
+            self.role.user_exists.return_value = True
+            self.role.vhost_exists.return_value = True
+
+            result = self.role.ensure_permission('foo-vhost', 'foo-user', 'foo bar')
+
+            self.assertTrue(result)
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.role.vhost_exists.assert_called_once_with('foo-vhost')
+            self.role.execute.assert_called_once_with('rabbitmqctl set_permissions -p foo-vhost foo-user foo bar', sudo=True, stdout=False)
+
+    @istest
+    def doesnt_give_permission_if_user_doesnt_exist(self):
+        with self.mock_role_methods('user_exists', 'vhost_exists', 'execute'):
+            self.role.user_exists.return_value = False
+            self.role.vhost_exists.return_value = True
+
+            result = self.role.ensure_permission('foo-vhost', 'foo-user', 'foo bar')
+
+            self.assertFalse(result)
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.assertFalse(self.role.execute.called)
+
+    @istest
+    def doesnt_give_permission_if_vhost_doesnt_exist(self):
+        with self.mock_role_methods('user_exists', 'vhost_exists', 'execute'):
+            self.role.user_exists.return_value = True
+            self.role.vhost_exists.return_value = False
+
+            result = self.role.ensure_permission('foo-vhost', 'foo-user', 'foo bar')
+
+            self.assertFalse(result)
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.role.vhost_exists.assert_called_once_with('foo-vhost')
+            self.assertFalse(self.role.execute.called)
