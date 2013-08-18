@@ -10,3 +10,4 @@ xtraceback
 configobj
 pygments
 sphinx
+coveralls
