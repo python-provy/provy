@@ -126,3 +126,23 @@ class RabbitMqRoleTest(ProvyTestCase):
             self.assertFalse(result)
             self.role.user_exists.assert_called_once_with('foo-user')
             self.assertFalse(self.role.execute.called)
+
+    @istest
+    def deletes_user_if_it_exists(self):
+        with self.mock_role_methods('user_exists', 'execute'):
+            self.role.user_exists.return_value = True
+
+            self.role.delete_user('foo-user')
+
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.role.execute.assert_called_once_with('rabbitmqctl delete_user foo-user', sudo=True, stdout=False)
+
+    @istest
+    def doesnt_delete_user_if_it_doesnt_exist(self):
+        with self.mock_role_methods('user_exists', 'execute'):
+            self.role.user_exists.return_value = False
+
+            self.role.delete_user('foo-user')
+
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.assertFalse(self.role.execute.called)
