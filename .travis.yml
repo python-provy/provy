@@ -9,4 +9,4 @@ install: pip install -r REQUIREMENTS --use-mirrors
 # command to run tests
 script: make build
 after_success:
-  - coveralls --base_dir=provy
+  - coveralls
