@@ -146,3 +146,25 @@ class RabbitMqRoleTest(ProvyTestCase):
 
             self.role.user_exists.assert_called_once_with('foo-user')
             self.assertFalse(self.role.execute.called)
+
+    @istest
+    def ensures_vhost_is_created_if_it_doesnt_exist_yet(self):
+        with self.mock_role_methods('vhost_exists', 'execute'):
+            self.role.vhost_exists.return_value = False
+
+            result = self.role.ensure_vhost('foo-vhost')
+
+            self.assertTrue(result)
+            self.role.vhost_exists.assert_called_once_with('foo-vhost')
+            self.role.execute.assert_called_once_with('rabbitmqctl add_vhost foo-vhost', sudo=True)
+
+    @istest
+    def doesnt_create_vhost_if_it_already_exists(self):
+        with self.mock_role_methods('vhost_exists', 'execute'):
+            self.role.vhost_exists.return_value = True
+
+            result = self.role.ensure_vhost('foo-vhost')
+
+            self.assertFalse(result)
+            self.role.vhost_exists.assert_called_once_with('foo-vhost')
+            self.assertFalse(self.role.execute.called)
