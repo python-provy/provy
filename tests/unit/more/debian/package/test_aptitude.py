@@ -39,6 +39,28 @@ class AptitudeRoleTest(ProvyTestCase):
             self.assertFalse(self.role.package_exists('phyton'))
 
     @istest
+    def checks_that_a_package_is_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '''
+            foo
+            bar
+            '''
+
+            self.assertTrue(self.role.is_package_installed('foo'))
+            execute.assert_called_once_with("dpkg -l | egrep 'ii[ ]*foo\\b'", stdout=False, sudo=True)
+
+    @istest
+    def checks_that_a_package_is_not_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '''
+            foo
+            bar
+            '''
+
+            self.assertFalse(self.role.is_package_installed('baz'))
+            execute.assert_called_once_with("dpkg -l | egrep 'ii[ ]*baz\\b'", stdout=False, sudo=True)
+
+    @istest
     def checks_if_a_package_exists_before_installing(self):
         with self.execute_mock() as execute, self.mock_role_method('package_exists') as package_exists:
             package_exists.return_value = True

@@ -259,7 +259,6 @@ class AptitudeRole(Role):
                         if role.is_package_installed('nginx'):
                             pass
         '''
-
         with settings(warn_only=True):
             return package_name in self.execute("dpkg -l | egrep 'ii[ ]*%s\\b'" % package_name, stdout=False, sudo=True)
 
