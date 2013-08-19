@@ -109,19 +109,6 @@ class PipRoleTest(PipRoleTestCase):
             self.assertFalse(self.role.is_package_installed("django"))
 
     @istest
-    def ensures_requirements_are_installed(self):
-        from os.path import abspath, join, dirname
-        with self.mock_role_method('ensure_package_installed') as ensure_package_installed:
-            requeriments_file_name = abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt"))
-            self.role.ensure_requeriments_installed(requeriments_file_name)
-            ensure_package_installed.assert_has_calls([
-                call('Django'),
-                call('yolk==0.4.1'),
-                call('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
-                call('-e hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost'),
-            ])
-
-    @istest
     def ensures_requirements_are_installed_using_correctly_spelled_method_name(self):
         from os.path import abspath, join, dirname
         with self.mock_role_method('ensure_package_installed') as ensure_package_installed:

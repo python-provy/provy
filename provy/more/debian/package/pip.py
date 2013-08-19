@@ -238,26 +238,6 @@ class PipRole(Role):
 
         return False
 
-    def ensure_requeriments_installed(self, requeriments_file_name):
-        '''
-        .. warning:: Deprecated. Please use :meth:`ensure_requirements_installed` instead. (Will be removed in 0.7.0)
-
-        Makes sure the requirements file provided is installed.
-
-        :param requeriments_file_name: Path to the requirements file (can be provided as absolute path or relative to the directory where provy is run from).
-        :type requeriments_file_name: :class:`str`
-
-        Example:
-        ::
-
-            class MySampleRole(Role):
-                def provision(self):
-                    with self.using(PipRole) as role:
-                        role.ensure_requeriments_installed('/path/to/requirements.txt')
-        '''
-        self.log('"ensure_requeriments_installed" is deprecated, please use "ensure_requirements_installed" instead.')
-        self.ensure_requirements_installed(requeriments_file_name)
-
     def ensure_requirements_installed(self, requirements_file_name):
         '''
         Makes sure the requirements file provided is installed.
