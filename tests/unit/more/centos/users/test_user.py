@@ -1,7 +1,7 @@
 from mock import call
 from nose.tools import istest
 
-from provy.more.debian import UserRole
+from provy.more.centos import UserRole
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -158,81 +158,62 @@ class UserRoleTest(ProvyTestCase):
     @istest
     def ensures_user_is_created_when_not_created_yet(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = False
+            self.role.user_exists.return_value = False
 
-                self.role.ensure_user(username='foo-user', identified_by='foo-pass', groups=['foo-group', 'bar-group'])
+            self.role.ensure_user(username='foo-user', identified_by='foo-pass', groups=['foo-group', 'bar-group'])
 
-                self.assertEqual(self.role.ensure_group.mock_calls, [
-                    call('foo-group'),
-                    call('bar-group'),
-                ])
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-group -s /bin/bash -p foo-pass -d /home/foo-user -m foo-user', stdout=False, sudo=True),
-                    call('echo "foo-user:foo-pass" | chpasswd', stdout=False, sudo=True),
-                ])
-                self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
+            self.assertEqual(self.role.ensure_group.mock_calls, [
+                call('foo-group'),
+                call('bar-group'),
+            ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('useradd -g foo-group -s /bin/bash -p foo-pass -d /home/foo-user -m foo-user', stdout=False, sudo=True),
+                call('echo "foo-user:foo-pass" | chpasswd', stdout=False, sudo=True),
+            ])
+            self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
 
     @istest
     def ensures_user_is_created_with_irrelevant_password(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = False
+            self.role.user_exists.return_value = False
 
-                self.role.ensure_user(username='foo-user', groups=['foo-group', 'bar-group'])
+            self.role.ensure_user(username='foo-user', groups=['foo-group', 'bar-group'])
 
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-group -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
-                ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('useradd -g foo-group -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
+            ])
 
     @istest
     def ensures_user_is_created_with_only_group_as_username(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = False
+            self.role.user_exists.return_value = False
 
-                self.role.ensure_user(username='foo-user')
+            self.role.ensure_user(username='foo-user')
 
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-user -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
-                ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('useradd -g foo-user -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
+            ])
 
     @istest
     def ensures_user_is_created_with_different_home(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = False
+            self.role.user_exists.return_value = False
 
-                self.role.ensure_user(username='foo-user', home_folder='/srv/bar')
+            self.role.ensure_user(username='foo-user', home_folder='/srv/bar')
 
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-user -s /bin/bash -p none -d /srv/bar -m foo-user', stdout=False, sudo=True),
-                ])
-
-    @istest
-    def doesnt_add_but_set_user_as_admin_for_debian_when_it_already_exists_but_is_not_admin_yet(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = True
-                self.role.user_in_group.return_value = False
-
-                self.role.ensure_user(username='foo-user', is_admin=True)
-
-                self.role.user_in_group.assert_called_once_with('foo-user', 'admin')
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('usermod -G admin foo-user', sudo=True, stdout=False),
-                ])
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('useradd -g foo-user -s /bin/bash -p none -d /srv/bar -m foo-user', stdout=False, sudo=True),
+            ])
 
     @istest
-    def doesnt_add_but_set_user_as_admin_for_ubuntu_when_it_already_exists_but_is_not_admin_yet(self):
+    def doesnt_add_but_set_user_as_admin_when_it_already_exists_but_is_not_admin_yet(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
-            with self.provisioning_to('ubuntu'):
-                self.role.user_exists.return_value = True
-                self.role.user_in_group.return_value = False
+            self.role.user_exists.return_value = True
+            self.role.user_in_group.return_value = False
 
-                self.role.ensure_user(username='foo-user', is_admin=True)
+            self.role.ensure_user(username='foo-user', is_admin=True)
 
-                self.role.user_in_group.assert_called_once_with('foo-user', 'sudo')
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('usermod -G sudo foo-user', sudo=True, stdout=False),
-                ])
+            self.role.user_in_group.assert_called_once_with('foo-user', 'wheel')
+            self.assertEqual(self.role.execute.mock_calls, [
+                call('usermod -G wheel foo-user', sudo=True, stdout=False),
+            ])

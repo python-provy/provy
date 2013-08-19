@@ -99,12 +99,14 @@ class UserRole(Role):
         groups = groups_string.split()
         return group_name in groups
 
-    def ensure_group(self, group_name):
+    def ensure_group(self, group_name, group_id=None):
         '''
         Ensures that a given user group is present in the remote server.
 
         :param group_name: Name of the group to create.
         :type group_name: :class:`str`
+        :param group_id: GID of the group. Defaults to :data:`None`, which assigns the next available GID.
+        :type group_id: :class:`int`
 
         Example:
         ::
@@ -119,7 +121,10 @@ class UserRole(Role):
         '''
         if not self.group_exists(group_name):
             self.log("Group %s not found! Creating..." % group_name)
-            self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
+            if not group_id:
+                self.execute('groupadd %s' % group_name, stdout=False, sudo=True)
+            else:
+                self.execute('groupadd --gid %s %s' % (group_id, group_name), stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
     def ensure_user_groups(self, username, groups=[]):
@@ -174,12 +179,12 @@ class UserRole(Role):
         self.context['owner'] = username
 
     def __set_user_as_admin(self, username, admin_group):
-        self.log("User %s should be admin! Rectifying that..." % username)
+        self.log("User %s should be administrator! Rectifying that..." % username)
         self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
-        self.log("User %s is admin now!" % username)
+        self.log("User %s is administrator now!" % username)
 
     def __create_new_user(self, username, home_folder, groups, identified_by, default_script, is_admin):
-        is_admin_command = " -G admin"
+        is_admin_command = " -G {}".format(self.__get_admin_group())
         command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
         home_folder = home_folder or '/home/%s' % username
         group = groups and groups[0] or username

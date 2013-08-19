@@ -40,7 +40,13 @@ class UserRole(Role):
                         if role.group_exists('usersgroup'):
                             pass
         '''
-        return group_name in self.execute("cat /etc/group", stdout=False)
+        values = self.__first_values_from('group')
+        return group_name in values
+
+    def __first_values_from(self, basename):
+        values = self.execute("cat /etc/%s | cut -d ':' -f 1" % basename, stdout=False, sudo=True)
+        values = values.strip().split()
+        return values
 
     def user_exists(self, username):
         '''
@@ -60,7 +66,8 @@ class UserRole(Role):
                         if role.user_exists('myuser'):
                             pass
         '''
-        return username in self.execute("cat /etc/passwd", stdout=False)
+        values = self.__first_values_from('passwd')
+        return username in values
 
     def user_in_group(self, username, group_name):
         '''
@@ -77,7 +84,7 @@ class UserRole(Role):
         ::
 
             from provy.core import Role
-            from provy.more.debian import UserRole
+            from provy.more.centos import UserRole
 
             class MySampleRole(Role):
                 def provision(self):
@@ -85,7 +92,12 @@ class UserRole(Role):
                         if role.user_in_group('myuser', 'mygroup'):
                             pass
         '''
-        return group_name in self.execute('groups %s' % username, stdout=False)
+        raw_groups = self.execute('groups %s' % username, sudo=True, stdout=False).strip()
+        if not raw_groups.startswith(username):
+            raise ValueError("User '%s' doesn't exist" % username)
+        groups_string = raw_groups.replace('%s : ' % username, '')
+        groups = groups_string.split()
+        return group_name in groups
 
     def ensure_group(self, group_name, group_id=None):
         '''
@@ -115,7 +127,14 @@ class UserRole(Role):
                 self.execute('groupadd --gid %s %s' % (group_id, group_name), stdout=False, sudo=True)
             self.log("Group %s created!" % group_name)
 
-    def ensure_user(self, username, identified_by=None, user_id=None, home_folder=None, default_script="/bin/sh", group=None, is_admin=False):
+    def ensure_user_groups(self, username, groups=[]):
+        for user_group in groups:
+            if not self.user_in_group(username, user_group):
+                self.log("User %s should be in group %s! Rectifying that..." % (username, user_group))
+                self.execute('usermod -G %s %s' % (user_group, username), stdout=False, sudo=True)
+                self.log("User %s is in group %s now!" % (username, user_group))
+
+    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False):
         '''
         Ensures that a given user is present in the remote server.
 
@@ -129,9 +148,9 @@ class UserRole(Role):
         :type home_folder: :class:`str`
         :param default_script: Sets the user's default script, the one that will execute commands per default when logging in. Defaults to `/bin/sh`.
         :type default_script: :class:`str`
-        :param group: Group that this user belongs to. If the group does not exist it is created prior to user creation. Defaults to the name of the user.
-        :type group: :class:`str`
-        :param is_admin: If set to :data:`True` the user is added to the 'admin' user group as well. Defaults to :data:`False`.
+        :param groups: Groups that this user belongs to. If the groups do not exist they are created prior to user creation. Defaults to the name of the user.
+        :type groups: :class:`iterable`
+        :param is_admin: If set to :data:`True` the user is added to the 'wheel' user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
 
         Example:
@@ -145,34 +164,49 @@ class UserRole(Role):
                     with self.using(UserRole) as role:
                         role.ensure_user('myuser', identified_by='mypass', is_admin=True)
         '''
-        is_admin_command = "-G admin "
-        uid_command = user_id and '--uid %d ' % user_id or ''
-        command = "useradd -g %(group)s %(is_admin_command)s%(uid_command)s-s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
 
-        home_folder = home_folder or '/home/%s' % username
-
-        group = group or username
-
-        self.ensure_group(group)
+        admin_group = self.__get_admin_group()
+        self.__ensure_initial_groups(groups, username)
 
         if not self.user_exists(username):
-            self.log("User %s not found! Creating..." % username)
-            self.execute(command % {
-                'group': group,
-                'is_admin_command': is_admin and is_admin_command or '',
-                'password': identified_by or 'none',
-                'home_folder': home_folder,
-                'default_script': default_script,
-                'username': username,
-                'uid_command': uid_command
-            }, stdout=False, sudo=True)
-            self.log("User %s created!" % username)
-        elif is_admin and not self.user_in_group(username, 'admin'):
-            self.log("User %s should be admin! Rectifying that..." % username)
-            self.execute('usermod -G admin %s' % username, stdout=False, sudo=True)
-            self.log("User %s is admin now!" % username)
+            self.__create_new_user(username, home_folder, groups, identified_by, default_script, is_admin)
+        elif is_admin and not self.user_in_group(username, admin_group):
+            self.__set_user_as_admin(username, admin_group)
+
+        self.ensure_user_groups(username, groups)
 
         if identified_by:
             self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
 
         self.context['owner'] = username
+
+    def __set_user_as_admin(self, username, admin_group):
+        self.log("User %s should be administrator! Rectifying that..." % username)
+        self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
+        self.log("User %s is administrator now!" % username)
+
+    def __create_new_user(self, username, home_folder, groups, identified_by, default_script, is_admin):
+        is_admin_command = " -G {}".format(self.__get_admin_group())
+        command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
+        home_folder = home_folder or '/home/%s' % username
+        group = groups and groups[0] or username
+        self.log("User %s not found! Creating..." % username)
+        self.execute(command % {
+            'group': group or username,
+            'is_admin_command': is_admin and is_admin_command or '',
+            'password': identified_by or 'none',
+            'home_folder': home_folder,
+            'default_script': default_script,
+            'username': username
+        }, stdout=False, sudo=True)
+        self.log("User %s created!" % username)
+
+    def __ensure_initial_groups(self, groups, username):
+
+        for user_group in groups:
+            self.ensure_group(user_group)
+        if not groups:
+            self.ensure_group(username)
+
+    def __get_admin_group(self):
+        return 'wheel'
