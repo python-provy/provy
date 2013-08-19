@@ -3,7 +3,7 @@ import os
 from mock import patch
 from nose.tools import istest
 
-from provy.core.utils import provyfile_path_from, provyfile_module_from
+from provy.core.utils import provyfile_path_from, provyfile_module_from, import_module
 from tests.unit.tools.helpers import ProvyTestCase
 
 
@@ -67,3 +67,29 @@ class UtilsTest(ProvyTestCase):
     @istest
     def gets_provyfile_module_from_nested_path_without_extenstion(self):
         self.assertEqual(provyfile_module_from('some/dir/provyfile'), 'some.dir.provyfile')
+
+    @istest
+    def imports_a_module_with_dotted_notation(self):
+        class foo_package:
+            class bar_package:
+                class baz_module:
+                    pass
+
+        with patch('__builtin__.__import__') as import_:
+            import_.return_value = foo_package
+
+            module = import_module('foo_package.bar_package.baz_module')
+
+            self.assertEqual(module, foo_package.bar_package.baz_module)
+
+    @istest
+    def imports_a_module_with_simple_notation(self):
+        class foo_module:
+            pass
+
+        with patch('__builtin__.__import__') as import_:
+            import_.return_value = foo_module
+
+            module = import_module('foo_module')
+
+            self.assertEqual(module, foo_module)
