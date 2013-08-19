@@ -23,3 +23,26 @@ class YumRoleTest(ProvyTestCase):
             self.role.ensure_gpg_key('http://some.repo')
 
             self.role.execute.assert_called_once_with('curl http://some.repo | rpm --import -', sudo=True, stdout=False)
+
+    @istest
+    def checks_that_repository_exists_in_yum_repos(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '''
+            some
+            repo
+            foo-bar
+            '''
+
+            result = self.role.has_source('foo-bar')
+
+            self.assertTrue(result)
+            execute.assert_called_once_with("cat /etc/yum.repos.d/CentOS-Base.repo", sudo=True, stdout=False)
+
+    @istest
+    def checks_that_repository_doesnt_exist_in_apt_source(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'some repo'
+
+            result = self.role.has_source('foo-bar')
+
+            self.assertFalse(result)
