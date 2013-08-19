@@ -42,7 +42,7 @@ class GitRole(Role):
             role.ensure_up_to_date()
             role.ensure_package_installed('git-core')
 
-    def ensure_repository(self, repo, path, owner=None, branch=None):
+    def ensure_repository(self, repo, path, owner=None, branch=None, sudo=True):
         '''
         Makes sure the repository is create in the remote server.
         This method does not update the repository or perform any operations in it. It is merely used to ensure that the repository exists in the specified path.
@@ -55,6 +55,8 @@ class GitRole(Role):
         :type owner: :class:`str`
         :param branch: If specified, the given branch will be checked-out, otherwise it stays in the master branch.
         :type branch: :class:`str`
+        :param sudo: If :data:`False`, won't sudo when creating the repository. Defaults to :data:`True`.
+        :type sudo: :class:`bool`
 
         Example:
         ::
@@ -68,19 +70,24 @@ class GitRole(Role):
                         role.ensure_repository('git://github.com/python-provy/provy.git', '/home/user/provy',
                                                owner='user', branch='some-branch')
         '''
-        if not self.remote_exists_dir(path):
-            self.log("Repository for %s does not exist! Cloning..." % repo)
-            self.execute("git clone %s %s" % (repo, path),
-                         sudo=True,
-                         stdout=False)
-            self.log("Repository %s cloned!" % repo)
+        self.__clone_repository(path, repo, sudo, owner)
+        self.__checkout_branch(branch, path, repo, sudo, owner)
+        self.__normalize_ownership(owner, path)
 
+    def __normalize_ownership(self, owner, path):
+        if owner:
+            self.change_dir_owner(path, owner)
+
+    def __checkout_branch(self, branch, path, repo, sudo, owner):
         branch_name = "# On branch %s" % branch
         if branch and not branch_name in self.execute("git --git-dir=\"%s/.git\" --work-tree=\"%s\" status" % (path, path),
                                                       sudo=True, stdout=False):
             self.log("Repository for %s is not in branch %s ! Switching..." % (repo, branch))
-            self.execute("git --git-dir=\"%s/.git\" --work-tree=\"%s\" checkout %s" % (path, path, branch))
+            self.execute('git --git-dir="%s/.git" --work-tree="%s" checkout %s' % (path, path, branch), sudo=sudo, user=owner)
             self.log("Repository %s currently in branch %s!" % (repo, branch))
 
-        if owner:
-            self.change_dir_owner(path, owner)
+    def __clone_repository(self, path, repo, sudo, owner):
+        if not self.remote_exists_dir(path):
+            self.log("Repository for %s does not exist! Cloning..." % repo)
+            self.execute("git clone %s %s" % (repo, path), sudo=sudo, stdout=False, user=owner)
+            self.log("Repository %s cloned!" % repo)
