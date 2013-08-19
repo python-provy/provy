@@ -67,3 +67,10 @@ class YumRoleTest(ProvyTestCase):
             self.assertFalse(self.role.ensure_yum_source(source_line))
 
             self.assertFalse(execute.called)
+
+    @istest
+    def gets_update_date_file_as_a_property(self):
+        with self.mock_role_method('remote_temp_dir'):
+            self.role.remote_temp_dir.return_value = '/foo/bar'
+
+            self.assertEqual(self.role.update_date_file, '/foo/bar/last_yum_update')
