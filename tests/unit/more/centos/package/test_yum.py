@@ -147,3 +147,19 @@ class YumRoleTest(ProvyTestCase):
             self.assertTrue(self.role.context['yum-up-to-date'])
             self.role.execute.assert_called_once_with('yum clean all', stdout=False, sudo=True)
             self.role.store_update_date.assert_called_once_with()
+
+    @istest
+    def checks_that_a_package_is_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = '''yes'''
+
+            self.assertTrue(self.role.is_package_installed('foo'))
+            execute.assert_called_once_with('rpm -qa foo', sudo=True, stdout=False)
+
+    @istest
+    def checks_that_a_package_is_not_installed(self):
+        with self.execute_mock() as execute:
+            execute.return_value = ''''''
+
+            self.assertFalse(self.role.is_package_installed('baz'))
+            execute.assert_called_once_with('rpm -qa baz', sudo=True, stdout=False)
