@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+import sys
 
-from mock import patch
+from mock import patch, MagicMock
 from nose.tools import istest
 
-from provy.more.centos import YumRole
+from provy.more.centos import YumRole, PackageNotFound
 from provy.more.centos.package import yum
 from tests.unit.tools.helpers import ProvyTestCase
 
@@ -163,3 +164,56 @@ class YumRoleTest(ProvyTestCase):
 
             self.assertFalse(self.role.is_package_installed('baz'))
             execute.assert_called_once_with('rpm -qa baz', sudo=True, stdout=False)
+
+    @istest
+    def checks_that_a_package_exists(self):
+        with self.execute_mock() as execute:
+            self.assertTrue(self.role.package_exists('python'))
+            execute.assert_called_with('yum info -q python', stdout=False)
+
+    @istest
+    def checks_that_a_package_doesnt_exist(self):
+        with self.execute_mock() as execute:
+            execute.return_value = False
+            self.assertFalse(self.role.package_exists('phyton'))
+            execute.assert_called_with('yum info -q phyton', stdout=False)
+
+    @istest
+    def traps_sys_exit_when_checking_if_a_package_exists(self):
+        def exit(*args, **kwargs):
+            sys.exit(1)
+
+        execute = MagicMock(side_effect=exit)
+
+        with patch('provy.core.roles.Role.execute', execute):
+            self.assertFalse(self.role.package_exists('phyton'))
+
+    @istest
+    def checks_if_a_package_exists_before_installing(self):
+        with self.execute_mock() as execute, self.mock_role_methods('package_exists', 'is_package_installed') as (package_exists, is_package_installed):
+            is_package_installed.return_value = False
+            package_exists.return_value = True
+
+            result = self.role.ensure_package_installed('python')
+
+            self.assertTrue(result)
+            self.assertTrue(package_exists.called)
+            execute.assert_called_with('yum install -y python', stdout=False, sudo=True)
+
+    @istest
+    def fails_to_install_package_if_it_doesnt_exist(self):
+        with self.execute_mock(), self.mock_role_methods('package_exists', 'is_package_installed') as (package_exists, is_package_installed):
+            is_package_installed.return_value = False
+            package_exists.return_value = False
+
+            self.assertRaises(PackageNotFound, self.role.ensure_package_installed, 'phyton')
+            self.assertTrue(package_exists.called)
+
+    @istest
+    def doesnt_install_package_if_already_installed(self):
+        with self.mock_role_method('is_package_installed'):
+            self.role.is_package_installed.return_value = True
+
+            result = self.role.ensure_package_installed('python')
+
+            self.assertFalse(result)

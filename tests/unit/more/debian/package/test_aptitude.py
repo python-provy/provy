@@ -64,7 +64,10 @@ class AptitudeRoleTest(ProvyTestCase):
     def checks_if_a_package_exists_before_installing(self):
         with self.execute_mock() as execute, self.mock_role_method('package_exists') as package_exists:
             package_exists.return_value = True
-            self.role.ensure_package_installed('python')
+
+            result = self.role.ensure_package_installed('python')
+
+            self.assertTrue(result)
             self.assertTrue(package_exists.called)
             execute.assert_called_with('aptitude install -y python', stdout=False, sudo=True)
 
@@ -72,6 +75,7 @@ class AptitudeRoleTest(ProvyTestCase):
     def fails_to_install_package_if_it_doesnt_exist(self):
         with self.execute_mock(), self.mock_role_method('package_exists') as package_exists:
             package_exists.return_value = False
+
             self.assertRaises(PackageNotFound, self.role.ensure_package_installed, 'phyton')
             self.assertTrue(package_exists.called)
 
