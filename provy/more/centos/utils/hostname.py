@@ -14,7 +14,7 @@ class HostNameRole(Role):
     def ensure_hostname(self, hostname):
 
         '''
-        Ensure a fixed hostname
+        Ensure a fixed hostname is configured in the server.
 
         :param hostname: Hostname to be created.
         :type hostname: :class:`str`
@@ -27,13 +27,14 @@ class HostNameRole(Role):
                     with self.using(HostNameRole) as role:
                         role.ensure_hostname('rabbit')
         '''
+
+        if hostname == self.execute('hostname'):
+            return False
+
         path = '/etc/sysconfig/network'
 
         file = self.read_remote_file(path)
         hostname_line = 'HOSTNAME={0}'.format(hostname)
-
-        if hostname == self.execute('hostname'):
-            return False
 
         self.log('Setting up hostname')
 
