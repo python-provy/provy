@@ -24,10 +24,10 @@ class PipRoleTestCase(ProvyTestCase):
 
     @contextmanager
     def checking_that_package(self, is_installed=True, can_be_updated=None):
-        with patch('provy.more.debian.PipRole.is_package_installed') as is_package_installed:
+        with self.mock_role_method('is_package_installed') as is_package_installed:
             is_package_installed.return_value = is_installed
             if can_be_updated is not None:
-                with patch('provy.more.debian.PipRole.package_can_be_updated') as package_can_be_updated:
+                with self.mock_role_method('package_can_be_updated') as package_can_be_updated:
                     package_can_be_updated.return_value = can_be_updated
                     yield
             else:
@@ -36,19 +36,19 @@ class PipRoleTestCase(ProvyTestCase):
 
     @contextmanager
     def remote_version_as(self, version):
-        with patch('provy.more.debian.PipRole.get_package_remote_version') as get_package_remote_version:
+        with self.mock_role_method('get_package_remote_version') as get_package_remote_version:
             get_package_remote_version.return_value = version
             yield
 
     @contextmanager
     def latest_version_as(self, version):
-        with patch('provy.more.debian.PipRole.get_package_latest_version') as get_package_latest_version:
+        with self.mock_role_method('get_package_latest_version') as get_package_latest_version:
             get_package_latest_version.return_value = version
             yield
 
     @contextmanager
     def installing(self, package):
-        with patch('provy.more.debian.PipRole.ensure_package_installed') as ensure_package_installed:
+        with self.mock_role_method('ensure_package_installed') as ensure_package_installed:
             yield
             if package is not None:
                 ensure_package_installed.assert_called_with(package)
@@ -111,7 +111,7 @@ class PipRoleTest(PipRoleTestCase):
     @istest
     def ensures_requirements_are_installed(self):
         from os.path import abspath, join, dirname
-        with patch('provy.more.debian.PipRole.ensure_package_installed') as ensure_package_installed:
+        with self.mock_role_method('ensure_package_installed') as ensure_package_installed:
             requeriments_file_name = abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt"))
             self.role.ensure_requeriments_installed(requeriments_file_name)
             ensure_package_installed.assert_has_calls([
@@ -124,7 +124,7 @@ class PipRoleTest(PipRoleTestCase):
     @istest
     def ensures_requirements_are_installed_using_correctly_spelled_method_name(self):
         from os.path import abspath, join, dirname
-        with patch('provy.more.debian.PipRole.ensure_package_installed') as ensure_package_installed:
+        with self.mock_role_method('ensure_package_installed') as ensure_package_installed:
             requirements_file_name = abspath(join(dirname(__file__), "../../../fixtures/for_testing.txt"))
             self.role.ensure_requirements_installed(requirements_file_name)
             ensure_package_installed.assert_has_calls([
