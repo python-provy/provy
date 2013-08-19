@@ -107,7 +107,6 @@ class PipRole(Role):
             package_info = self.extract_package_data_from_input(package_name)
             if not version:
                 package_name = package_info['name']
-            #package_string = version and "%s==%s" % (package_name.lower(), version) or package_name
             package_string = self.execute("pip freeze | tr '[A-Z]' '[a-z]' | grep %s" % package_name, stdout=False, sudo=self.use_sudo, user=self.user)
             if package_name in package_string:
                 installed_version = package_string.split('==')[-1]
@@ -224,8 +223,8 @@ class PipRole(Role):
         '''
         if version:
             package_info = self.extract_package_data_from_input(version)
-            version_constraint = 'version_constraint' in package_info and package_info['version_constraint'] or '=='
-            version = 'version' in package_info and package_info['version'] or version
+            version_constraint = package_info.get('version_constraint', '==')
+            version = package_info.get('version', version)
             if not self.is_package_installed(package_name, version):
                 self.log('%s version %s should be installed (via pip)! Rectifying that...' % (package_name, version))
                 self.execute('pip install %s%s%s' % (package_name, version_constraint, version), stdout=False, sudo=self.use_sudo, user=self.user)
