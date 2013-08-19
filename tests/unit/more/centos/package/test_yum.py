@@ -46,3 +46,24 @@ class YumRoleTest(ProvyTestCase):
             result = self.role.has_source('foo-bar')
 
             self.assertFalse(result)
+
+    @istest
+    def ensures_a_source_string_is_added_to_the_repos(self):
+        source_line = 'foo-bar-repo'
+        with self.execute_mock() as execute, self.mock_role_method('has_source') as has_source:
+            has_source.return_value = False
+
+            self.assertTrue(self.role.ensure_yum_source(source_line))
+
+            self.assertTrue(has_source.called)
+            execute.assert_called_once_with('echo "{}" >> /etc/yum.repos.d/CentOS-Base.repo'.format(source_line), sudo=True, stdout=False)
+
+    @istest
+    def doesnt_add_source_if_it_already_exists(self):
+        source_line = 'foo-bar-repo'
+        with self.execute_mock() as execute, self.mock_role_method('has_source') as has_source:
+            has_source.return_value = True
+
+            self.assertFalse(self.role.ensure_yum_source(source_line))
+
+            self.assertFalse(execute.called)
