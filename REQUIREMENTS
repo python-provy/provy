@@ -11,3 +11,4 @@ configobj
 pygments
 sphinx
 coveralls
+pylint

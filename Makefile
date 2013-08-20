@@ -18,3 +18,8 @@ test:
 build: test
 	@echo Running syntax check...
 	@flake8 . --ignore=E501
+
+# This target is for hardcore linting only, not taken into consideration for the build.
+lint:
+	@echo Starting hardcore lint...
+	@pylint --rcfile=pylint.cfg provy
