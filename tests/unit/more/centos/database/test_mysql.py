@@ -125,6 +125,17 @@ class MySQLRoleTest(ProvyTestCase):
                                        sudo=True, stdout=False)
 
     @istest
+    def gets_empty_user_hosts(self):
+        with self.execute_mock() as execute:
+            execute.return_value = ''
+
+            hosts = self.role.get_user_hosts('root')
+
+            self.assertEqual(hosts, [])
+            execute.assert_called_with('''mysql -u root -E -e "select Host from mysql.user where LOWER(User)='root'" mysql''',
+                                       sudo=True, stdout=False)
+
+    @istest
     def checks_that_a_user_exists(self):
         with patch.object(self.role, 'get_user_hosts') as get_user_hosts:
             get_user_hosts.return_value = ['localhost']
@@ -195,6 +206,16 @@ class MySQLRoleTest(ProvyTestCase):
             execute.assert_called_with('mysql -u root -E -e "SHOW DATABASES" mysql', stdout=False, sudo=True)
 
     @istest
+    def checks_that_a_database_is_not_present_when_there_is_none(self):
+        with self.execute_mock() as execute:
+            execute.return_value = ''
+
+            result = self.role.is_database_present('performance_schema')
+
+            self.assertFalse(result)
+            execute.assert_called_with('mysql -u root -E -e "SHOW DATABASES" mysql', stdout=False, sudo=True)
+
+    @istest
     def creates_a_database_if_it_doesnt_exist_yet(self):
         with patch.object(self.role, 'is_database_present') as is_database_present, self.execute_mock() as execute:
             is_database_present.return_value = False
@@ -223,6 +244,16 @@ class MySQLRoleTest(ProvyTestCase):
 
             self.assertTrue(result)
             execute.assert_called_with('''mysql -u root -e "GRANT ALL PRIVILEGES ON foo.* TO 'john'@'%'" mysql''', stdout=False, sudo=True)
+
+    @istest
+    def grants_privilege_if_not_granted_yet_for_table(self):
+        with patch.object(self.role, 'has_grant') as has_grant, self.execute_mock() as execute:
+            has_grant.return_value = False
+
+            result = self.role.ensure_grant('ALL PRIVILEGES', on='foo.bar', username='john', login_from='%', with_grant_option=False)
+
+            self.assertTrue(result)
+            execute.assert_called_with('''mysql -u root -e "GRANT ALL PRIVILEGES ON foo.bar TO 'john'@'%'" mysql''', stdout=False, sudo=True)
 
     @istest
     def grants_privilege_with_grant_option_if_not_granted_yet(self):
