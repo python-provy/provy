@@ -999,7 +999,7 @@ class Role(object):
         should_create = not self.remote_exists(to_file)
         contents_differ = self._contents_differ(update_data.to_md5, update_data.from_md5)
 
-        if not should_create or contents_differ:
+        if not should_create and contents_differ:
             self.log('Hashes differ %s => %s! Copying %s to server %s!' % (update_data.from_md5, update_data.to_md5, from_file, self.context['host']))
 
         if should_create or contents_differ:

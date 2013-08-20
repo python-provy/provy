@@ -683,6 +683,48 @@ class RoleTest(ProvyTestCase):
             ])
 
     @istest
+    def doesnt_create_symlink_if_file_with_same_name_already_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            from_file = '/from/file'
+            to_file = '/to/file'
+            remote_from_exists = True
+            remote_to_exists = True
+            sudo = 'is it sudo?'
+            remote_exists.side_effect = (remote_from_exists, remote_to_exists)
+            execute.side_effect = ('-rw-rw-r-- 1 foo foo 4490 Dez 11 22:24 %s' % to_file, None)
+
+            self.role.remote_symlink(from_file, to_file, sudo=sudo)
+
+            self.assertEqual(remote_exists.mock_calls, [
+                call(from_file),
+                call(to_file),
+            ])
+            self.assertEqual(execute.mock_calls, [
+                call('ls -la %s' % to_file, stdout=False, sudo=sudo),
+            ])
+
+    @istest
+    def doesnt_create_symlink_if_symlink_with_same_name_already_exists(self):
+        with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
+            from_file = '/from/file'
+            to_file = '/to/file'
+            remote_from_exists = True
+            remote_to_exists = True
+            sudo = 'is it sudo?'
+            remote_exists.side_effect = (remote_from_exists, remote_to_exists)
+            execute.side_effect = ('-rw-rw-r-- 1 foo foo 4490 Dez 11 22:24 %s -> %s' % (to_file, from_file), None)
+
+            self.role.remote_symlink(from_file, to_file, sudo=sudo)
+
+            self.assertEqual(remote_exists.mock_calls, [
+                call(from_file),
+                call(to_file),
+            ])
+            self.assertEqual(execute.mock_calls, [
+                call('ls -la %s' % to_file, stdout=False, sudo=sudo),
+            ])
+
+    @istest
     def raises_exception_if_remote_file_doesnt_exist(self):
         with self.mock_role_method('remote_exists') as remote_exists:
             from_file = '/from/file'
@@ -817,7 +859,9 @@ class RoleTest(ProvyTestCase):
             self.update_data.from_md5 = 'same md5'
             self.update_data.to_md5 = 'same md5'
 
-            self.assertFalse(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
+            result = self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner)
+
+            self.assertFalse(result)
             self.assertFalse(self.role._force_update_file.called)
 
     @istest
