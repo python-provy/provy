@@ -11,3 +11,4 @@ provy.egg-info
 .coverage
 .idea/
 setup.cfg
+cover/

@@ -1,7 +1,13 @@
 [run]
-branch = False
+branch = True
 source = provy
 include = provy/*
 omit = provy/*/tests/*
        provy/tests/*
        test_*.*
+
+[report]
+show_missing = True
+
+[html]
+title = provy coverage report
