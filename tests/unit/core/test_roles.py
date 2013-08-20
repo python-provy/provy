@@ -177,6 +177,17 @@ class RoleTest(ProvyTestCase):
         self.assertIn('monitoring', package_loader.provider.module_path)
 
     @istest
+    def doesnt_register_a_template_loader_twice(self):
+        package_name = 'provy.more.debian.monitoring'
+
+        self.assertNotIn(package_name, self.role.context['registered_loaders'])
+        self.role.register_template_loader(package_name)
+        self.role.register_template_loader(package_name)
+        self.assertIn(package_name, self.role.context['registered_loaders'])
+
+        self.assertEqual(self.role.context['registered_loaders'], ['provy.more.debian.monitoring'])
+
+    @istest
     def appends_role_instance_to_cleanup_list_when_scheduling_cleanup(self):
         self.assertEqual(self.role.context['cleanup'], [])
         self.role.schedule_cleanup()
@@ -188,6 +199,16 @@ class RoleTest(ProvyTestCase):
         self.role.context['cleanup'] = [same_class_instance]
         self.role.schedule_cleanup()
         self.assertEqual(self.role.context['cleanup'], [same_class_instance])
+
+    @istest
+    def appends_role_instance_to_cleanup_list_when_same_class_doesnt_exist_yet(self):
+        class DummyRole(Role):
+            pass
+
+        same_class_instance = DummyRole(None, {})
+        self.role.context['cleanup'] = [same_class_instance]
+        self.role.schedule_cleanup()
+        self.assertEqual(self.role.context['cleanup'], [same_class_instance, self.role])
 
     @istest
     def provisions_role(self):
@@ -1059,6 +1080,14 @@ class UsingRoleTest(ProvyTestCase):
             self.assertIsInstance(role, DummyRole)
 
     @istest
+    def doesnt_fail_if_role_is_cleaned_up_before_exiting(self):
+        class DummyRole(Role):
+            def schedule_cleanup(self):
+                pass
+        with UsingRole(DummyRole, None, self.any_context()) as role:
+            del role.context['roles_in_context'][DummyRole]
+
+    @istest
     def provisions_role_when_entering_with_block(self):
         sentinel = MagicMock()
 
@@ -1122,19 +1151,16 @@ class RemoteTempFileTests(ProvyTestCase):
         self.assertTrue(file.startswith("/tmp"))
 
     @istest
-    def directory_created_in_tempdir(self):
-        folder = self.instance.create_remote_temp_dir("foo")
-        self.assertTrue(folder.startswith("/tmp"))
-
-    @istest
-    def file_created_with_proper_prefix(self):
-        file = self.instance.create_remote_temp_dir("foo")
-        self.assertTrue(file.startswith("/tmp/foo"))
-
-    @istest
     def directory_created_with_proper_name(self):
         dir = self.instance.create_remote_temp_dir("foobar")
         self.assertEqual("/tmp/foobar", dir)
+        self.assertEqual(list(self.instance._paths_to_remove)[0], '/tmp/foobar')
+
+    @istest
+    def directory_created_without_cleanup(self):
+        dir = self.instance.create_remote_temp_dir("foobar", cleanup=False)
+        self.assertEqual("/tmp/foobar", dir)
+        self.assertEqual(self.instance._paths_to_remove, set())
 
     @istest
     def file_created_with_proper_suffix(self):
