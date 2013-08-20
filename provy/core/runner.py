@@ -45,9 +45,7 @@ def provision_server(server, provfile_path, password, prov):
         'registered_loaders': []
     }
 
-    if 'options' in server and server['options']:
-        for key, value in server['options'].iteritems():
-            context[key] = value
+    aggregate_node_options(server, context)
 
     loader = ChoiceLoader([
         FileSystemLoader(join(context['abspath'], 'files'))
@@ -81,16 +79,20 @@ def provision_server(server, provfile_path, password, prov):
     print_header("%s provisioned!" % host_string)
 
 
+def aggregate_node_options(server, context):
+    for key, value in server.get('options', {}).iteritems():
+        context[key] = value
+
+
 def build_prompt_options(servers, extra_options):
     for server in servers:
-        if 'options' in server:
-            for option_name, option in server['options'].iteritems():
-                if isinstance(option, AskFor):
-                    if option.key in extra_options:
-                        value = extra_options[option.key]
-                    else:
-                        value = option.get_value(server)
-                    server['options'][option_name] = value
+        for option_name, option in server.get('options', {}).iteritems():
+            if isinstance(option, AskFor):
+                if option.key in extra_options:
+                    value = extra_options[option.key]
+                else:
+                    value = option.get_value(server)
+                server['options'][option_name] = value
 
 
 def get_servers_for(prov, server_name):
