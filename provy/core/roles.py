@@ -1247,6 +1247,10 @@ class Role(object):
 
         in the server, so you might want to check which results are usual for your distribution.
 
+        .. warning::
+
+            The distribution info is requested to the server only once per Role instance, which means you won't get the new distro info if it changes remotely.
+
         Example:
         ::
 
