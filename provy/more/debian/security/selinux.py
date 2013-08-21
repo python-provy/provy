@@ -35,13 +35,10 @@ class SELinuxRole(Role):
 
     def __init__(self, prov, context):
         super(SELinuxRole, self).__init__(prov, context)
-        self.__is_ubuntu = None
 
     def __distro_is_ubuntu(self):
-        if self.__is_ubuntu is None:
-            distro_info = self.get_distro_info()
-            self.__is_ubuntu = distro_info.distributor_id.lower() == 'ubuntu'
-        return self.__is_ubuntu
+        distro_info = self.get_distro_info()
+        return distro_info.distributor_id.lower() == 'ubuntu'
 
     def provision(self):
         '''
