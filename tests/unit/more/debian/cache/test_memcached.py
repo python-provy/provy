@@ -77,6 +77,15 @@ class MemcachedRoleTest(ProvyTestCase):
             self.role.ensure_restart.assert_called_once_with()
 
     @istest
+    def doesnt_restart_if_configuration_update_fails(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = False
+
+            self.role.ensure_conf()
+
+            self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
     def doesnt_restart_if_not_necessary_upon_cleanup(self):
         with self.mock_role_method('restart'):
             self.role.cleanup()
