@@ -79,6 +79,11 @@ class PipRoleTest(PipRoleTestCase):
                          {"name": "django-keyedcache"})
 
     @istest
+    def extracts_package_name_from_specific_repository_path_without_egg(self):
+        self.assertEqual(self.role.extract_package_data_from_input('-e hg+http://bitbucket.org/bkroeze/django-keyedcache/'),
+                         {"name": "-e hg+http://bitbucket.org/bkroeze/django-keyedcache/"})
+
+    @istest
     def extracts_package_name_from_specific_repository_url(self):
         self.assertEqual(self.role.extract_package_data_from_input('http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz'),
                          {"name": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"})
@@ -97,6 +102,11 @@ class PipRoleTest(PipRoleTestCase):
     def fails_check_if_a_package_is_installed_by_greater_version(self):
         with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
             self.assertFalse(self.role.is_package_installed("django>=1.3.0"))
+
+    @istest
+    def fails_check_if_a_package_is_installed_by_lesser_version(self):
+        with self.executing("pip freeze | tr '[A-Z]' '[a-z]' | grep django", returning="django==1.2.3"):
+            self.assertTrue(self.role.is_package_installed("django>=1.1.0"))
 
     @istest
     def fails_check_if_a_package_is_installed_by_greater_version_through_parameter(self):

@@ -60,8 +60,7 @@ class PipRole(Role):
 
         if input_line.startswith("-e") and "#egg=" in input_line:
             data = input_line.split("#egg=")
-            if len(data) > 0:
-                package_info["name"] = data[1]
+            package_info["name"] = data[1]
         elif "==" in input_line:
             package_constraint = "=="
         elif '>=' in input_line:
@@ -70,9 +69,8 @@ class PipRole(Role):
         if package_constraint:
             package_info['version_constraint'] = package_constraint
             data = input_line.split(package_constraint)
-            if len(data) > 1:
-                package_info["name"] = data[0]
-                package_info["version"] = data[1]
+            package_info["name"] = data[0]
+            package_info["version"] = data[1]
 
         return package_info
 
