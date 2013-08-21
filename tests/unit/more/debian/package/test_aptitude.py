@@ -121,6 +121,18 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.ensure_package_installed.assert_called_once_with('curl')
 
     @istest
+    def doesnt_install_aptitude_if_already_installed_when_provisioning(self):
+        with self.mock_role_methods('execute', 'ensure_up_to_date', 'ensure_package_installed', 'is_package_installed'):
+            self.role.is_package_installed.return_value = True
+
+            self.role.provision()
+
+            self.role.is_package_installed.assert_called_once_with('aptitude')
+            self.assertFalse(self.role.execute.called)
+            self.role.ensure_up_to_date.assert_called_once_with()
+            self.role.ensure_package_installed.assert_called_once_with('curl')
+
+    @istest
     def ensures_gpg_key_is_added(self):
         with self.execute_mock():
             self.role.ensure_gpg_key('http://some.repo')
