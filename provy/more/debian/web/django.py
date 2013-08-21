@@ -209,15 +209,18 @@ class DjangoRole(Role):
     def _update_supervisor_program(self, website):
         with self.using(SupervisorRole) as role:
             for process_number in range(website.processes):
-                port = website.starting_port + process_number
-                script_name = "%s-%d" % (website.name, port)
-                with role.with_program(script_name) as program:
-                    program.directory = dirname(website.settings_path)
-                    program.command = '/etc/init.d/%s start' % script_name
-                    program.name = script_name
-                    program.number_of_processes = 1
-                    program.user = website.user
-                    program.log_folder = website.supervisor_log_folder
+                self._update_supervisor_program_for_process(website, process_number, role)
+
+    def _update_supervisor_program_for_process(self, website, process_number, role):
+        port = website.starting_port + process_number
+        script_name = "%s-%d" % (website.name, port)
+        with role.with_program(script_name) as program:
+            program.directory = dirname(website.settings_path)
+            program.command = '/etc/init.d/%s start' % script_name
+            program.name = script_name
+            program.number_of_processes = 1
+            program.user = website.user
+            program.log_folder = website.supervisor_log_folder
 
     def _ensure_restart(self, website):
         if not MUST_RESTART_KEY in self.context:
