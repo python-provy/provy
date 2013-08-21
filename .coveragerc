@@ -4,6 +4,7 @@ source = provy
 include = provy/*
 omit = provy/*/tests/*
        provy/tests/*
+       provy/console.py
        test_*.*
 
 [report]
