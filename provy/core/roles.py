@@ -70,6 +70,7 @@ class Role(object):
         self._paths_to_remove = set()
         self.prov = prov
         self.context = context
+        self.__distro_info = None
 
     def register_template_loader(self, package_name):
         '''
@@ -1274,17 +1275,20 @@ class Role(object):
                     distro_info.release == '5.8'
                     distro_info.codename == 'Final'
         '''
-        raw_distro_info = self.execute('lsb_release -a')
-        distro_info_lines = raw_distro_info.split('\n')
-        distro_info = DistroInfo()
+        if self.__distro_info is None:
+            raw_distro_info = self.execute('lsb_release -a')
+            distro_info_lines = raw_distro_info.split('\n')
+            distro_info = DistroInfo()
 
-        for line in distro_info_lines:
-            if ':' in line:
-                key, value = line.split(':', 1)
-                info_property = key.lower().replace(' ', '_')
-                setattr(distro_info, info_property, value.strip())
+            for line in distro_info_lines:
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    info_property = key.lower().replace(' ', '_')
+                    setattr(distro_info, info_property, value.strip())
 
-        return distro_info
+            self.__distro_info = distro_info
+
+        return self.__distro_info
 
 
 class DistroInfo(object):

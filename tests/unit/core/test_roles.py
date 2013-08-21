@@ -118,6 +118,17 @@ class RoleTest(ProvyTestCase):
             self.assertEqual(distro_info.codename, 'Final')
 
     @istest
+    def doesnt_hit_the_server_twice_to_get_distro_info(self):
+        with self.execute_mock() as execute:
+            execute.return_value = 'No LSB modules are available.\r\nDistributor ID:\tUbuntu\r\nDescription:\tUbuntu 12.04.1 LTS\r\nRelease:\t12.04\r\nCodename:\tprecise'
+
+            distro_info1 = self.role.get_distro_info()
+            distro_info2 = self.role.get_distro_info()
+
+            execute.assert_called_once_with('lsb_release -a')
+            self.assertEqual(distro_info1, distro_info2)
+
+    @istest
     def ignores_line_if_already_exists_in_file(self):
         with self.mock_role_methods("has_line", "put_file", "execute") as mocked:
             has_line, _, execute = mocked
