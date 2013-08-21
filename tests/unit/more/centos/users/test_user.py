@@ -217,3 +217,14 @@ class UserRoleTest(ProvyTestCase):
             self.assertEqual(self.role.execute.mock_calls, [
                 call('usermod -G wheel foo-user', sudo=True, stdout=False),
             ])
+
+    @istest
+    def just_add_user_to_groups_if_its_already_admin(self):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
+            self.role.user_exists.return_value = True
+            self.role.user_in_group.return_value = True
+
+            self.role.ensure_user(username='foo-user', is_admin=True, groups=['foo-group', 'bar-group'])
+
+            self.assertFalse(self.role.execute.called)
+            self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
