@@ -77,6 +77,22 @@ class SupervisorRoleTest(ProvyTestCase):
         })
 
     @istest
+    def configures_supervisor_in_config_directory_with_specific_user(self):
+        self.role.context[CONFIG_KEY] = None
+
+        self.role.config(config_file_directory='/foo-dir', user='foo-user')
+
+        self.assertEqual(self.role.context[CONFIG_KEY], {
+            'config_file_directory': '/foo-dir',
+            'log_file': '/var/log/supervisord.log',
+            'log_file_backups': 10,
+            'log_file_max_mb': 50,
+            'log_level': 'info',
+            'pidfile': '/var/run/supervisord.pid',
+            'user': 'foo-user',
+        })
+
+    @istest
     def enters_a_new_program_context(self):
         with self.role.with_program('foo-program') as program:
             program.directory = '/foo/bar'
@@ -87,6 +103,16 @@ class SupervisorRoleTest(ProvyTestCase):
         self.assertEqual(program.name, 'foo-program')
         self.assertEqual(program.supervisor, self.role)
         self.role.context[PROGRAMS_KEY][0]['environment'] = 'FOO1="BAR1",FOO2="BAR2"'
+
+    @istest
+    def preserves_previous_programs_list_when_creating_a_new_program(self):
+        with self.role.with_program('foo-program') as program:
+            self.role.context[PROGRAMS_KEY] = ['foo']
+            program.directory = '/foo/bar'
+            program.command = 'baz.sh'
+
+        self.assertEqual(len(self.role.context[PROGRAMS_KEY]), 2)
+        self.assertEqual(self.role.context[PROGRAMS_KEY][0], 'foo')
 
     @istest
     def requires_directory_and_command_to_create_program(self):
@@ -134,6 +160,39 @@ class SupervisorRoleTest(ProvyTestCase):
             conf_path = os.path.join(options['config_file_directory'], 'supervisord.conf')
 
             self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
+
+    @istest
+    def doesnt_update_config_if_program_not_configured_yet(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_config_file()
+
+            self.assertFalse(self.role.update_file.called)
+            self.assertFalse(self.role.ensure_restart.called)
+
+    @istest
+    def updates_config_file_without_programs(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = True
+
+            self.role.config()
+            options = deepcopy(self.role.context[CONFIG_KEY])
+            conf_path = os.path.join(options['config_file_directory'], 'supervisord.conf')
+
+            self.role.update_config_file()
+
+            self.role.update_file.assert_called_once_with('supervisord.conf.template', conf_path, options=options, owner=self.role.context['owner'], sudo=True)
+            self.role.ensure_restart.assert_called_once_with()
+
+    @istest
+    def doesnt_restart_if_updating_config_fails(self):
+        with self.mock_role_methods('update_file', 'ensure_restart'):
+            self.role.update_file.return_value = False
+
+            self.role.config()
+
+            self.role.update_config_file()
+
+            self.assertFalse(self.role.ensure_restart.called)
 
     @istest
     def updates_files_upon_cleanup(self):
