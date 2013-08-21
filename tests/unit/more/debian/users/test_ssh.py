@@ -32,7 +32,7 @@ class SSHRoleTest(ProvyTestCase):
             )
 
     @istest
-    def write_keys(self):
+    def writes_keys(self):
         with self.mock_role_methods('execute_python', 'write_to_temp_file', 'update_file') as (execute_python, write_to_temp_file, update_file):
             self.role._SSHRole__write_keys('user', '..private..', '..public..')
 
@@ -56,3 +56,12 @@ class SSHRoleTest(ProvyTestCase):
                     '/home/user/.ssh/id_rsa', sudo=True, owner='user',
                 ),
             ])
+
+    @istest
+    def doesnt_log_if_updating_keys_files_fails(self):
+        with self.mock_role_methods('execute_python', 'write_to_temp_file', 'update_file', 'log') as (execute_python, write_to_temp_file, update_file, log):
+            update_file.return_value = False
+
+            self.role._SSHRole__write_keys('user', '..private..', '..public..')
+
+            self.assertFalse(log.called)
