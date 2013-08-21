@@ -1,7 +1,7 @@
 import os
 
 from nose.tools import istest
-from mock import patch, call, DEFAULT
+from mock import call
 from jinja2 import FileSystemLoader
 
 from provy.more.debian import SSHRole
@@ -20,12 +20,11 @@ class SSHRoleTest(ProvyTestCase):
         self.test_private_key = self.role.render('test_private_key.pem')
 
     @istest
-    @patch('provy.core.Role.ensure_dir')
-    def ensure_ssh_key(self, mock_ensure_dir):
-        with patch('provy.more.debian.SSHRole._SSHRole__write_keys') as mock_write:
+    def ensures_ssh_key(self):
+        with self.mock_role_methods('_SSHRole__write_keys', 'ensure_dir') as (mock_write, ensure_dir):
             self.role.ensure_ssh_key('user', 'test_private_key.pem')
 
-            mock_ensure_dir.assert_called_with(
+            ensure_dir.assert_called_with(
                 '/home/user/.ssh', owner='user', sudo=True,
             )
             mock_write.assert_called_with(
@@ -33,28 +32,21 @@ class SSHRoleTest(ProvyTestCase):
             )
 
     @istest
-    @patch.multiple(
-        'provy.core.Role', execute_python=DEFAULT, write_to_temp_file=DEFAULT,
-        update_file=DEFAULT,
-    )
-    def write_keys(self, execute_python, write_to_temp_file,
-                   update_file):
-        self.role._SSHRole__write_keys('user', '..private..', '..public..')
+    def write_keys(self):
+        with self.mock_role_methods('execute_python', 'write_to_temp_file', 'update_file') as (execute_python, write_to_temp_file, update_file):
+            self.role._SSHRole__write_keys('user', '..private..', '..public..')
 
-        self.assertEqual(
-            execute_python.call_args,
-            call('import os; print os.uname()[1]', stdout=False)
-        )
+            self.assertEqual(
+                execute_python.call_args,
+                call('import os; print os.uname()[1]', stdout=False)
+            )
 
-        write_to_temp_file.assert_has_calls(
-            [
+            write_to_temp_file.assert_has_calls([
                 call('..public.. user@' + str(execute_python.return_value)),
                 call('..private..'),
-            ]
-        )
+            ])
 
-        update_file.assert_has_calls(
-            [
+            update_file.assert_has_calls([
                 call(
                     write_to_temp_file.return_value,
                     '/home/user/.ssh/id_rsa.pub', sudo=True, owner='user',
@@ -63,5 +55,4 @@ class SSHRoleTest(ProvyTestCase):
                     write_to_temp_file.return_value,
                     '/home/user/.ssh/id_rsa', sudo=True, owner='user',
                 ),
-            ]
-        )
+            ])
