@@ -33,3 +33,6 @@ sysinfo:
 	@lsb_release -a
 	@echo 'Memory info (in megabytes):'
 	@free -m
+
+end-to-end:
+	@cd vagrant && vagrant up
