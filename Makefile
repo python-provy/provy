@@ -23,3 +23,9 @@ build: test
 lint:
 	@echo Starting hardcore lint...
 	@pylint --rcfile=pylint.cfg provy
+
+sysinfo:
+	@echo Free disk space:
+	@df -h
+	@echo Plaform info:
+	@uname -a
