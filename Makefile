@@ -31,3 +31,5 @@ sysinfo:
 	@uname -a
 	@echo Distribution info:
 	@lsb_release -a
+	@echo 'Memory info (in megabytes):'
+	@free -m
