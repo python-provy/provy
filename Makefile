@@ -29,3 +29,5 @@ sysinfo:
 	@df -h
 	@echo Plaform info:
 	@uname -a
+	@echo Distribution info:
+	@lsb_release -a
