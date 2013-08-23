@@ -2,17 +2,11 @@ language: python
 python:
   - "2.7"
 before_install:
-  - make sysinfo
-#  - sudo apt-get install -qq python-software-properties
-#  - sudo add-apt-repository -y ppa:dotcloud/lxc-docker
   - sudo apt-get update -qq
   - sudo apt-get install -qq python-dev swig
-#  - sudo apt-get install -qq lxc-docker
 # command to install dependencies
 install: pip install -r REQUIREMENTS --use-mirrors
 # command to run tests
 script: make build
 after_success:
   - coveralls
-  - sudo apt-get install -qq vagrant
-  - make end-to-end
