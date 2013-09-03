@@ -1,0 +1,8 @@
+Vagrant::Config.run do |config|
+    config.vm.define :end_to_end do |inner_config|
+        inner_config.vm.box = "precise64"
+        inner_config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
+        inner_config.vm.forward_port(80, 8080)
+        inner_config.vm.network(:hostonly, "33.33.33.33")
+    end
+end

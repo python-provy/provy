@@ -34,5 +34,9 @@ sysinfo:
 	@echo 'Memory info (in megabytes):'
 	@free -m
 
+
+
+# Targets for the end-to-end test. Requires Vagrant to be installed.
+
 end-to-end:
-	@cd vagrant && vagrant up
+	@make -C tests/end_to_end end-to-end

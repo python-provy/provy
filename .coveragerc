@@ -6,6 +6,7 @@ omit = provy/*/tests/*
        provy/tests/*
        provy/console.py
        test_*.*
+       e2e.py
 
 [report]
 show_missing = True
