@@ -1,22 +1,26 @@
 # User creation vars
-PROVY_USERNAME=provy
+export PROVY_USERNAME=provy
 PROVY_GROUP=provy
-PROVY_PASSWORD=provy
+export PROVY_PASSWORD=provy
 PROVY_HOME=/home/provy
 PROVY_SHELL=/bin/bash
 PROVY_ADMIN_GROUP=sudo
 PROVY_PUBLIC_KEY=provy-e2e-key.pub
+export PROVY_LOCAL_PRIVATE_KEY=$(PWD)/provy-e2e-key
 PROVY_SSH_DIR=$(PROVY_HOME)/.ssh
 PROVY_AUTHORIZED_KEYS=$(PROVY_SSH_DIR)/authorized_keys
 VAGRANT_KEYS=$(shell dirname $(shell gem which vagrant))/../keys
 VAGRANT_PRIVATE_KEY=$(VAGRANT_KEYS)/vagrant
 
 # Network vars
-PROVY_HOST=33.33.33.33
+export PROVY_HOST=33.33.33.33
 KNOWN_HOSTS=$(HOME)/.ssh/known_hosts
 
 # Commands
 VAGRANT_SSH=vagrant ssh end_to_end -c
+PROJECT_ROOT=$(shell dirname $(shell dirname $(PWD)))
+export PYTHONPATH=$(PROJECT_ROOT)
+PROVY=python ../../provy/console.py
 
 
 end-to-end:
@@ -34,6 +38,7 @@ start-vm:
 prepare-vm:
 	@echo Preparing VM for the tests
 	@make prepare-user
+	@make provision
 
 prepare-user:
 	@echo Preparing user
@@ -47,6 +52,9 @@ prepare-user:
 	@$(VAGRANT_SSH) "sudo chown -R $(PROVY_USERNAME):$(PROVY_GROUP) $(PROVY_HOME)"
 	-@ssh-keygen -f "$(KNOWN_HOSTS)" -R $(PROVY_HOST)
 	-@ssh-keyscan -t rsa,dsa $(PROVY_HOST) >> $(KNOWN_HOSTS)
+
+provision:
+	@$(PROVY) -s end-to-end -p $(PROVY_PASSWORD)
 
 run-tests:
 	@echo Running the tests
