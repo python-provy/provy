@@ -12,3 +12,4 @@ pygments
 sphinx
 coveralls
 pylint
+-e .
