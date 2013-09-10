@@ -1,0 +1,22 @@
+upstream frontends {
+    server 33.33.33.33:8000;
+    server 33.33.33.33:8001;
+    server 33.33.33.33:8002;
+    server 33.33.33.33:8003;
+}
+
+server {
+    listen 8888;
+    server_name  localhost 33.33.33.33;
+
+    access_log  /home/frontend/website.access.log;
+
+    location / {
+        proxy_pass_header Server;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_pass http://frontends;
+    }
+}
