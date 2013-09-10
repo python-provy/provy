@@ -14,6 +14,7 @@ VAGRANT_PRIVATE_KEY=$(VAGRANT_KEYS)/vagrant
 
 # Network vars
 export PROVY_HOST=33.33.33.33
+export PROVY_PORT=8888
 KNOWN_HOSTS=$(HOME)/.ssh/known_hosts
 
 # Commands
@@ -55,7 +56,9 @@ prepare-user:
 
 provision:
 	@$(PROVY) -s end-to-end -p $(PROVY_PASSWORD)
+	@echo Sleeping for a while to let supervisor start...
+	@sleep 5
 
 run-tests:
 	@echo Running the tests
-#TODO
+	@nosetests test.py

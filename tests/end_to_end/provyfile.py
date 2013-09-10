@@ -14,7 +14,10 @@ class FrontEnd(Role):
         with self.using(NginxRole) as role:
             role.ensure_conf(conf_template='nginx.conf', options={'user': 'frontend'})
             role.ensure_site_disabled('default')
-            role.create_site(site='website', template='website')
+            role.create_site(site='website', template='website', options={
+                'host': os.environ['PROVY_HOST'],
+                'port': os.environ['PROVY_PORT'],
+            })
             role.ensure_site_enabled('website')
 
 

@@ -12,4 +12,5 @@ pygments
 sphinx
 coveralls
 pylint
+requests
 -e .

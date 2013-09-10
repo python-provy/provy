@@ -1,13 +1,13 @@
 upstream frontends {
-    server 33.33.33.33:8000;
-    server 33.33.33.33:8001;
-    server 33.33.33.33:8002;
-    server 33.33.33.33:8003;
+    server {{ host }}:8000;
+    server {{ host }}:8001;
+    server {{ host }}:8002;
+    server {{ host }}:8003;
 }
 
 server {
-    listen 8888;
-    server_name  localhost 33.33.33.33;
+    listen {{ port }};
+    server_name  localhost {{ host }};
 
     access_log  /home/frontend/website.access.log;
 
