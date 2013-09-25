@@ -1,9 +1,10 @@
-from mock import call
+from mock import call, ANY, patch
 from nose.tools import istest
 
 from provy.more.debian import UserRole
 from tests.unit.tools.helpers import ProvyTestCase
 
+from provy.more.debian.users.passwd_utils import hash_password_function, random_salt_function
 
 example_groups = """
 root
@@ -157,7 +158,7 @@ class UserRoleTest(ProvyTestCase):
 
     @istest
     def ensures_user_is_created_when_not_created_yet(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute', 'set_user_password'):
             with self.provisioning_to('debian'):
                 self.role.user_exists.return_value = False
 
@@ -168,50 +169,41 @@ class UserRoleTest(ProvyTestCase):
                     call('bar-group'),
                 ])
                 self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-group -s /bin/bash -p foo-pass -d /home/foo-user -m foo-user', stdout=False, sudo=True),
-                    call('echo "foo-user:foo-pass" | chpasswd', stdout=False, sudo=True),
+                    call('useradd -g foo-group -s /bin/bash -d /home/foo-user -m foo-user', stdout=False, sudo=True)
                 ])
+                self.role.set_user_password.assert_called_once_with(
+                    'foo-user', 'foo-pass', False
+                )
                 self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
 
-    @istest
-    def ensures_user_is_created_with_irrelevant_password(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
-            with self.provisioning_to('debian'):
-                self.role.user_exists.return_value = False
-
-                self.role.ensure_user(username='foo-user', groups=['foo-group', 'bar-group'])
-
-                self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-group -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
-                ])
 
     @istest
     def ensures_user_is_created_with_only_group_as_username(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute', 'set_user_password'):
             with self.provisioning_to('debian'):
                 self.role.user_exists.return_value = False
 
                 self.role.ensure_user(username='foo-user')
 
                 self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-user -s /bin/bash -p none -d /home/foo-user -m foo-user', stdout=False, sudo=True),
+                    call('useradd -g foo-user -s /bin/bash -d /home/foo-user -m foo-user', stdout=False, sudo=True),
                 ])
 
     @istest
     def ensures_user_is_created_with_different_home(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute', 'set_user_password'):
             with self.provisioning_to('debian'):
                 self.role.user_exists.return_value = False
 
                 self.role.ensure_user(username='foo-user', home_folder='/srv/bar')
 
                 self.assertEqual(self.role.execute.mock_calls, [
-                    call('useradd -g foo-user -s /bin/bash -p none -d /srv/bar -m foo-user', stdout=False, sudo=True),
+                    call('useradd -g foo-user -s /bin/bash -d /srv/bar -m foo-user', stdout=False, sudo=True),
                 ])
 
     @istest
     def doesnt_add_but_set_user_as_admin_for_debian_when_it_already_exists_but_is_not_admin_yet(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute', "set_user_password"):
             with self.provisioning_to('debian'):
                 self.role.user_exists.return_value = True
                 self.role.user_in_group.return_value = False
@@ -225,7 +217,7 @@ class UserRoleTest(ProvyTestCase):
 
     @istest
     def doesnt_add_but_set_user_as_admin_for_ubuntu_when_it_already_exists_but_is_not_admin_yet(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute', 'set_user_password'):
             with self.provisioning_to('ubuntu'):
                 self.role.user_exists.return_value = True
                 self.role.user_in_group.return_value = False
@@ -239,7 +231,7 @@ class UserRoleTest(ProvyTestCase):
 
     @istest
     def just_add_user_to_groups_if_its_already_admin(self):
-        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute'):
+        with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'user_in_group', 'execute', 'set_user_password'):
             with self.provisioning_to('ubuntu'):
                 self.role.user_exists.return_value = True
                 self.role.user_in_group.return_value = True
@@ -248,3 +240,74 @@ class UserRoleTest(ProvyTestCase):
 
                 self.assertFalse(self.role.execute.called)
                 self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
+
+    @istest
+    def check_if_two_generated_salts_are_different(self):
+        """
+        Instead of checking if output is truly random, we'll just check if
+        in two conseutive calls different functions will be returned
+        """
+        self.assertNotEqual(random_salt_function(), random_salt_function())
+
+    @istest
+    def check_random_add_function_output_is_as_specified(self):
+        self.assertTrue(len(random_salt_function(salt_len=125)), 125)
+
+
+    @istest
+    def check_crypt_function_gives_expected_output_for_known_magic_and_salt(self):
+        password = "foobarbaz"
+        expected_hash = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
+        salt = "SqAoXRvk"
+
+        self.assertEqual(expected_hash, hash_password_function(password, salt))
+
+    @istest
+    def check_crypt_function_uses_random_salt(self):
+        password = "foobarbaz"
+        expected_hash = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
+        salt = "SqAoXRvk"
+
+        with patch("provy.more.debian.users.passwd_utils.random_salt_function") as rnd:
+            rnd.return_value = salt
+            self.assertEqual(expected_hash, hash_password_function(password))
+            self.assertTrue(rnd.called)
+
+
+
+    @istest
+    def check_set_user_password_when_password_is_encrypted(self):
+        encrypted_password = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
+        with self.mock_role_methods("create_remote_temp_file", 'put_file', 'execute', "remove_file"):
+            self.role.create_remote_temp_file.return_value = "/tmp/random"
+            self.role.set_user_password("foo",  encrypted_password, encrypted=True)
+            self.role.put_file.assert_called_once_with(
+                ANY,
+                "/tmp/random",
+                sudo=True,
+                stdout=False
+            )
+            #self.role.execute.assert_called_with()
+            self.assertIn(
+                call('cat "/tmp/random" | chpasswd -e', sudo=True, stdout=False),
+                self.role.execute.mock_calls
+            )
+
+
+    @istest
+    def check_set_user_password_when_password_is_not_encrypted(self):
+        with self.mock_role_methods("create_remote_temp_file", 'put_file', 'execute', "remove_file"):
+            self.role.create_remote_temp_file.return_value = "/tmp/random"
+            self.role.set_user_password("foo", "foo-pass")
+            self.role.put_file.assert_called_once_with(
+                ANY,
+                "/tmp/random",
+                sudo=True,
+                stdout=False
+            )
+            #self.role.execute.assert_called_with()
+            self.assertIn(
+                call('cat "/tmp/random" | chpasswd ', sudo=True, stdout=False),
+                self.role.execute.mock_calls
+            )
+
