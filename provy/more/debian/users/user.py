@@ -154,10 +154,11 @@ class UserRole(Role):
         :type groups: :class:`iterable`
         :param is_admin: If set to :data:`True` the user is added to the 'admin' (or 'sudo' if provisioning to Ubuntu) user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
-        :param password_encrypted: If set to :data:`True` password is considered to be in ecrypted form
+        :param password_encrypted:
+            If set to :data:`True` password is considered to be in ecrypted form
             (as found in /etc/shadow). To generate encrypted form of password you
-            may use :func:`provy.more.debian.user.passwd_utils.hash_password_function`.
-        :default:`False:
+            may use :func:`provy.more.debian.users.passwd_utils.hash_password_function`.
+            defaults to :data:`False`
         :type password_encrypted: :class:`bool`
 
         Example:
@@ -224,7 +225,16 @@ class UserRole(Role):
 
     def set_user_password(self, username, password, encrypted=False):
         """
-            Sets user password.
+        Sets user password.
+
+        :param username: Name of user for which to update password
+        :type username: :class:`str`
+        :param password: Password to set
+        :type password: :class:`str`
+        :param encrypted: If :data:`True` it meas that `password` is encrypted,
+            (that is in hashed format), else it means password is in plaintext.
+        :type encrypted: :class:`bool`
+
         """
 
         tmp_file = self.create_remote_temp_file()
