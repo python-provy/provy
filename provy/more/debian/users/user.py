@@ -3,10 +3,11 @@
 
 '''Roles in this namespace are meant to provide user management operations for Debian distributions.'''
 
-from provy.core import Role
-
 
 import StringIO
+
+from provy.core import Role
+
 
 class UserRole(Role):
     '''
@@ -229,19 +230,17 @@ class UserRole(Role):
         tmp_file = self.create_remote_temp_file()
 
         password_line = "{username}:{password}".format(
-            username = username,
-            password = password
+            username=username,
+            password=password
         )
 
         self.put_file(StringIO.StringIO(password_line), tmp_file, sudo=True, stdout=False)
 
         command = 'cat "{tmp_file}" | chpasswd {encrypted}'.format(
-            encrypted = "-e" if encrypted else "",
-            tmp_file = tmp_file
+            encrypted="-e" if encrypted else "",
+            tmp_file=tmp_file
         )
 
         self.execute(command, stdout=False, sudo=True)
 
         self.remove_dir(tmp_file)
-
-

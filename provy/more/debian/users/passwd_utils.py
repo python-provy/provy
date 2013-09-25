@@ -1,7 +1,7 @@
 # coding=utf-8
 
 
-import crypt, base64
+import crypt
 from random import SystemRandom
 
 
@@ -22,6 +22,7 @@ def random_salt_function(salt_len=12):
     for _ in range(salt_len):
         chars.append(rand.choice(charset))
     return "".join(chars)
+
 
 def hash_password_function(password, salt=None, magic=6):
     """

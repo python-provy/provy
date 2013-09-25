@@ -176,7 +176,6 @@ class UserRoleTest(ProvyTestCase):
                 )
                 self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
 
-
     @istest
     def ensures_user_is_created_with_only_group_as_username(self):
         with self.mock_role_methods('ensure_group', 'ensure_user_groups', 'user_exists', 'execute', 'set_user_password'):
@@ -253,7 +252,6 @@ class UserRoleTest(ProvyTestCase):
     def check_random_add_function_output_is_as_specified(self):
         self.assertTrue(len(random_salt_function(salt_len=125)), 125)
 
-
     @istest
     def check_crypt_function_gives_expected_output_for_known_magic_and_salt(self):
         password = "foobarbaz"
@@ -273,14 +271,12 @@ class UserRoleTest(ProvyTestCase):
             self.assertEqual(expected_hash, hash_password_function(password))
             self.assertTrue(rnd.called)
 
-
-
     @istest
     def check_set_user_password_when_password_is_encrypted(self):
         encrypted_password = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
         with self.mock_role_methods("create_remote_temp_file", 'put_file', 'execute', "remove_file"):
             self.role.create_remote_temp_file.return_value = "/tmp/random"
-            self.role.set_user_password("foo",  encrypted_password, encrypted=True)
+            self.role.set_user_password("foo", encrypted_password, encrypted=True)
             self.role.put_file.assert_called_once_with(
                 ANY,
                 "/tmp/random",
@@ -291,7 +287,6 @@ class UserRoleTest(ProvyTestCase):
                 call('cat "/tmp/random" | chpasswd -e', sudo=True, stdout=False),
                 self.role.execute.mock_calls
             )
-
 
     @istest
     def check_set_user_password_when_password_is_not_encrypted(self):
@@ -308,4 +303,3 @@ class UserRoleTest(ProvyTestCase):
                 call('cat "/tmp/random" | chpasswd ', sudo=True, stdout=False),
                 self.role.execute.mock_calls
             )
-
