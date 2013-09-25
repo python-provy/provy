@@ -36,13 +36,7 @@ def hash_password_function(password, salt=None, magic=6):
     :param int magic: Specifies salt type. Default :data:`6` which means
         use `sha-512`.
     :type salt: :class:`int`
-    :param bool local: Specifies whether should compute hash on local
-        machine or remote machine. Bear in mind that if you use remote
-        machine password will be transferred there and briefly stored
-        in the /tmp/ directory on both machines.
-        Defaults to :data:`True` that means to use local machine.
 
-    :type salt: :class:`bool`
     :return: remote password
     """
 
