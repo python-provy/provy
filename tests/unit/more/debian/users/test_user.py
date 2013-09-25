@@ -287,7 +287,6 @@ class UserRoleTest(ProvyTestCase):
                 sudo=True,
                 stdout=False
             )
-            #self.role.execute.assert_called_with()
             self.assertIn(
                 call('cat "/tmp/random" | chpasswd -e', sudo=True, stdout=False),
                 self.role.execute.mock_calls
@@ -305,7 +304,6 @@ class UserRoleTest(ProvyTestCase):
                 sudo=True,
                 stdout=False
             )
-            #self.role.execute.assert_called_with()
             self.assertIn(
                 call('cat "/tmp/random" | chpasswd ', sudo=True, stdout=False),
                 self.role.execute.mock_calls
