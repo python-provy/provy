@@ -253,4 +253,4 @@ class UserRole(Role):
 
         self.execute(command, stdout=False, sudo=True)
 
-        self.remove_dir(tmp_file)
+        self.remove_file(tmp_file, sudo=True)

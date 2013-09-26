@@ -1,5 +1,4 @@
-# coding=utf-8
-
+# -*- coding: utf-8 -*-
 
 import crypt
 from random import SystemRandom
@@ -24,22 +23,26 @@ def random_salt_function(salt_len=12):
     return "".join(chars)
 
 
-def hash_password_function(password, salt=None, magic=6):
+def hash_password_function(password, salt=None, magic="6"):
     """
-    Hashes password using `crypt` function on either local machine.
-
+    Hashes password using `crypt` function on local machine (which is not harmfull,
+    since these hashes are well-specified.
 
     :param password: Plaintext password to be hashed.
     :type password: :class:`str`
     :param salt: Salt to be used with this password, if None will
         use random password.
     :type salt: :class:`str`
-    :param int magic: Specifies salt type. Default :data:`6` which means
-        use `sha-512`.
-    :type salt: :class:`int`
+    :param magic: Specifies salt type. Default :data:`6` which means
+        use `sha-512`. For all appropriate values refer
+        to http://man7.org/linux/man-pages/man3/crypt.3.html#NOTES, or
+        (even better) consult `man 3 crypt` on your system.
+    :type salt: :class:`str` or :class:`int`
 
     :return: remote password
     """
+
+    magic = str(magic)
 
     if salt is None:
         salt = random_salt_function()

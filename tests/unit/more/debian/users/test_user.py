@@ -1,10 +1,8 @@
-from mock import call, ANY, patch
+from mock import call, ANY
 from nose.tools import istest
 
 from provy.more.debian import UserRole
 from tests.unit.tools.helpers import ProvyTestCase
-
-from provy.more.debian.users.passwd_utils import hash_password_function, random_salt_function
 
 example_groups = """
 root
@@ -239,37 +237,6 @@ class UserRoleTest(ProvyTestCase):
 
                 self.assertFalse(self.role.execute.called)
                 self.role.ensure_user_groups.assert_called_once_with('foo-user', ['foo-group', 'bar-group'])
-
-    @istest
-    def check_if_two_generated_salts_are_different(self):
-        """
-        Instead of checking if output is truly random, we'll just check if
-        in two conseutive calls different functions will be returned
-        """
-        self.assertNotEqual(random_salt_function(), random_salt_function())
-
-    @istest
-    def check_random_add_function_output_is_as_specified(self):
-        self.assertTrue(len(random_salt_function(salt_len=125)), 125)
-
-    @istest
-    def check_crypt_function_gives_expected_output_for_known_magic_and_salt(self):
-        password = "foobarbaz"
-        expected_hash = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
-        salt = "SqAoXRvk"
-
-        self.assertEqual(expected_hash, hash_password_function(password, salt))
-
-    @istest
-    def check_crypt_function_uses_random_salt(self):
-        password = "foobarbaz"
-        expected_hash = "$6$SqAoXRvk$spgLlL/WL/vcb16ZZ4cMdF5uN90IjH0PpYKdMhqyW.BxXJEVc5RyvnpWcT.OKKJO2vsp32.CWDEd45K6r05bL0"
-        salt = "SqAoXRvk"
-
-        with patch("provy.more.debian.users.passwd_utils.random_salt_function") as rnd:
-            rnd.return_value = salt
-            self.assertEqual(expected_hash, hash_password_function(password))
-            self.assertTrue(rnd.called)
 
     @istest
     def check_set_user_password_when_password_is_encrypted(self):
