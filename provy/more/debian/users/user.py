@@ -3,6 +3,9 @@
 
 '''Roles in this namespace are meant to provide user management operations for Debian distributions.'''
 
+
+import StringIO
+
 from provy.core import Role
 
 
@@ -134,7 +137,8 @@ class UserRole(Role):
                 self.execute('usermod -G %s %s' % (user_group, username), stdout=False, sudo=True)
                 self.log("User %s is in group %s now!" % (username, user_group))
 
-    def ensure_user(self, username, identified_by=None, home_folder=None, default_script="/bin/bash", groups=[], is_admin=False):
+    def ensure_user(self, username, identified_by=None, home_folder=None,
+                    default_script="/bin/bash", groups=[], is_admin=False, password_encrypted=False):
         '''
         Ensures that a given user is present in the remote server.
 
@@ -150,6 +154,12 @@ class UserRole(Role):
         :type groups: :class:`iterable`
         :param is_admin: If set to :data:`True` the user is added to the 'admin' (or 'sudo' if provisioning to Ubuntu) user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
+        :param password_encrypted:
+            If set to :data:`True` password is considered to be in ecrypted form
+            (as found in /etc/shadow). To generate encrypted form of password you
+            may use :func:`provy.more.debian.users.passwd_utils.hash_password_function`.
+            defaults to :data:`False`
+        :type password_encrypted: :class:`bool`
 
         Example:
         ::
@@ -167,14 +177,13 @@ class UserRole(Role):
         self.__ensure_initial_groups(groups, username)
 
         if not self.user_exists(username):
-            self.__create_new_user(username, home_folder, groups, identified_by, default_script, is_admin)
+            self.__create_new_user(username, home_folder, groups, default_script, is_admin)
         elif is_admin and not self.user_in_group(username, admin_group):
             self.__set_user_as_admin(username, admin_group)
 
         self.ensure_user_groups(username, groups)
 
-        if identified_by:
-            self.execute('echo "%s:%s" | chpasswd' % (username, identified_by), stdout=False, sudo=True)
+        self.set_user_password(username, identified_by, password_encrypted)
 
         self.context['owner'] = username
 
@@ -183,16 +192,15 @@ class UserRole(Role):
         self.execute('usermod -G %s %s' % (admin_group, username), stdout=False, sudo=True)
         self.log("User %s is administrator now!" % username)
 
-    def __create_new_user(self, username, home_folder, groups, identified_by, default_script, is_admin):
+    def __create_new_user(self, username, home_folder, groups, default_script, is_admin):
         is_admin_command = " -G {}".format(self.__get_admin_group())
-        command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -p %(password)s -d %(home_folder)s -m %(username)s"
+        command = "useradd -g %(group)s%(is_admin_command)s -s %(default_script)s -d %(home_folder)s -m %(username)s"
         home_folder = home_folder or '/home/%s' % username
         group = groups and groups[0] or username
         self.log("User %s not found! Creating..." % username)
         self.execute(command % {
             'group': group or username,
             'is_admin_command': is_admin and is_admin_command or '',
-            'password': identified_by or 'none',
             'home_folder': home_folder,
             'default_script': default_script,
             'username': username
@@ -214,3 +222,35 @@ class UserRole(Role):
         else:
             admin_group = 'admin'
         return admin_group
+
+    def set_user_password(self, username, password, encrypted=False):
+        """
+        Sets user password.
+
+        :param username: Name of user for which to update password
+        :type username: :class:`str`
+        :param password: Password to set
+        :type password: :class:`str`
+        :param encrypted: If :data:`True` it meas that `password` is encrypted,
+            (that is in hashed format), else it means password is in plaintext.
+        :type encrypted: :class:`bool`
+
+        """
+
+        tmp_file = self.create_remote_temp_file()
+
+        password_line = "{username}:{password}".format(
+            username=username,
+            password=password
+        )
+
+        self.put_file(StringIO.StringIO(password_line), tmp_file, sudo=True, stdout=False)
+
+        command = 'cat "{tmp_file}" | chpasswd {encrypted}'.format(
+            encrypted="-e" if encrypted else "",
+            tmp_file=tmp_file
+        )
+
+        self.execute(command, stdout=False, sudo=True)
+
+        self.remove_file(tmp_file, sudo=True)
