@@ -117,6 +117,17 @@ class RabbitMqRoleTest(ProvyTestCase):
             self.role.execute.assert_called_once_with('rabbitmqctl add_user foo-user foo-pass', sudo=True)
 
     @istest
+    def add_administrator_user(self):
+        with self.mock_role_methods('user_exists', 'execute'):
+            self.role.user_exists.return_value = False
+
+            result = self.role.ensure_user('foo-user', 'foo-pass', True)
+
+            self.assertTrue(result)
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.role.execute.assert_called_with('rabbitmqctl set_user_tags foo-user administrator', sudo=True)
+
+    @istest
     def doesnt_create_user_if_it_already_exists(self):
         with self.mock_role_methods('user_exists', 'execute'):
             self.role.user_exists.return_value = True

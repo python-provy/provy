@@ -37,14 +37,14 @@ class RabbitMqRoleTest(ProvyTestCase):
 
     @istest
     def installs_necessary_packages_to_provision(self, **mocks):
-        with self.using_stub(AptitudeRole) as mock_yum, self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
+        with self.using_stub(AptitudeRole) as mock_apt, self.mock_role_methods('is_process_running', 'user_exists', 'execute'):
             self.role.is_process_running.return_value = True
             self.role.user_exists.return_value = False
 
             self.role.provision()
 
-            mock_yum.ensure_up_to_date.assert_called_with()
-            mock_yum.ensure_package_installed.assert_called_with('rabbitmq-server')
+            mock_apt.ensure_up_to_date.assert_called_with()
+            mock_apt.ensure_package_installed.assert_called_with('rabbitmq-server')
 
     @istest
     def executes_the_correct_commands_to_provision(self, **mocks):
@@ -115,6 +115,17 @@ class RabbitMqRoleTest(ProvyTestCase):
             self.assertTrue(result)
             self.role.user_exists.assert_called_once_with('foo-user')
             self.role.execute.assert_called_once_with('rabbitmqctl add_user foo-user foo-pass', sudo=True)
+
+    @istest
+    def add_administrator_user(self):
+        with self.mock_role_methods('user_exists', 'execute'):
+            self.role.user_exists.return_value = False
+
+            result = self.role.ensure_user('foo-user', 'foo-pass', True)
+
+            self.assertTrue(result)
+            self.role.user_exists.assert_called_once_with('foo-user')
+            self.role.execute.assert_called_with('rabbitmqctl set_user_tags foo-user administrator', sudo=True)
 
     @istest
     def doesnt_create_user_if_it_already_exists(self):

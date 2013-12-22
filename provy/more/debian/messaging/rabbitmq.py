@@ -73,7 +73,7 @@ class RabbitMqRole(Role):
             role.ensure_up_to_date()
             role.ensure_package_installed('rabbitmq-server')
 
-        # Start rabbitmq at startup, TODO: add chkconfig role
+        # Start rabbitmq at startup, TODO: add update-rc.d role
         self.execute('update-rc.d rabbitmq-server defaults', stdout=False,
                      sudo=True)
         self.execute('update-rc.d rabbitmq-server enable', stdout=False, sudo=True)
@@ -131,7 +131,7 @@ class RabbitMqRole(Role):
         vhs = vhs.split('\r\n')[1:-1]
         return vhost in vhs
 
-    def ensure_user(self, username, password):
+    def ensure_user(self, username, password, is_admin=False):
         '''
         Ensure the given user is created in the database and can authenticate with RabbitMQ.
 
@@ -156,6 +156,10 @@ class RabbitMqRole(Role):
 
             cmd = 'rabbitmqctl add_user %s %s' % (username, password)
             self.execute(cmd, sudo=True)
+
+            if is_admin:
+                cmd = 'rabbitmqctl set_user_tags %s administrator' % (username)
+                self.execute(cmd, sudo=True)
 
             self.log('User %s added!' % username)
             return True
