@@ -46,7 +46,7 @@ class PostgreSQLRole(BasePostgreSQLRole):
     def __get_version(self):
         distro = self.get_distro_info()
         if distro.distributor_id.lower() == 'ubuntu':
-            version = '9.1'
+            version = '9.2'
         else:
             version = '8.4'
         return version
