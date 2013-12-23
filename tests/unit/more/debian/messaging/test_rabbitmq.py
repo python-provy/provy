@@ -75,7 +75,7 @@ class RabbitMqRoleTest(ProvyTestCase):
 
     @istest
     def warns_about_guest_user(self, **mocks):
-        with self.using_stub(AptitudeRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'), patch('provy.more.centos.messaging.rabbitmq.warn') as warn:
+        with self.using_stub(AptitudeRole), self.mock_role_methods('is_process_running', 'user_exists', 'execute'), patch('provy.more.debian.messaging.rabbitmq.warn') as warn:
             self.role.is_process_running.return_value = True
             self.role.user_exists.return_value = True
 
