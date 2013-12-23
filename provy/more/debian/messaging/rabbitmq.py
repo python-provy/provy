@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-Roles in this namespace are meant to provide `RabbitMQ <http://www.rabbitmq.com/>`_ utilities methods within CentOS distributions.
+Roles in this namespace are meant to provide `RabbitMQ <http://www.rabbitmq.com/>`_ utilities methods within Debian distributions.
 '''
 
 from provy.core import Role
-from provy.more.centos.package.yum import YumRole
+from provy.more.debian.package.aptitude import AptitudeRole
 
 from fabric.utils import warn
 
@@ -18,14 +18,14 @@ GUEST_USER_WARNING = ('It is advisable to delete the guest user or change the'
 
 class RabbitMqRole(Role):
     '''
-    This role provides utility methods for `RabbitMQ <http://www.rabbitmq.com/>`_ utilities within CentOS distributions.
+    This role provides utility methods for `RabbitMQ <http://www.rabbitmq.com/>`_ utilities within Debian distributions.
 
     Example:
     ::
 
         from provy.core import Role
-        from provy.more.centos import RabbitMqRole
-        from provy.more.centos import HostNameRole
+        from provy.more.debian import RabbitMqRole
+        from provy.more.debian import HostNameRole
 
         class MySampleRole(Role):
             def provision(self):
@@ -63,20 +63,20 @@ class RabbitMqRole(Role):
         ::
 
             from provy.core import Role
-            from provy.more.centos import HgRole
+            from provy.more.debian import HgRole
 
             class MySampleRole(Role):
                 def provision(self):
                     self.provision_role(RabbitMqRole)
         '''
-        with self.using(YumRole) as role:
+        with self.using(AptitudeRole) as role:
             role.ensure_up_to_date()
             role.ensure_package_installed('rabbitmq-server')
 
-        # Start rabbitmq at startup, TODO: add chkconfig role
-        self.execute('chkconfig --add rabbitmq-server', stdout=False,
+        # Start rabbitmq at startup, TODO: add update-rc.d role
+        self.execute('update-rc.d rabbitmq-server defaults', stdout=False,
                      sudo=True)
-        self.execute('chkconfig rabbitmq-server on', stdout=False, sudo=True)
+        self.execute('update-rc.d rabbitmq-server enable', stdout=False, sudo=True)
 
         # Make sure rabbit is running:
         if not self.is_process_running('rabbitmq-server'):

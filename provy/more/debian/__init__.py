@@ -17,3 +17,4 @@ from provy.more.debian.networking import *
 from provy.more.debian.programming import *
 from provy.more.debian.security import *
 from provy.more.debian.package.npm import NPMRole # imported here to avoid circular imports
+from provy.more.debian.messaging import *
