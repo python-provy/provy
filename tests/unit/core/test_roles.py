@@ -482,20 +482,6 @@ class RoleTest(ProvyTestCase):
             execute.assert_called_with('chmod -R 755 /some/path', stdout=False, sudo=True)
 
     @istest
-    def changes_the_mode_of_a_directory(self):
-        with self.mock_role_method('change_path_mode') as change_path_mode:
-            self.role.change_dir_mode('/some/dir', 755, recursive='is it recursive?')
-
-            change_path_mode.assert_called_with('/some/dir', 755, recursive='is it recursive?')
-
-    @istest
-    def changes_the_mode_of_a_file(self):
-        with self.mock_role_method('change_path_mode') as change_path_mode:
-            self.role.change_file_mode('/some/file.ext', 755)
-
-            change_path_mode.assert_called_with('/some/file.ext', 755)
-
-    @istest
     def gets_the_md5_hash_of_a_local_file(self):
         with self.mock_role_method('execute_local') as execute_local, self.mock_role_method('local_exists') as local_exists:
             local_exists.return_value = True
@@ -1245,9 +1231,9 @@ class RemoteTempFileTests(ProvyTestCase):
     @istest
     def check_if_directories_have_proper_mode(self):
         mode = "666"
-        with self.mock_role_method("change_dir_mode") as change_dir_mode:
+        with self.mock_role_method("change_path_mode") as change_path_mode:
             dir = self.instance.create_remote_temp_dir(chmod=mode)
-        change_dir_mode.assert_called_once_with(dir, mode)
+        change_path_mode.assert_called_once_with(dir, mode)
 
     @istest
     def check_if_directories_have_proper_owner(self):

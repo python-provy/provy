@@ -81,7 +81,7 @@ class RailsRole(Role):
     def __create_nginx_configurations(self):
         self.update_file('rails.nginx.conf.template', '/etc/nginx/conf/nginx.conf', sudo=True)
         self.update_file('rails.nginx.init.template', '/etc/init.d/nginx', sudo=True)
-        self.change_file_mode('/etc/init.d/nginx', 755)
+        self.change_path_mode('/etc/init.d/nginx', 755)
 
     def __install_gem_packages(self):
         with self.using(GemRole) as role:

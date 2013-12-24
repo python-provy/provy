@@ -19,7 +19,7 @@ class RailsRoleTest(ProvyTestCase):
             'register_template_loader',
             'remote_exists_dir',
             'update_file',
-            'change_file_mode',
+            'change_path_mode',
             'ensure_dir',
         )
         with self.using_stub(AptitudeRole) as aptitude, self.using_stub(GemRole) as gem, self.mock_role_methods(*methods_to_mock):
@@ -42,7 +42,7 @@ class RailsRoleTest(ProvyTestCase):
                 call('rails.nginx.conf.template', '/etc/nginx/conf/nginx.conf', sudo=True),
                 call('rails.nginx.init.template', '/etc/init.d/nginx', sudo=True),
             ])
-            self.role.change_file_mode.assert_called_once_with('/etc/init.d/nginx', 755)
+            self.role.change_path_mode.assert_called_once_with('/etc/init.d/nginx', 755)
 
     @istest
     def provisions_even_if_nginx_already_exists(self):
@@ -50,7 +50,7 @@ class RailsRoleTest(ProvyTestCase):
             'register_template_loader',
             'remote_exists_dir',
             'update_file',
-            'change_file_mode',
+            'change_path_mode',
             'ensure_dir',
         )
         with self.using_stub(AptitudeRole), self.using_stub(GemRole), self.mock_role_methods(*methods_to_mock):

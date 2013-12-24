@@ -552,7 +552,7 @@ class Role(object):
         self.ensure_dir(prepared_dirname, owner, owner is not None)
 
         if chmod is not None:
-            self.change_dir_mode(prepared_dirname, chmod)
+            self.change_path_mode(prepared_dirname, chmod)
 
         if cleanup:
             self._paths_to_remove.add(prepared_dirname)
@@ -662,51 +662,6 @@ class Role(object):
         if previous_mode != mode or recursive:
             self.execute('chmod %s%s %s' % (options, mode, path), stdout=False, sudo=True)
             self.log("Path %s had mode %s. Changed it %sto %s." % (path, previous_mode, recursive and "recursively " or "", mode))
-
-    def change_dir_mode(self, path, mode, recursive=False):
-        '''
-        .. warning:: Deprecated. Please use :meth:`change_path_mode` instead. (Will be removed in 0.7.0)
-
-        :param path: Path of the directory.
-        :type path: :class:`str`
-        :param mode: Mode of the directory.
-        :type mode: :class:`int`
-        :param recursive: Indicates if the mode of the objects in the path should be changed recursively. Defaults to :class:`False`.
-        :type recursive: :class:`bool`
-
-        Example:
-        ::
-
-            from provy.core import Role
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_dir_mode(directory='/home/user/logs',
-                                         mode=644,
-                                         recursive=True)
-        '''
-        self.change_path_mode(path, mode, recursive=recursive)
-
-    def change_file_mode(self, path, mode):
-        '''
-        .. warning:: Deprecated. Please use :meth:`change_path_mode` instead. (Will be removed in 0.7.0)
-
-        :param path: Path of the file.
-        :type path: :class:`str`
-        :param mode: Mode of the file.
-        :type mode: :class:`int`
-
-        Example:
-        ::
-
-            from provy.core import Role
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_file_mode(path='/etc/init.d/someapp',
-                                          mode=777)
-        '''
-        self.change_path_mode(path, mode)
 
     def md5_local(self, path):
         '''
