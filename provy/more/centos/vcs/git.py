@@ -76,7 +76,7 @@ class GitRole(Role):
 
     def __normalize_ownership(self, owner, path):
         if owner:
-            self.change_dir_owner(path, owner)
+            self.change_path_owner(path, owner)
 
     def __checkout_branch(self, branch, path, repo, sudo, owner):
         branch_name = "# On branch %s" % branch

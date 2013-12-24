@@ -394,20 +394,6 @@ class RoleTest(ProvyTestCase):
             execute_python.assert_called_with('from tempfile import gettempdir; print gettempdir()', stdout=False)
 
     @istest
-    def changes_the_owner_of_a_directory(self):
-        with self.execute_mock() as execute:
-            self.role.change_dir_owner('/some/dir', 'foo')
-
-            execute.assert_called_with('chown -R foo /some/dir', stdout=False, sudo=True)
-
-    @istest
-    def changes_the_owner_of_a_file(self):
-        with self.execute_mock() as execute:
-            self.role.change_file_owner('/some/file.ext', 'foo')
-
-            execute.assert_called_with('chown -R foo /some/file.ext', stdout=False, sudo=True)
-
-    @istest
     def changes_the_owner_of_a_path(self):
         with self.execute_mock() as execute:
             self.role.change_path_owner('/some/path', 'foo')
@@ -802,7 +788,7 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('_force_update_file', 'remote_exists'):
             self.role.remote_exists.return_value = False
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner))
@@ -813,7 +799,7 @@ class RoleTest(ProvyTestCase):
         to_file = '/etc/foo.conf'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('put_file', 'change_path_owner', 'remote_exists'):
             self.role.remote_exists.return_value = False
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options', owner=owner))
@@ -823,7 +809,7 @@ class RoleTest(ProvyTestCase):
     def doesnt_use_sudo_implicitly_if_owner_not_passed(self):
         to_file = '/etc/foo.conf'
 
-        with self.mock_update_data(), self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('put_file', 'change_path_owner', 'remote_exists'):
             self.role.remote_exists.return_value = False
 
             self.assertTrue(self.role.update_file('some template', to_file, options='some options'))
@@ -835,7 +821,7 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('_force_update_file', 'remote_exists'):
             self.role.remote_exists.return_value = True
             self.update_data.from_md5 = 'some local md5'
             self.update_data.to_md5 = 'some remote md5'
@@ -852,7 +838,7 @@ class RoleTest(ProvyTestCase):
         with open(self.update_data.local_temp_path, 'w') as f:
             f.write('foo')
 
-        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('_force_update_file', 'remote_exists'):
             self.role.remote_exists.return_value = True
 
             self.role.update_file('some template', to_file, options='some options', sudo=sudo, owner=owner)
@@ -865,7 +851,7 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_update_data(), self.mock_role_method('_force_update_file'), self.mock_role_method('remote_exists'):
+        with self.mock_update_data(), self.mock_role_methods('_force_update_file', 'remote_exists'):
             self.role.remote_exists.return_value = True
             self.update_data.from_md5 = 'same md5'
             self.update_data.to_md5 = 'same md5'
@@ -884,7 +870,7 @@ class RoleTest(ProvyTestCase):
         md5_local = 'some local md5'
         md5_remote = 'some remote md5'
 
-        with self.mock_role_method('write_to_temp_file'), self.mock_role_method('md5_local'), self.mock_role_method('md5_remote'):
+        with self.mock_role_methods('write_to_temp_file', 'md5_local', 'md5_remote'):
             self.role.write_to_temp_file.return_value = local_temp_path
             self.role.md5_local.return_value = md5_local
             self.role.md5_remote.return_value = md5_remote
@@ -914,11 +900,11 @@ class RoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo'
 
-        with self.mock_role_method('put_file'), self.mock_role_method('change_file_owner'):
+        with self.mock_role_methods('put_file', 'change_path_owner'):
             self.role._force_update_file(to_file, sudo, local_temp_path, owner)
 
             self.role.put_file.assert_called_with(local_temp_path, to_file, sudo)
-            self.role.change_file_owner.assert_called_with(to_file, owner)
+            self.role.change_path_owner.assert_called_with(to_file, owner)
 
     @istest
     def checks_that_content_differs_when_md5_is_different(self):
@@ -982,7 +968,7 @@ class RoleTest(ProvyTestCase):
         file_path = '/some/path'
         line = '127.0.0.1 localhost'
 
-        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+        with self.mock_role_methods('remote_exists', 'read_remote_file'):
             self.role.remote_exists.return_value = True
             self.role.read_remote_file.return_value = content
 
@@ -997,7 +983,7 @@ class RoleTest(ProvyTestCase):
         file_path = '/some/path'
         line = '127.0.0.1 localhost'
 
-        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+        with self.mock_role_methods('remote_exists', 'read_remote_file'):
             self.role.remote_exists.return_value = True
             self.role.read_remote_file.return_value = content
 
@@ -1016,7 +1002,7 @@ class RoleTest(ProvyTestCase):
         file_path = '/some/path'
         line = '192.168.0.1 my-gateway'
 
-        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+        with self.mock_role_methods('remote_exists', 'read_remote_file'):
             self.role.remote_exists.return_value = True
             self.role.read_remote_file.return_value = content
 
@@ -1030,7 +1016,7 @@ class RoleTest(ProvyTestCase):
         file_path = '/some/path'
         line = '192.168.0.1 my-gateway'
 
-        with self.mock_role_method('remote_exists'), self.mock_role_method('read_remote_file'):
+        with self.mock_role_methods('remote_exists', 'read_remote_file'):
             self.role.remote_exists.return_value = False
 
             self.assertFalse(self.role.has_line(line, file_path))

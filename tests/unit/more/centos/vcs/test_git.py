@@ -26,11 +26,11 @@ class GitRoleTest(ProvyTestCase):
 
     @istest
     def ensures_a_repository_is_cloned_as_specific_user(self):
-        with self.execute_mock() as execute, self.mock_role_method('change_dir_owner') as change_dir_owner:
+        with self.execute_mock() as execute, self.mock_role_method('change_path_owner') as change_path_owner:
             self.role.ensure_repository('some-repo-url', 'working-tree-path', owner='joe', sudo=False)
 
             execute.assert_called_with('git clone some-repo-url working-tree-path', sudo=False, stdout=False, user='joe')
-            change_dir_owner.assert_called_with('working-tree-path', 'joe')
+            change_path_owner.assert_called_with('working-tree-path', 'joe')
 
     @istest
     def installs_necessary_packages_to_provision(self):
@@ -45,7 +45,7 @@ class GitRoleTest(ProvyTestCase):
         sudo = 'is it sudo?'
         owner = 'foo-owner'
         branch = 'some-branch'
-        with self.mock_role_methods('remote_exists_dir', 'execute', 'change_dir_owner'):
+        with self.mock_role_methods('remote_exists_dir', 'execute', 'change_path_owner'):
             self.role.remote_exists_dir.return_value = True
             self.role.execute.return_value = '# On branch master'
 

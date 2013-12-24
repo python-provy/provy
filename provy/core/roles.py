@@ -588,48 +588,6 @@ class Role(object):
         if owner:
             self.change_path_owner(directory, owner)
 
-    def change_dir_owner(self, directory, owner):
-        '''
-        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
-
-        :param directory: Directory to change owner.
-        :type directory: :class:`str`
-        :param owner: User that should own this directory.
-        :type owner: :class:`str`
-
-        Example:
-        ::
-
-            from provy.core import Role
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_dir_owner(directory='/etc/my-path', owner='someuser')
-        '''
-        self.log('"change_dir_owner" is deprecated, please use "change_path_owner" instead.')
-        self.change_path_owner(directory, owner)
-
-    def change_file_owner(self, path, owner):
-        '''
-        .. warning:: Deprecated. Please use :meth:`change_path_owner` instead. (Will be removed in 0.7.0)
-
-        :param path: Path of the file.
-        :type path: :class:`str`
-        :param owner: User that should own this file.
-        :type owner: :class:`str`
-
-        Example:
-        ::
-
-            from provy.core import Role
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.change_file_owner(path='/etc/init.d/someapp', owner='someuser')
-        '''
-        self.log('"change_file_owner" is deprecated, please use "change_path_owner" instead.')
-        self.change_path_owner(path, owner)
-
     def change_path_owner(self, path, owner):
         '''
         Changes the owner of a given path. Please be advised that this method is recursive, so if the path is a directory, all contents of it will belong to the specified owner.
@@ -1034,7 +992,7 @@ class Role(object):
         self.put_file(local_temp_path, to_file, sudo)
 
         if owner:
-            self.change_file_owner(to_file, owner)
+            self.change_path_owner(to_file, owner)
 
     def write_to_temp_file(self, text):
         '''
