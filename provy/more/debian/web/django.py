@@ -172,7 +172,7 @@ class DjangoRole(Role):
             class MySampleRole(Role):
                 def provision(self):
                     with self.using(DjangoRole) as role:
-                        with role.create_site('website') as program:
+                        with role.create_site('website') as site:
                             site.path = '/some/folder/with/settings.py'
                             site.threads = 4
                             # settings that override the website defaults.
