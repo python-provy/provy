@@ -778,26 +778,6 @@ class Role(object):
             return True
         return False
 
-    def replace_file(self, from_file, to_file):
-        '''
-        .. warning:: Deprecated. Please use :meth:`put_file` instead. (Will be removed in 0.7.0)
-
-        :param from_file: Path in the local system.
-        :type from_file: :class:`str`
-        :param to_file: Path in the remote system.
-        :type to_file: :class:`str`
-
-        Example:
-        ::
-
-            from provy.core import Role
-
-            class MySampleRole(Role):
-                def provision(self):
-                    self.replace_file('/tmp/my-file', '/tmp/my-file')
-        '''
-        self.put_file(from_file, to_file)
-
     def remote_symlink(self, from_file, to_file, sudo=False):
         '''
         Creates a symlink in the remote server.

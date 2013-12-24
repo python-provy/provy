@@ -618,13 +618,6 @@ class RoleTest(ProvyTestCase):
             put.assert_called_with('/from/file', '/to/file', use_sudo=True)
 
     @istest
-    def replaces_a_file(self):
-        with self.mock_role_method('put_file') as put_file:
-            self.role.replace_file('/from/file', '/to/file')
-
-            put_file.assert_called_with('/from/file', '/to/file')
-
-    @istest
     def creates_a_remote_symbolic_link_if_it_doesnt_exist_yet(self):
         with self.execute_mock() as execute, self.mock_role_method('remote_exists') as remote_exists:
             from_file = '/from/file'
