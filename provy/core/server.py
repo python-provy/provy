@@ -6,18 +6,18 @@ class ProvyServer(object):
 
     def __init__(self, name, address, username, roles= tuple(), password=None):
         """
-        :param name: Logical name of the server
+        :param name: Logical name of the server (key under which it resides
+            in the provy file)
         :param address: Address of the server
         :param username: Username you log into
         :param roles: List of roles for the server
         :param password: Login password
         """
         super(ProvyServer, self).__init__()
-        self.name = name
-
-        self.address = address
+        self.name = name.strip()
+        self.address = address.strip()
         self.roles = list(roles)
-        self.username = username
+        self.username = username.strip()
         self.password = password
         self.options = {}
         self.ssh_key = None
