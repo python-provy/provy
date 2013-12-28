@@ -42,7 +42,11 @@ def provision_server(server, provfile_path, password, prov):
         'path': dirname(provfile_path),
         'owner': server['user'],
         'cleanup': [],
-        'registered_loaders': []
+        'registered_loaders': [],
+        '__provy': {
+            'current_server': server,
+            'host_string': host_string
+        }
     }
 
     aggregate_node_options(server, context)
