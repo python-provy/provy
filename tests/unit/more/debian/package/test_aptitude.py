@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import sys
 from base64 import b64encode
 
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 from nose.tools import istest
 
 from provy.more.debian import AptitudeRole, PackageNotFound
@@ -23,7 +23,8 @@ class AptitudeRoleTest(ProvyTestCase):
 
     @istest
     def checks_that_a_package_doesnt_exist(self):
-        with self.execute_mock() as execute:
+        with self.mock_role_methods('execute', 'ensure_up_to_date'):
+            execute = self.role.execute
             execute.return_value = False
             self.assertFalse(self.role.package_exists('phyton'))
             execute.assert_called_with('aptitude show phyton', stdout=False)
@@ -72,6 +73,18 @@ class AptitudeRoleTest(ProvyTestCase):
             execute.assert_called_with('aptitude install -y python', stdout=False, sudo=True)
 
     @istest
+    def updates_sources_before_install(self):
+        with self.execute_mock() as execute, self.mock_role_methods('package_exists', 'ensure_up_to_date'):
+            package_exists = self.role.package_exists
+            package_exists.return_value = True
+
+            result = self.role.ensure_package_installed('python')
+            self.role.ensure_up_to_date.assert_called_once_with()
+            self.assertTrue(result)
+
+            execute.assert_called_with('aptitude install -y python', stdout=False, sudo=True)
+
+    @istest
     def fails_to_install_package_if_it_doesnt_exist(self):
         with self.execute_mock(), self.mock_role_method('package_exists') as package_exists:
             package_exists.return_value = False
@@ -81,10 +94,12 @@ class AptitudeRoleTest(ProvyTestCase):
 
     @istest
     def doesnt_install_package_if_already_installed(self):
-        with self.mock_role_method('is_package_installed'):
+        with self.mock_role_methods('is_package_installed', 'ensure_up_to_date'):
             self.role.is_package_installed.return_value = True
 
+            self.assertFalse(self.role.ensure_up_to_date.called, "We should update only iff we install package")
             result = self.role.ensure_package_installed('python')
+
 
             self.assertFalse(result)
 
@@ -116,8 +131,10 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.provision()
 
             self.role.is_package_installed.assert_called_once_with('aptitude')
-            self.role.execute.assert_called_once_with('apt-get install aptitude -y', stdout=False, sudo=True)
-            self.role.ensure_up_to_date.assert_called_once_with()
+            self.role.execute.call_args_list == [
+                call('apt-get update', stdout=False, sudo=True),
+                call('apt-get install aptitude -y', stdout=False, sudo=True),
+            ]
             self.role.ensure_package_installed.assert_called_once_with('curl')
 
     @istest
@@ -129,7 +146,6 @@ class AptitudeRoleTest(ProvyTestCase):
 
             self.role.is_package_installed.assert_called_once_with('aptitude')
             self.assertFalse(self.role.execute.called)
-            self.role.ensure_up_to_date.assert_called_once_with()
             self.role.ensure_package_installed.assert_called_once_with('curl')
 
     @istest

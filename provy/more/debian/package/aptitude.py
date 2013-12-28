@@ -51,6 +51,7 @@ class AptitudeRole(Role):
         '''
 
         if not self.is_package_installed('aptitude'):
+            self.execute('apt-get update')
             self.execute('apt-get install aptitude -y', stdout=False, sudo=True)
 
         self.ensure_package_installed('curl')
