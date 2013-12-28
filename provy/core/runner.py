@@ -20,6 +20,7 @@ from .server import ProvyServer
 
 
 def run(provfile_path, server_name, password, extra_options):
+
     module_name = provyfile_module_from(provfile_path)
     prov = import_module(module_name)
     servers = get_servers_for(prov, server_name)
@@ -27,7 +28,7 @@ def run(provfile_path, server_name, password, extra_options):
     build_prompt_options(servers, extra_options)
 
     for server in servers:
-        provision_server(server, provfile_path, prov)
+        provision_server(server, provfile_path, prov, password)
 
 
 def print_header(msg):
@@ -37,7 +38,7 @@ def print_header(msg):
     print("*" * len(msg))
 
 
-def provision_server(server, provfile_path, prov):
+def provision_server(server, provfile_path, prov, password):
     context = {
         'abspath': dirname(abspath(provfile_path)),
         'path': dirname(provfile_path),
@@ -58,7 +59,7 @@ def provision_server(server, provfile_path, prov):
 
     print_header("Provisioning %s..." % server.host_string)
 
-    settings_dict = dict(host_string=server.host_string, password=server.password)
+    settings_dict = dict(host_string=server.host_string, password=password)
     if server.ssh_key is not None:
         settings_dict['key_filename'] = server.ssh_key
 
