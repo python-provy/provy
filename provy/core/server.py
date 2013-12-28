@@ -39,7 +39,7 @@ class ProvyServer(object):
             "name": self.name,
             "address": self.address,
             "roles": self.roles,
-            "username": self.username,
+            "user": self.username,
             "options": self.options,
             "ssh_key": self.ssh_key
         }
@@ -54,5 +54,5 @@ class ProvyServer(object):
         self.username = state['user'].strip()
         self.password = state.get('password', None)
         self.options = state.get('options', {})
-        self.ssh_key = state.get('ssh_key', [])
+        self.ssh_key = state.get('ssh_key', None)
 

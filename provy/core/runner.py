@@ -27,14 +27,14 @@ def run(provfile_path, server_name, password, extra_options):
     build_prompt_options(servers, extra_options)
 
     for server in servers:
-        provision_server(ProvyServer.from_dict(server_name, server), provfile_path, prov)
+        provision_server(server, provfile_path, prov)
 
 
 def print_header(msg):
-    print
-    print "*" * len(msg)
-    print msg
-    print "*" * len(msg)
+    print()
+    print("*" * len(msg))
+    print(msg)
+    print("*" * len(msg))
 
 
 def provision_server(server, provfile_path, prov):
@@ -90,18 +90,20 @@ def aggregate_node_options(server, context):
 
 def build_prompt_options(servers, extra_options):
     for server in servers:
-        for option_name, option in server.get('options', {}).iteritems():
+        for option_name, option in server.options.iteritems():
             if isinstance(option, AskFor):
                 if option.key in extra_options:
                     value = extra_options[option.key]
                 else:
                     value = option.get_value(server)
-                server['options'][option_name] = value
+                server.options[option_name] = value
 
 
 def get_servers_for(prov, server_name):
-    return get_items(prov, server_name, 'servers', lambda item: isinstance(item, dict) and 'address' in item)
-
+    result = []
+    for name, server in  get_items(prov, server_name, 'servers', lambda item: isinstance(item, dict) and 'address' in item):
+        result.append(ProvyServer.from_dict(name, server))
+    return result
 
 def get_items(prov, item_name, item_key, test_func):
     if not hasattr(prov, item_key):
@@ -109,23 +111,26 @@ def get_items(prov, item_name, item_key, test_func):
 
     items = getattr(prov, item_key)
 
+    key = None
+
     for item_part in item_name.split('.'):
+        key = item_part
         items = items[item_part]
 
     found_items = []
-    recurse_items(items, test_func, found_items)
+    recurse_items(items, test_func, found_items, key)
     return found_items
 
 
-def recurse_items(col, test_func, found_items):
+def recurse_items(col, test_func, found_items, key=None):
     if not isinstance(col, dict):
         return
 
     if test_func(col):
-        found_items.append(col)
+        found_items.append([key, col])
     else:
         for key, val in col.iteritems():
             if test_func(val):
-                found_items.append(val)
+                found_items.append([key, val])
             else:
                 recurse_items(val, test_func, found_items)
