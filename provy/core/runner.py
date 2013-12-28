@@ -28,7 +28,7 @@ def run(provfile_path, server_name, password, extra_options):
     build_prompt_options(servers, extra_options)
 
     for server in servers:
-        provision_server(server, provfile_path, prov, password)
+        provision_server(server, provfile_path, password, prov)
 
 
 def print_header(msg):
@@ -38,7 +38,7 @@ def print_header(msg):
     print "*" * len(msg)
 
 
-def provision_server(server, provfile_path, prov, password):
+def provision_server(server, provfile_path, password, prov):
     context = {
         'abspath': dirname(abspath(provfile_path)),
         'path': dirname(provfile_path),
