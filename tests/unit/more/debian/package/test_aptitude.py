@@ -131,10 +131,10 @@ class AptitudeRoleTest(ProvyTestCase):
             self.role.provision()
 
             self.role.is_package_installed.assert_called_once_with('aptitude')
-            self.role.execute.call_args_list == [
+            self.assertEqual(self.role.execute.call_args_list, [
                 call('apt-get update', stdout=False, sudo=True),
                 call('apt-get install aptitude -y', stdout=False, sudo=True),
-            ]
+            ])
             self.role.ensure_package_installed.assert_called_once_with('curl')
 
     @istest
