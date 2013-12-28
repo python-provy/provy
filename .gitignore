@@ -9,6 +9,7 @@ provy.egg-info
 *.swo
 .vagrant
 .coverage
+coverate.xml
 .idea/
 setup.cfg
 cover/
