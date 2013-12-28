@@ -16,6 +16,8 @@ from provy.core.utils import import_module, AskFor, provyfile_module_from
 from provy.core.errors import ConfigurationError
 from jinja2 import FileSystemLoader, ChoiceLoader
 
+from .server import ProvyServer
+
 
 def run(provfile_path, server_name, password, extra_options):
     module_name = provyfile_module_from(provfile_path)
@@ -25,7 +27,7 @@ def run(provfile_path, server_name, password, extra_options):
     build_prompt_options(servers, extra_options)
 
     for server in servers:
-        provision_server(server_name, server, provfile_path, password, prov)
+        provision_server(ProvyServer.from_dict(server_name, server), provfile_path, prov)
 
 
 def print_header(msg):
@@ -35,19 +37,15 @@ def print_header(msg):
     print "*" * len(msg)
 
 
-def provision_server(name, server, provfile_path, password, prov):
-    host_string = "%s@%s" % (server['user'], server['address'].strip())
-    server = copy(server)
-    server['name'] = name
+def provision_server(server, provfile_path, prov):
     context = {
         'abspath': dirname(abspath(provfile_path)),
         'path': dirname(provfile_path),
-        'owner': server['user'],
+        'owner': server.username,
         'cleanup': [],
         'registered_loaders': [],
         '__provy': {
-            'current_server': server,
-            'host_string': host_string
+            'current_server': server
         }
     }
 
@@ -58,19 +56,19 @@ def provision_server(name, server, provfile_path, password, prov):
     ])
     context['loader'] = loader
 
-    print_header("Provisioning %s..." % host_string)
+    print_header("Provisioning %s..." % server.host_string)
 
-    settings_dict = dict(host_string=host_string, password=password)
-    if 'ssh_key' in server and server['ssh_key']:
-        settings_dict['key_filename'] = server['ssh_key']
+    settings_dict = dict(host_string=server.host_string, password=server.password)
+    if server.ssh_key is not None:
+        settings_dict['key_filename'] = server.ssh_key
 
     with _settings(**settings_dict):
-        context['host'] = server['address']
-        context['user'] = server['user']
+        context['host'] = server.address
+        context['user'] = server.username
         role_instances = []
 
         try:
-            for role in server['roles']:
+            for role in server.roles:
                 context['role'] = role
                 instance = role(prov, context)
                 role_instances.append(instance)
@@ -82,11 +80,11 @@ def provision_server(name, server, provfile_path, password, prov):
             for role in context['cleanup']:
                 role.cleanup()
 
-    print_header("%s provisioned!" % host_string)
+    print_header("%s provisioned!" % server.host_string)
 
 
 def aggregate_node_options(server, context):
-    for key, value in server.get('options', {}).iteritems():
+    for key, value in server.options.iteritems():
         context[key] = value
 
 
