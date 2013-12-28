@@ -6,6 +6,7 @@ This is the internal module responsible for running provy over the provyfile tha
 
 It's recommended not to tinker with this module, as it might prevent your provyfile from working.
 '''
+from copy import copy
 
 from os.path import abspath, dirname, join
 
@@ -24,7 +25,7 @@ def run(provfile_path, server_name, password, extra_options):
     build_prompt_options(servers, extra_options)
 
     for server in servers:
-        provision_server(server, provfile_path, password, prov)
+        provision_server(server_name, server, provfile_path, password, prov)
 
 
 def print_header(msg):
@@ -34,9 +35,10 @@ def print_header(msg):
     print "*" * len(msg)
 
 
-def provision_server(server, provfile_path, password, prov):
+def provision_server(name, server, provfile_path, password, prov):
     host_string = "%s@%s" % (server['user'], server['address'].strip())
-
+    server = copy(server)
+    server['name'] = name
     context = {
         'abspath': dirname(abspath(provfile_path)),
         'path': dirname(provfile_path),
