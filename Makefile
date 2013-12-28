@@ -13,7 +13,7 @@ docs:
 	@python docs.py
 
 test:
-	@env PYTHONHASHSEED=random PYTHONPATH=. nosetests --with-coverage --cover-min-percentage=$(COVER_PERCENTAGE) --cover-package=$(PROVY_COVER) --cover-erase --cover-html --with-yanc --with-xtraceback -e end_to_end tests/
+	@env PYTHONHASHSEED=random PYTHONPATH=. nosetests --with-coverage --cover-min-percentage=$(COVER_PERCENTAGE) --cover-package=$(PROVY_COVER) --cover-erase --cover-html  --cover-xml --with-yanc --with-xtraceback -e end_to_end tests/
 
 build: test
 	@echo Running syntax check...
