@@ -53,7 +53,6 @@ class AptitudeRole(Role):
         if not self.is_package_installed('aptitude'):
             self.execute('apt-get install aptitude -y', stdout=False, sudo=True)
 
-        self.ensure_up_to_date()
         self.ensure_package_installed('curl')
 
     def ensure_gpg_key(self, url):
@@ -289,6 +288,7 @@ class AptitudeRole(Role):
         '''
 
         if not self.is_package_installed(package_name):
+            self.ensure_up_to_date()
             self.__check_before_install(package_name)
             self.log('%s is not installed (via aptitude)! Installing...' % package_name)
             self.execute('%s install -y %s' % (self.aptitude, package_name), stdout=stdout, sudo=sudo)
@@ -321,6 +321,7 @@ class AptitudeRole(Role):
                         role.package_exists('nginx') # True
         '''
         try:
+            self.ensure_up_to_date()
             return bool(self.execute('%s show %s' % (self.aptitude, package), stdout=False))
         except SystemExit:
             return False
