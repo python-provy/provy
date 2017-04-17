@@ -205,7 +205,9 @@
             that configures our <a href="http://vagrantup.com/">Vagrant</a>
             instances. Open it up in your editor of choice and change it to
             read:</p>
-            <script src="https://gist.github.com/4541830.js?file=VagrantFile"></script>
+
+            <script src="https://gist.github.com/4505288.js?file=VagrantFile"></script>
+
             <p>Ok, now when we run vagrant we'll have two servers up:
             33.33.33.33 and 33.33.33.34. The first one will be our front-end
                server and the latter our back-end server.</p>
@@ -248,7 +250,8 @@
             named <em>files</em> in the same directory as <em>provyfile.py</em>.</p>
 
             <p>Now we can easily copy it to the <em>/home/frontend</em> directory:</p>
-            <script src="https://gist.github.com/4541830.js?file=provyfile3.py"></script>
+
+            <script src="https://gist.github.com/4505288.js?file=provyfile3.py"></script>
 
             <p>The <em>update_file</em> method tells provy to compare the
             source and target files and if they are different update the target
@@ -257,11 +260,12 @@
             <p>Next we must make sure <a
                 href="http://tornadoweb.org">Tornado</a> is installed.
             <em>provy</em> already comes with a role that does that:</p>
-            <script src="https://gist.github.com/4541881.js?file=provyfile4.py"></script>
+
+            <script src="https://gist.github.com/4547217.js?file=provyfile4.py"></script>
 
             <p>Now all we have to do is instruct supervisor to run four
             instances of our app:</p>
-            <script src="https://gist.github.com/4541881.js?file=provyfile5.py"></script>
+            <script src="https://gist.github.com/4547217.js?file=provyfile5.py"></script>
 
             <h3>Provisioning the front-end server</h3>
             <p>Ok, now let's get our front-end up and running. <em>provy</em>
@@ -279,7 +283,9 @@
 
             <p>Now all that's left is making sure that <em>provy</em>
             configures our front-end server:</p>
-            <script src="https://gist.github.com/4541881.js?file=provyfile6.py"></script>
+
+            <script src="https://gist.github.com/4547217.js?file=provyfile6.py"></script>
+
             <p>See how we passed the user name as an option to the
             <em>nginx.conf</em> template? <em>provy</em> allows this kind of
             template interaction in many places. For more information, check the
