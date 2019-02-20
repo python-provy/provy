@@ -1,3 +1,7 @@
+# WARNING
+
+This project is not maintained anymore.
+
 # provy
 
 provy is a provisioning service in python.
