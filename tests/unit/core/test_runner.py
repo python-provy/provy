@@ -33,11 +33,11 @@ class RunnerTest(ProvyTestCase):
         recurse_items(collection, foo_macher, found_items)
 
         expected_items = [
-            'foo name',
-            'some foo truck',
-            ['foo', 'bar'],
-            {
-                'foo': 'something undescribable',
-            },
+            ['my name', 'foo name'],
+            ['car', 'some foo truck'],
+            ['books',
+                ['foo', 'bar']],
+            ['others',
+                {'foo': 'something undescribable'}]
         ]
         self.assertListEqual(sorted(found_items), sorted(expected_items), found_items)

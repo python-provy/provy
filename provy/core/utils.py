@@ -50,5 +50,5 @@ class AskFor(object):
         self.question = question
 
     def get_value(self, server):
-        value = getpass("[Server at %s] - %s: " % (server['address'], self.question))
+        value = getpass("[Server at %s] - %s: " % (server.address, self.question))
         return value
