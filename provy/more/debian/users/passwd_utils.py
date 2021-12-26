@@ -25,7 +25,7 @@ def random_salt_function(salt_len=12):
 
 def hash_password_function(password, salt=None, magic="6"):
     """
-    Hashes password using `crypt` function on local machine (which is not harmfull,
+    Hashes password using `crypt` function on local machine (which is not harmful,
     since these hashes are well-specified.
 
     :param password: Plaintext password to be hashed.

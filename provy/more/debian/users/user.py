@@ -155,7 +155,7 @@ class UserRole(Role):
         :param is_admin: If set to :data:`True` the user is added to the 'admin' (or 'sudo' if provisioning to Ubuntu) user group as well. Defaults to :data:`False`.
         :type is_admin: :class:`bool`
         :param password_encrypted:
-            If set to :data:`True` password is considered to be in ecrypted form
+            If set to :data:`True` password is considered to be in encrypted form
             (as found in /etc/shadow). To generate encrypted form of password you
             may use :func:`provy.more.debian.users.passwd_utils.hash_password_function`.
             defaults to :data:`False`

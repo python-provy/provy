@@ -17,4 +17,4 @@ If you just want to provision another role in your role, you can use::
         def provision(self):
             self.provision_role(TornadoRole)
 
-The *provision_role* method does exactly the same as the *using* method, except it does not enter a with block. This should be used when you don't wnat to call anything in the role, instead just have it provisioned.
+The *provision_role* method does exactly the same as the *using* method, except it does not enter a with block. This should be used when you don't want to call anything in the role, instead just have it provisioned.
