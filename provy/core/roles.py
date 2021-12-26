@@ -364,7 +364,7 @@ class Role(object):
 
         :param str path: Path to list on the remote side.
 
-        :return: Remote directory lisitng.
+        :return: Remote directory listing.
 
         :rtype: list
         """

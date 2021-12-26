@@ -116,7 +116,7 @@ class AppArmorRole(Role):
 
     def audit(self, *executables):
         '''
-        Puts the executables to audit mode - the policies are enforced, and all actions (legal and ilegal ones) will be logged -.
+        Puts the executables to audit mode - the policies are enforced, and all actions (legal and illegal ones) will be logged -.
 
         :param executables: The executables to change.
         :type executables: positional arguments of :class:`str`
